@@ -49,3 +49,4 @@ Thumbs.db
 *.wmv
 
 .parcel-cache
+public/pdfjs-2.5.207-dist

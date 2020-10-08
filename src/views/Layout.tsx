@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { PDFView } from './pdfView';
+import PDFViewer from './PDFViewer';
+import PDFJSBackend from '../backend/pdfjs';
 
 export interface ILayoutProps {}
 
@@ -12,7 +13,7 @@ export const Layout: React.FunctionComponent<ILayoutProps> = () => {
           <h1>My Application</h1>
         </div>
         <div className="body">
-          <PDFView />
+          <PDFViewer backend={PDFJSBackend} src="/example.pdf" />
         </div>
         <div className="footer">
           <p>Footer</p>
