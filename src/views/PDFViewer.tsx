@@ -1,28 +1,39 @@
 import * as React from 'react';
-//https://www.pdftron.com/blog/react/how-to-build-a-react-pdf-viewer/
-export interface IPDFViewerProps {}
 
-export default class PDFViewer extends React.Component<IPDFViewerProps> {
-  constructor(props) {
-    super(props);
-    this.viewerRef = React.createRef();
-    this.backend = new props.backend();
-  }
+import * as pdfjsLib from 'pdfjs-dist';
 
+const pdfPath = '/public/example.pdf';
+
+export default class PDFViewer extends React.Component {
   componentDidMount() {
-    const { src } = this.props;
-    const element = this.viewerRef.current;
+    // TODO FIX FAKE WORKER
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '../../pdf.worker.js';
 
-    this.backend.init(src, element);
+    const loadingTask = pdfjsLib.getDocument(pdfPath);
+
+    loadingTask.promise
+      .then((pdfDocument) => {
+        // Request a first page
+        return pdfDocument.getPage(1).then(function (pdfPage) {
+          // Display page on the existing canvas with 100% scale.
+          const viewport = pdfPage.getViewport({ scale: 1.0 });
+          const canvas = document.getElementById('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          const renderTask = pdfPage.render({
+            canvasContext: ctx,
+            viewport: viewport,
+          });
+          return renderTask.promise;
+        });
+      })
+      .catch((reason) => {
+        console.error('Error: ' + reason);
+      });
   }
 
-  render() {
-    return (
-      <div
-        ref={this.viewerRef}
-        id="pdf-viewer"
-        style={{ width: '100%', height: '100%' }}
-      ></div>
-    );
+  render(): React.ReactElement {
+    return <canvas id="canvas" />;
   }
 }
