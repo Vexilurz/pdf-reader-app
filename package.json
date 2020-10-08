@@ -29,6 +29,7 @@
     "pack": "npm run build-prod && npx electron-packager ./dist --out ./pack --overwrite"
   },
   "dependencies": {
+    "pdfjs-dist": "^2.5.207",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0"
