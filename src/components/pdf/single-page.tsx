@@ -5,6 +5,7 @@ import { Document, Page } from 'react-pdf';
 
 interface ISinglePagePDFViewerProps {
   pdf: string;
+  parentWidth: number;
 }
 
 interface ISinglePagePDFViewerState {
@@ -12,6 +13,7 @@ interface ISinglePagePDFViewerState {
   pageNumber: number;
   parentDiv?: any;
   scale: number;
+  page?: any;
 }
 
 export default class SinglePagePDFViewer extends React.Component<
@@ -23,20 +25,22 @@ export default class SinglePagePDFViewer extends React.Component<
     this.state = { numPages: 0, pageNumber: 1, scale: 1.0 };
   }
 
-  componentDidMount() {
-    // todo: deprecated
-    // https://ru.reactjs.org/docs/strict-mode.html
-    const parent = DOM.findDOMNode(this).parentNode;
-    this.setState({ parentDiv: parent });
+  componentDidMount() {}
+
+  componentWillReceiveProps(nextProps) {
+    if (Math.abs(nextProps.parentWidth - this.props.parentWidth) >= 2) {
+      if (this.state.page) this.calcScale(this.state.page);
+    }
   }
 
   onPageLoad = (page) => {
+    this.setState({ page });
     this.removeTextLayerOffset();
     this.calcScale(page);
   };
 
   calcScale = (page) => {
-    const pageScale = this.state.parentDiv.clientWidth / page.originalWidth;
+    const pageScale = this.props.parentWidth / page.originalWidth;
     if (this.state.scale !== pageScale) {
       this.setState({ scale: pageScale });
     }
