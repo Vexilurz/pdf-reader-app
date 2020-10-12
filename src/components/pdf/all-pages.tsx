@@ -1,24 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Document, Page } from 'react-pdf';
 
-export default function AllPages(props) {
-  const [numPages, setNumPages] = useState(null);
+interface IAllPagesPDFViewerProps {
+  pdf: string;
+}
 
-  function onDocumentLoadSuccess({ numPages }) {
-    setNumPages(numPages);
+interface IAllPagesPDFViewerState {
+  numPages: number;
+}
+
+export default class AllPagesPDFViewer extends React.Component<
+  IAllPagesPDFViewerProps,
+  IAllPagesPDFViewerState
+> {
+  constructor(props) {
+    super(props);
+    this.state = { numPages: 0 };
   }
 
-  const { pdf } = props;
+  onDocumentLoadSuccess = ({ numPages }) => {
+    this.setState({ numPages });
+  };
 
-  return (
-    <Document
-      file={pdf}
-      // options={{ workerSrc: '/pdf.worker.js' }}
-      onLoadSuccess={onDocumentLoadSuccess}
-    >
-      {Array.from(new Array(numPages), (el, index) => (
-        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
-      ))}
-    </Document>
-  );
+  render = (): React.ReactElement => {
+    const { pdf } = this.props;
+    const { numPages } = this.state;
+    return (
+      <Document file={pdf} onLoadSuccess={this.onDocumentLoadSuccess}>
+        {Array.from(new Array(numPages), (el, index) => (
+          <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+        ))}
+      </Document>
+    );
+  };
 }

@@ -1,53 +1,70 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Document, Page } from 'react-pdf';
 
-export default function SinglePage(props) {
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1); //setting 1 to show fisrt page
+interface ISinglePagePDFViewerProps {
+  pdf: string;
+}
 
-  function onDocumentLoadSuccess({ numPages }) {
-    setNumPages(numPages);
-    setPageNumber(1);
+interface ISinglePagePDFViewerState {
+  numPages: number;
+  pageNumber: number;
+}
+
+export default class SinglePagePDFViewer extends React.Component<
+  ISinglePagePDFViewerProps,
+  ISinglePagePDFViewerState
+> {
+  constructor(props) {
+    super(props);
+    this.state = { numPages: 0, pageNumber: 1 };
   }
 
-  function changePage(offset) {
-    setPageNumber((prevPageNumber) => prevPageNumber + offset);
-  }
+  onDocumentLoadSuccess = ({ numPages }) => {
+    this.setState({ numPages });
+    this.setState({ pageNumber: 1 });
+  };
 
-  function previousPage() {
-    changePage(-1);
-  }
+  changePage = (offset) => {
+    const { pageNumber } = this.state;
+    this.setState({ pageNumber: pageNumber + offset });
+  };
 
-  function nextPage() {
-    changePage(1);
-  }
+  previousPage = () => {
+    this.changePage(-1);
+  };
 
-  const { pdf } = props;
+  nextPage = () => {
+    this.changePage(1);
+  };
 
-  return (
-    <>
-      <Document
-        file={pdf}
-        // options={{ workerSrc: '/pdf.worker.js' }}
-        onLoadSuccess={onDocumentLoadSuccess}
-      >
-        <Page pageNumber={pageNumber} />
-      </Document>
-      <div>
-        <p>
-          Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
-        </p>
-        <button type="button" disabled={pageNumber <= 1} onClick={previousPage}>
-          Previous
-        </button>
-        <button
-          type="button"
-          disabled={pageNumber >= numPages}
-          onClick={nextPage}
-        >
-          Next
-        </button>
-      </div>
-    </>
-  );
+  render = (): React.ReactElement => {
+    const { pdf } = this.props;
+    const { pageNumber, numPages } = this.state;
+    return (
+      <>
+        <Document file={pdf} onLoadSuccess={this.onDocumentLoadSuccess}>
+          <Page pageNumber={pageNumber} />
+        </Document>
+        <div>
+          <p>
+            Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
+          </p>
+          <button
+            type="button"
+            disabled={pageNumber <= 1}
+            onClick={this.previousPage}
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            disabled={pageNumber >= numPages}
+            onClick={this.nextPage}
+          >
+            Next
+          </button>
+        </div>
+      </>
+    );
+  };
 }
