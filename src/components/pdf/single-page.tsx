@@ -45,10 +45,26 @@ export default class SinglePagePDFViewer extends React.Component<
         <Document file={pdf} onLoadSuccess={this.onDocumentLoadSuccess}>
           <Page pageNumber={pageNumber} />
         </Document>
-        <div>
-          <p>
-            Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
-          </p>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            width: '100%',
+            padding: '10px',
+          }}
+        >
+          Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            width: '100%',
+            padding: '10px',
+          }}
+        >
           <button
             type="button"
             disabled={pageNumber <= 1}
