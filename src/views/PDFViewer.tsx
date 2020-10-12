@@ -12,7 +12,7 @@ export default class PDFViewer extends React.Component<IPDFViewerProps> {
 
   render(): React.ReactElement {
     return (
-      <div className="pdf-viewer">
+      <div className="pdf-viewer" id="pdf-viewer">
         <h4>Single Page</h4>
         <SinglePagePDFViewer pdf={pdfPath} />
 
