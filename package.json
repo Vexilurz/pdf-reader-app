@@ -26,15 +26,13 @@
     "build-prod": "npx webpack --env.NODE_ENV=production --env.target=render && npx webpack --env.NODE_ENV=production --env.target=main",
     "server": "npx webpack-dev-server --env.NODE_ENV=development --env.target=render --hot",
     "start": "npx webpack --env.NODE_ENV=development --env.target=main && npx electron ./dist/.",
-    "start:parcel": "parcel src/index.html",
     "pack": "npm run build-prod && npx electron-packager ./dist --out ./pack --overwrite"
   },
   "dependencies": {
-    "@types/pdfjs-dist": "^2.1.5",
     "gulp": "^4.0.2",
-    "pdfjs-dist": "^2.5.207",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-pdf": "^5.0.0",
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
@@ -74,7 +72,6 @@
     "html-webpack-plugin": "^4.4.1",
     "mini-css-extract-plugin": "^0.11.2",
     "node-sass": "^4.14.1",
-    "parcel": "^2.0.0-beta.1",
     "prettier": "^2.1.2",
     "sass": "^1.27.0",
     "sass-loader": "^10.0.2",
