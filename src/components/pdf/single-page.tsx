@@ -1,3 +1,4 @@
+import './pdf.scss';
 import React from 'react';
 import { Document, Page } from 'react-pdf';
 
@@ -18,6 +19,18 @@ export default class SinglePagePDFViewer extends React.Component<
     super(props);
     this.state = { numPages: 0, pageNumber: 1 };
   }
+
+  removeTextLayerOffset = () => {
+    const textLayers = document.querySelectorAll(
+      '.react-pdf__Page__textContent'
+    );
+    textLayers.forEach((layer) => {
+      const { style } = layer;
+      style.top = '0';
+      style.left = '0';
+      style.transform = '';
+    });
+  };
 
   onDocumentLoadSuccess = ({ numPages }) => {
     this.setState({ numPages });
@@ -41,9 +54,12 @@ export default class SinglePagePDFViewer extends React.Component<
     const { pdf } = this.props;
     const { pageNumber, numPages } = this.state;
     return (
-      <>
+      <div>
         <Document file={pdf} onLoadSuccess={this.onDocumentLoadSuccess}>
-          <Page pageNumber={pageNumber} />
+          <Page
+            pageNumber={pageNumber}
+            onLoadSuccess={this.removeTextLayerOffset}
+          />
         </Document>
         <div
           style={{
@@ -80,7 +96,7 @@ export default class SinglePagePDFViewer extends React.Component<
             Next
           </button>
         </div>
-      </>
+      </div>
     );
   };
 }

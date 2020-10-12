@@ -1,0 +1,49 @@
+.react-pdf__Page.pdf-page {
+  // display: flex;
+  display: inline-block;
+  justify-content: center;
+}
+
+// .react-pdf__Page__textContent {
+//   display: none;
+// }
+
+.react-pdf__Document {
+  line-height: 1;
+}
+
+.react-pdf__Page__textContent span {
+  opacity: 0.2;
+}
+
+.react-pdf__Page__textContent span::selection {
+  background-color: blue;
+}
+
+.react-pdf__Document {
+  line-height: initial;
+}
+
+// .react-pdf__Page__textContent.textLayer {
+//   position: absolute;
+//   left: 0;
+//   top: 0;
+//   right: 0;
+//   bottom: 0;
+//   overflow: hidden;
+//   opacity: 0.2;
+//   line-height: 1;
+// }
+
+// .react-pdf__Page__textContent.textLayer > span {
+//   color: transparent;
+//   position: absolute;
+//   white-space: pre;
+//   cursor: text;
+//   -webkit-transform-origin: 0% 0%;
+//   transform-origin: 0% 0%;
+// }
+
+// .react-pdf__Page__textContent.textLayer ::selection {
+//   background: rgb(0, 0, 255);
+// }

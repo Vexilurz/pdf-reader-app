@@ -16,14 +16,14 @@ export default class PDFViewer extends React.Component<IPDFViewerProps> {
         <h4>Single Page</h4>
         <SinglePagePDFViewer pdf={pdfPath} />
 
-        <hr />
+        {/* <hr />
 
         <h4>All Pages</h4>
         <div className="all-page-container">
           <AllPagesPDFViewer pdf={pdfPath} />
         </div>
 
-        <hr />
+        <hr /> */}
       </div>
     );
   }
