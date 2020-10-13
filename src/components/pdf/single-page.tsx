@@ -13,6 +13,7 @@ interface ISinglePagePDFViewerState {
   pageNumber: number;
   scale: number;
   page?: any;
+  searchText?: string;
 }
 
 export default class SinglePagePDFViewer extends React.Component<
@@ -26,6 +27,34 @@ export default class SinglePagePDFViewer extends React.Component<
 
   componentDidMount() {}
 
+  highlightPattern = (text, pattern) => {
+    const splitText = text.split(pattern);
+
+    if (splitText.length <= 1) {
+      return text;
+    }
+
+    const matches = text.match(pattern);
+
+    return splitText.reduce(
+      (arr, element, index) =>
+        matches[index]
+          ? [...arr, element, <mark key={index}>{matches[index]}</mark>]
+          : [...arr, element],
+      []
+    );
+  };
+
+  makeTextRenderer = (searchText) => {
+    return (textItem) => {
+      return this.highlightPattern(textItem.str, searchText);
+    };
+  };
+
+  onChange = (event) => {
+    this.setState({ searchText: event.target.value });
+  };
+
   // componentWillReceiveProps(nextProps) {
   //   if (Math.abs(nextProps.parentWidth - this.props.parentWidth) >= 2) {
   //     if (this.state.page) this.calcScale(this.state.page);
@@ -33,7 +62,6 @@ export default class SinglePagePDFViewer extends React.Component<
   // }
 
   onPageLoad = (page) => {
-    console.log('page', page);
     this.setState({ page });
     this.removeTextLayerOffset();
     this.calcScale(page);
@@ -78,14 +106,24 @@ export default class SinglePagePDFViewer extends React.Component<
 
   render = (): React.ReactElement => {
     const { pdf } = this.props;
-    const { pageNumber, numPages, scale } = this.state;
+    const { pageNumber, numPages, scale, searchText } = this.state;
     return (
       <div>
+        <div>
+          <label htmlFor="search">Search:</label>
+          <input
+            type="search"
+            id="search"
+            value={searchText}
+            onChange={this.onChange}
+          />
+        </div>
         <Document file={pdf} onLoadSuccess={this.onDocumentLoadSuccess}>
           <Page
             pageNumber={pageNumber}
             onLoadSuccess={this.onPageLoad}
-            scale={scale}
+            // scale={scale}
+            customTextRenderer={this.makeTextRenderer(searchText)}
           />
         </Document>
         <div
