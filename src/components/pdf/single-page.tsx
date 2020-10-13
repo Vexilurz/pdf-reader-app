@@ -53,6 +53,7 @@ export default class SinglePagePDFViewer extends React.Component<
   getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
     const page = await this.documentRef.current.getPage(pageNumber);
     const textContent = await page.getTextContent();
+    console.log('getItemOffset', itemIndex, textContent);
 
     return textContent.items
       .slice(0, itemIndex)
@@ -81,17 +82,32 @@ export default class SinglePagePDFViewer extends React.Component<
   };
 
   getTotalOffset = async (container, offset) => {
+    console.log('getTotalOffset', container, offset);
     const textLayerItem = container.parentNode;
+    console.log('textLayerItem', textLayerItem);
     const textLayer = textLayerItem.parentNode;
+    console.log('textLayer', textLayer);
+
     const page = textLayer.parentNode;
+    console.log('page', page);
 
     const pageNumber = parseInt(page.dataset.pageNumber, 10);
+    console.log('pageNumber', pageNumber);
     const itemIndex = this.getItemIndex(textLayerItem);
+    console.log('itemIndex', itemIndex);
 
     const [pageOffset, itemOffset] = await Promise.all([
       this.getPageOffset(pageNumber),
       this.getItemOffset(pageNumber, itemIndex),
     ]);
+    console.log(
+      'pageOffset',
+      pageOffset,
+      'itemOffset',
+      itemOffset,
+      'return',
+      pageOffset + itemOffset + offset
+    );
 
     return pageOffset + itemOffset + offset;
   };
@@ -134,7 +150,10 @@ export default class SinglePagePDFViewer extends React.Component<
     if (start > counter + text.length) {
       return text;
     } else {
-      const splitText = splitAt(start - counter, end - counter)(text);
+      let splitText;
+      // hard fix
+      if (start - counter < 0) splitText = ['', '', text];
+      else splitText = splitAt(start - counter, end - counter)(text);
       console.log('splitAt', start - counter, end - counter, splitText);
       splitText[1] = (
         <mark key={counter} style={{ backgroundColor: 'black' }}>
@@ -147,7 +166,8 @@ export default class SinglePagePDFViewer extends React.Component<
   };
 
   makeNewTextRenderer = (start, end) => {
-    let counter = 0;
+    console.log('makeNewTextRenderer', start, end);
+    let counter = -1;
     return (textItem) => {
       counter += 1;
       if (textItem.str) {
@@ -249,15 +269,20 @@ export default class SinglePagePDFViewer extends React.Component<
       return;
     }
 
+    const rangeAt0 = selection.getRangeAt(0);
+
     const {
       commonAncestorContainer,
       endContainer,
       endOffset,
       startContainer,
       startOffset,
-    } = selection.getRangeAt(0);
+    } = rangeAt0;
 
-    console.log('selection.getRangeAt(0)', selection.getRangeAt(0));
+    console.log('selection.getRangeAt(0)', rangeAt0);
+    console.log('startOffset', startOffset, 'endOffset', endOffset);
+    console.log('startContainer', startContainer);
+    console.log('endContainer', endContainer);
 
     if (!this.containerRef.current.contains(commonAncestorContainer)) {
       // Selection partially outside PDF document
