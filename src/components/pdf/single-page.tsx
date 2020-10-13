@@ -130,11 +130,12 @@ export default class SinglePagePDFViewer extends React.Component<
 
   newPattern = (text, start, end, counter) => {
     counter -= text?.length;
-    console.log(counter);
+    console.log(counter, text);
     if (start > counter + text.length) {
       return text;
     } else {
       const splitText = splitAt(start - counter, end - counter)(text);
+      console.log('splitAt', start - counter, end - counter, splitText);
       splitText[1] = (
         <mark key={counter} style={{ backgroundColor: 'black' }}>
           {splitText[1]}
@@ -181,7 +182,7 @@ export default class SinglePagePDFViewer extends React.Component<
 
     const textContent = await page.getTextContent();
 
-    console.log(textContent);
+    console.log('textContent', textContent);
 
     /**
      * {
@@ -241,6 +242,8 @@ export default class SinglePagePDFViewer extends React.Component<
 
     const selection = window.getSelection();
 
+    console.log('selection', selection);
+
     if (selection?.toString() === '') {
       // Selection is empty
       return;
@@ -254,6 +257,8 @@ export default class SinglePagePDFViewer extends React.Component<
       startOffset,
     } = selection.getRangeAt(0);
 
+    console.log('selection.getRangeAt(0)', selection.getRangeAt(0));
+
     if (!this.containerRef.current.contains(commonAncestorContainer)) {
       // Selection partially outside PDF document
       return;
@@ -265,7 +270,7 @@ export default class SinglePagePDFViewer extends React.Component<
     ]);
 
     console.log(`Selected ${startTotalOffset} to ${endTotalOffset}`);
-    this.setState({ start: startTotalOffset, end: endTotalOffset });
+    this.setState({ start: startTotalOffset + 1, end: endTotalOffset + 1 });
   };
 
   render = (): React.ReactElement => {
@@ -281,6 +286,9 @@ export default class SinglePagePDFViewer extends React.Component<
             value={searchText}
             onChange={this.onChange}
           />
+        </div>
+        <div>
+          Start: {start}, End: {end}
         </div>
         <Document
           file={pdf}
