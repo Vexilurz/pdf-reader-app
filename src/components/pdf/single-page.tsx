@@ -1,3 +1,5 @@
+// @
+/* eslint-disable */
 import './pdf.scss';
 import React from 'react';
 import * as DOM from 'react-dom';
@@ -14,16 +16,85 @@ interface ISinglePagePDFViewerState {
   scale: number;
   page?: any;
   searchText?: string;
+  setPages?: Object;
+  start: number;
+  end: number;
 }
+
+const splitAt = (start, end) => (x) => [
+  x.slice(0, start),
+  x.slice(start, end),
+
+  x.slice(end),
+];
 
 export default class SinglePagePDFViewer extends React.Component<
   ISinglePagePDFViewerProps,
   ISinglePagePDFViewerState
 > {
-  constructor(props) {
+  private containerRef: React.RefObject<any>;
+  private documentRef: React.RefObject<any>;
+
+  constructor(props: ISinglePagePDFViewerProps) {
     super(props);
-    this.state = { numPages: 0, pageNumber: 1, scale: 1.0 };
+    this.state = {
+      numPages: 0,
+      pageNumber: 1,
+      scale: 1.0,
+      setPages: {},
+      start: 0,
+      end: 0,
+    };
+
+    this.containerRef = React.createRef();
+    this.documentRef = React.createRef();
   }
+
+  getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
+    const page = await this.documentRef.current.getPage(pageNumber);
+    const textContent = await page.getTextContent();
+
+    return textContent.items
+      .slice(0, itemIndex)
+      .reduce((acc: number, item) => acc + item.str.length, 0);
+  };
+
+  // Calculates total length of all previous pages
+  getPageOffset = async (pageNumber) => {
+    const pageLengths = await Promise.all(
+      Array.from({ length: pageNumber - 1 }, (_, index) =>
+        this.getItemOffset(index + 1)
+      )
+    );
+
+    return pageLengths.reduce((acc, pageLength) => acc + pageLength, 0);
+  };
+
+  getItemIndex = (item) => {
+    let index = 0;
+
+    while ((item = item.previousSibling) !== null) {
+      index++;
+    }
+
+    return index;
+  };
+
+  getTotalOffset = async (container, offset) => {
+    const textLayerItem = container.parentNode;
+    const textLayer = textLayerItem.parentNode;
+    const page = textLayer.parentNode;
+
+    const pageNumber = parseInt(page.dataset.pageNumber, 10);
+    const itemIndex = this.getItemIndex(textLayerItem);
+
+    const [pageOffset, itemOffset] = await Promise.all([
+      this.getPageOffset(pageNumber),
+      this.getItemOffset(pageNumber, itemIndex),
+    ]);
+
+    return pageOffset + itemOffset + offset;
+  };
 
   componentDidMount() {}
 
@@ -36,13 +107,50 @@ export default class SinglePagePDFViewer extends React.Component<
 
     const matches = text.match(pattern);
 
-    return splitText.reduce(
+    const tmp = splitText.reduce(
       (arr, element, index) =>
         matches[index]
-          ? [...arr, element, <mark key={index}>{matches[index]}</mark>]
+          ? [
+              ...arr,
+              element,
+              <mark key={index} style={{ backgroundColor: 'black' }}>
+                {matches[index]}
+              </mark>,
+            ]
           : [...arr, element],
       []
     );
+
+    console.log(tmp);
+    return tmp;
+  };
+
+  newPattern = (text, start, end, counter) => {
+    counter -= text?.length;
+    console.log(counter);
+    if (start > counter + text.length) {
+      return text;
+    } else {
+      const splitText = splitAt(start - counter, end - counter)(text);
+      splitText[1] = (
+        <mark key={counter} style={{ backgroundColor: 'black' }}>
+          {splitText[1]}
+        </mark>
+      );
+
+      return splitText;
+    }
+  };
+
+  makeNewTextRenderer = (start, end) => {
+    let counter = 0;
+    return (textItem) => {
+      counter += 1;
+      if (textItem.str) {
+        counter += textItem.str.length;
+      }
+      return this.newPattern(textItem.str, start, end, counter);
+    };
   };
 
   makeTextRenderer = (searchText) => {
@@ -61,11 +169,27 @@ export default class SinglePagePDFViewer extends React.Component<
   //   }
   // }
 
-  onPageLoad = (page) => {
+  onPageLoad = async (page) => {
     this.setState({ page });
     this.removeTextLayerOffset();
     this.calcScale(page);
+
+    const textContent = await page.getTextContent();
+
+    console.log(textContent);
+
+    /**
+     * {
+     *  page: 1
+     *  startIndex: 1234
+     *  len: 10
+     *  label: "dasds"
+     *  text: "asdasd"
+     * }
+     *
+     */
   };
+  //"Dynamic languages such as JavaScript are more difficult to com-"
 
   calcScale = (page) => {
     const pageScale = this.props.parentWidth / page.originalWidth;
@@ -86,9 +210,13 @@ export default class SinglePagePDFViewer extends React.Component<
     });
   };
 
-  onDocumentLoadSuccess = ({ numPages }) => {
+  onDocumentLoadSuccess = (document) => {
+    const { numPages } = document;
+
     this.setState({ numPages });
     this.setState({ pageNumber: 1 });
+
+    this.documentRef.current = document;
   };
 
   changePage = (offset) => {
@@ -106,7 +234,7 @@ export default class SinglePagePDFViewer extends React.Component<
 
   render = (): React.ReactElement => {
     const { pdf } = this.props;
-    const { pageNumber, numPages, scale, searchText } = this.state;
+    const { pageNumber, numPages, scale, searchText, start, end } = this.state;
     return (
       <div>
         <div>
@@ -118,12 +246,53 @@ export default class SinglePagePDFViewer extends React.Component<
             onChange={this.onChange}
           />
         </div>
-        <Document file={pdf} onLoadSuccess={this.onDocumentLoadSuccess}>
+        <Document
+          file={pdf}
+          onLoadSuccess={this.onDocumentLoadSuccess}
+          inputRef={(ref) => (this.containerRef.current = ref)}
+          onMouseUp={async () => {
+            if (
+              this.containerRef.current === null ||
+              this.documentRef.current === null
+            ) {
+              // Not loaded yet
+              return;
+            }
+
+            const selection = window.getSelection();
+
+            if (selection?.toString() === '') {
+              // Selection is empty
+              return;
+            }
+
+            const {
+              commonAncestorContainer,
+              endContainer,
+              endOffset,
+              startContainer,
+              startOffset,
+            } = selection.getRangeAt(0);
+
+            if (!this.containerRef.current.contains(commonAncestorContainer)) {
+              // Selection partially outside PDF document
+              return;
+            }
+
+            const [startTotalOffset, endTotalOffset] = await Promise.all([
+              this.getTotalOffset(startContainer, startOffset),
+              this.getTotalOffset(endContainer, endOffset),
+            ]);
+
+            console.log(`Selected ${startTotalOffset} to ${endTotalOffset}`);
+            this.setState({ start: startTotalOffset, end: endTotalOffset });
+          }}
+        >
           <Page
             pageNumber={pageNumber}
             onLoadSuccess={this.onPageLoad}
             // scale={scale}
-            customTextRenderer={this.makeTextRenderer(searchText)}
+            customTextRenderer={this.makeNewTextRenderer(start, end)}
           />
         </Document>
         <div
