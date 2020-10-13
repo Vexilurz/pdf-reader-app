@@ -2,7 +2,6 @@
 /* eslint-disable */
 import './pdf.scss';
 import React from 'react';
-import * as DOM from 'react-dom';
 import { Document, Page } from 'react-pdf';
 
 interface ISinglePagePDFViewerProps {
@@ -170,9 +169,7 @@ export default class SinglePagePDFViewer extends React.Component<
   // }
 
   onPageLoad = async (page) => {
-    this.setState({ page });
     this.removeTextLayerOffset();
-    this.calcScale(page);
 
     const textContent = await page.getTextContent();
 
@@ -190,13 +187,6 @@ export default class SinglePagePDFViewer extends React.Component<
      */
   };
   //"Dynamic languages such as JavaScript are more difficult to com-"
-
-  calcScale = (page) => {
-    const pageScale = this.props.parentWidth / page.originalWidth;
-    if (this.state.scale !== pageScale) {
-      this.setState({ scale: pageScale });
-    }
-  };
 
   removeTextLayerOffset = () => {
     const textLayers = document.querySelectorAll(
@@ -234,7 +224,7 @@ export default class SinglePagePDFViewer extends React.Component<
 
   render = (): React.ReactElement => {
     const { pdf } = this.props;
-    const { pageNumber, numPages, scale, searchText, start, end } = this.state;
+    const { pageNumber, numPages, searchText, start, end } = this.state;
     return (
       <div>
         <div>

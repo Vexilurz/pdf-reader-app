@@ -29,11 +29,9 @@
     "pack": "npm run build-prod && npx electron-packager ./dist --out ./pack --overwrite"
   },
   "dependencies": {
-    "gulp": "^4.0.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-pdf": "^5.0.0",
-    "react-resize-detector": "^5.2.0",
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
