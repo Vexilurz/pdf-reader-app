@@ -11,7 +11,6 @@ interface ISinglePagePDFViewerProps {
 interface ISinglePagePDFViewerState {
   numPages: number;
   pageNumber: number;
-  parentDiv?: any;
   scale: number;
   page?: any;
 }
@@ -27,13 +26,14 @@ export default class SinglePagePDFViewer extends React.Component<
 
   componentDidMount() {}
 
-  componentWillReceiveProps(nextProps) {
-    if (Math.abs(nextProps.parentWidth - this.props.parentWidth) >= 2) {
-      if (this.state.page) this.calcScale(this.state.page);
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if (Math.abs(nextProps.parentWidth - this.props.parentWidth) >= 2) {
+  //     if (this.state.page) this.calcScale(this.state.page);
+  //   }
+  // }
 
   onPageLoad = (page) => {
+    console.log('page', page);
     this.setState({ page });
     this.removeTextLayerOffset();
     this.calcScale(page);
