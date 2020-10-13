@@ -2,6 +2,7 @@
 /* eslint-disable */
 import './pdf.scss';
 import React from 'react';
+import * as DOM from 'react-dom';
 import { Document, Page } from 'react-pdf';
 
 interface ISinglePagePDFViewerProps {
@@ -13,7 +14,7 @@ interface ISinglePagePDFViewerState {
   numPages: number;
   pageNumber: number;
   scale: number;
-  page?: any;
+  parentDiv?: any;
   searchText?: string;
   setPages?: Object;
   start: number;
@@ -95,7 +96,10 @@ export default class SinglePagePDFViewer extends React.Component<
     return pageOffset + itemOffset + offset;
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    const parent = DOM.findDOMNode(this).parentNode;
+    this.setState({ parentDiv: parent });
+  }
 
   highlightPattern = (text, pattern) => {
     const splitText = text.split(pattern);
@@ -162,14 +166,18 @@ export default class SinglePagePDFViewer extends React.Component<
     this.setState({ searchText: event.target.value });
   };
 
-  // componentWillReceiveProps(nextProps) {
-  //   if (Math.abs(nextProps.parentWidth - this.props.parentWidth) >= 2) {
-  //     if (this.state.page) this.calcScale(this.state.page);
-  //   }
-  // }
+  calcScale = (page) => {
+    if (this.state.parentDiv) {
+      const pageScale = this.state.parentDiv.clientWidth / page.originalWidth;
+      if (this.state.scale !== pageScale) {
+        this.setState({ scale: pageScale });
+      }
+    }
+  };
 
   onPageLoad = async (page) => {
     this.removeTextLayerOffset();
+    this.calcScale(page);
 
     const textContent = await page.getTextContent();
 
@@ -222,9 +230,47 @@ export default class SinglePagePDFViewer extends React.Component<
     this.changePage(1);
   };
 
+  onMouseUp = async () => {
+    if (
+      this.containerRef.current === null ||
+      this.documentRef.current === null
+    ) {
+      // Not loaded yet
+      return;
+    }
+
+    const selection = window.getSelection();
+
+    if (selection?.toString() === '') {
+      // Selection is empty
+      return;
+    }
+
+    const {
+      commonAncestorContainer,
+      endContainer,
+      endOffset,
+      startContainer,
+      startOffset,
+    } = selection.getRangeAt(0);
+
+    if (!this.containerRef.current.contains(commonAncestorContainer)) {
+      // Selection partially outside PDF document
+      return;
+    }
+
+    const [startTotalOffset, endTotalOffset] = await Promise.all([
+      this.getTotalOffset(startContainer, startOffset),
+      this.getTotalOffset(endContainer, endOffset),
+    ]);
+
+    console.log(`Selected ${startTotalOffset} to ${endTotalOffset}`);
+    this.setState({ start: startTotalOffset, end: endTotalOffset });
+  };
+
   render = (): React.ReactElement => {
     const { pdf } = this.props;
-    const { pageNumber, numPages, searchText, start, end } = this.state;
+    const { pageNumber, numPages, searchText, scale, start, end } = this.state;
     return (
       <div>
         <div>
@@ -240,48 +286,12 @@ export default class SinglePagePDFViewer extends React.Component<
           file={pdf}
           onLoadSuccess={this.onDocumentLoadSuccess}
           inputRef={(ref) => (this.containerRef.current = ref)}
-          onMouseUp={async () => {
-            if (
-              this.containerRef.current === null ||
-              this.documentRef.current === null
-            ) {
-              // Not loaded yet
-              return;
-            }
-
-            const selection = window.getSelection();
-
-            if (selection?.toString() === '') {
-              // Selection is empty
-              return;
-            }
-
-            const {
-              commonAncestorContainer,
-              endContainer,
-              endOffset,
-              startContainer,
-              startOffset,
-            } = selection.getRangeAt(0);
-
-            if (!this.containerRef.current.contains(commonAncestorContainer)) {
-              // Selection partially outside PDF document
-              return;
-            }
-
-            const [startTotalOffset, endTotalOffset] = await Promise.all([
-              this.getTotalOffset(startContainer, startOffset),
-              this.getTotalOffset(endContainer, endOffset),
-            ]);
-
-            console.log(`Selected ${startTotalOffset} to ${endTotalOffset}`);
-            this.setState({ start: startTotalOffset, end: endTotalOffset });
-          }}
+          onMouseUp={this.onMouseUp}
         >
           <Page
             pageNumber={pageNumber}
             onLoadSuccess={this.onPageLoad}
-            // scale={scale}
+            scale={scale}
             customTextRenderer={this.makeNewTextRenderer(start, end)}
           />
         </Document>
