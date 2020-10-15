@@ -20,7 +20,7 @@ const constructBookmark = (
   return { start, end, color };
 };
 
-let bookmarks: IBookmark[] = [
+const test_bookmarks: IBookmark[] = [
   constructBookmark(5, 10, 'red'),
   constructBookmark(100, 200, 'cyan'),
   constructBookmark(300, 350, 'green'),
@@ -30,6 +30,8 @@ let bookmarks: IBookmark[] = [
   // second page
   constructBookmark(5500, 6000, 'purple'),
 ];
+
+let bookmarks: IBookmark[] = test_bookmarks;
 
 interface ISinglePagePDFViewerProps {
   pdf: string;
@@ -327,6 +329,9 @@ export default class SinglePagePDFViewer extends React.Component<
   };
 
   onMouseUp = async () => {
+    // CRUNCH!!!
+    bookmarks = test_bookmarks;
+
     if (this.containerRef.current === null || this.documentRef.current === null)
       return;
 
@@ -359,6 +364,9 @@ export default class SinglePagePDFViewer extends React.Component<
   };
 
   onMouseDown = async () => {
+    // CRUNCH!!!
+    bookmarks = [];
+
     this.setState({ start: Infinity, end: Infinity });
   };
 
