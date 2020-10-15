@@ -157,11 +157,11 @@ export default class SinglePagePDFViewer extends React.Component<
     console.log(counter, start, end, text);
     let result = text;
     let dbg = 'unmarked:';
-    if (counter > start && counter + text.length <= end) {
+    if (counter >= start && counter + text.length <= end) {
       // mark all text
       dbg = 'mark all text:';
       result = this.getMarkedText(text, counter);
-    } else if (counter > start && counter <= end) {
+    } else if (counter >= start && counter < end) {
       // mark left part
       dbg = 'mark left part:';
       result = splitDuo(end - counter)(text);
@@ -171,7 +171,7 @@ export default class SinglePagePDFViewer extends React.Component<
       dbg = 'mark right part:';
       result = splitDuo(start - counter)(text);
       result[1] = this.getMarkedText(result[1], counter);
-    } else if (counter < start && counter + text.length >= end) {
+    } else if (counter < start && counter + text.length > end) {
       // mark middle
       dbg = 'mark middle:';
       result = splitTriple(start - counter, end - counter)(text);
