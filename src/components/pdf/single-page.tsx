@@ -21,12 +21,13 @@ interface ISinglePagePDFViewerState {
   end: number;
 }
 
-const splitAt = (start, end) => (x) => [
+const splitTriple = (start, end) => (x) => [
   x.slice(0, start),
   x.slice(start, end),
-
   x.slice(end),
 ];
+
+const splitDuo = (due) => (x) => [x.slice(0, due), x.slice(due)];
 
 export default class SinglePagePDFViewer extends React.Component<
   ISinglePagePDFViewerProps,
@@ -42,8 +43,8 @@ export default class SinglePagePDFViewer extends React.Component<
       pageNumber: 1,
       scale: 1.0,
       setPages: {},
-      start: 0,
-      end: 0,
+      start: Infinity,
+      end: Infinity,
     };
 
     this.containerRef = React.createRef();
@@ -82,32 +83,32 @@ export default class SinglePagePDFViewer extends React.Component<
   };
 
   getTotalOffset = async (container, offset) => {
-    console.log('getTotalOffset', container, offset);
+    // console.log('getTotalOffset', container, offset);
     const textLayerItem = container.parentNode;
-    console.log('textLayerItem', textLayerItem);
+    // console.log('textLayerItem', textLayerItem);
     const textLayer = textLayerItem.parentNode;
-    console.log('textLayer', textLayer);
+    // console.log('textLayer', textLayer);
 
     const page = textLayer.parentNode;
-    console.log('page', page);
+    // console.log('page', page);
 
     const pageNumber = parseInt(page.dataset.pageNumber, 10);
-    console.log('pageNumber', pageNumber);
+    // console.log('pageNumber', pageNumber);
     const itemIndex = this.getItemIndex(textLayerItem);
-    console.log('itemIndex', itemIndex);
+    // console.log('itemIndex', itemIndex);
 
     const [pageOffset, itemOffset] = await Promise.all([
       this.getPageOffset(pageNumber),
       this.getItemOffset(pageNumber, itemIndex),
     ]);
-    console.log(
-      'pageOffset',
-      pageOffset,
-      'itemOffset',
-      itemOffset,
-      'return',
-      pageOffset + itemOffset + offset
-    );
+    // console.log(
+    //   'pageOffset',
+    //   pageOffset,
+    //   'itemOffset',
+    //   itemOffset,
+    //   'return',
+    //   pageOffset + itemOffset + offset
+    // );
 
     return pageOffset + itemOffset + offset;
   };
@@ -140,40 +141,56 @@ export default class SinglePagePDFViewer extends React.Component<
       []
     );
 
-    console.log(tmp);
+    // console.log(tmp);
     return tmp;
   };
 
-  newPattern = (text, start, end, counter) => {
-    counter -= text?.length;
-    console.log(counter, text);
-    if (start > counter + text.length) {
-      return text;
-    } else {
-      let splitText;
-      // hard fix
-      if (start - counter < 0) splitText = ['', '', text];
-      else splitText = splitAt(start - counter, end - counter)(text);
-      console.log('splitAt', start - counter, end - counter, splitText);
-      splitText[1] = (
-        <mark key={counter} style={{ backgroundColor: 'black' }}>
-          {splitText[1]}
-        </mark>
-      );
+  getMarkedText = (text, key) => {
+    return (
+      <mark key={key} style={{ backgroundColor: 'black' }}>
+        {text}
+      </mark>
+    );
+  };
 
-      return splitText;
+  newPattern = (text, start, end, counter) => {
+    console.log(counter, start, end, text);
+    let result = text;
+    let dbg = 'unmarked:';
+    if (counter > start && counter + text.length <= end) {
+      // mark all text
+      dbg = 'mark all text:';
+      result = this.getMarkedText(text, counter);
+    } else if (counter > start && counter <= end) {
+      // mark left part
+      dbg = 'mark left part:';
+      result = splitDuo(end - counter)(text);
+      result[0] = this.getMarkedText(result[0], counter);
+    } else if (counter + text.length > start && counter + text.length <= end) {
+      // mark right part
+      dbg = 'mark right part:';
+      result = splitDuo(start - counter)(text);
+      result[1] = this.getMarkedText(result[1], counter);
+    } else if (counter < start && counter + text.length >= end) {
+      // mark middle
+      dbg = 'mark middle:';
+      result = splitTriple(start - counter, end - counter)(text);
+      result[1] = this.getMarkedText(result[1], counter);
     }
+    console.log(dbg, result);
+    return result;
   };
 
   makeNewTextRenderer = (start, end) => {
-    console.log('makeNewTextRenderer', start, end);
-    let counter = -1;
+    // console.log('makeNewTextRenderer', start, end);
+    let counter = 0;
     return (textItem) => {
-      counter += 1;
+      let pattern = '';
       if (textItem.str) {
+        pattern = this.newPattern(textItem.str, start, end, counter);
         counter += textItem.str.length;
       }
-      return this.newPattern(textItem.str, start, end, counter);
+      return pattern;
     };
   };
 
@@ -202,7 +219,7 @@ export default class SinglePagePDFViewer extends React.Component<
 
     const textContent = await page.getTextContent();
 
-    console.log('textContent', textContent);
+    // console.log('textContent', textContent);
 
     /**
      * {
@@ -252,24 +269,16 @@ export default class SinglePagePDFViewer extends React.Component<
   };
 
   onMouseUp = async () => {
-    if (
-      this.containerRef.current === null ||
-      this.documentRef.current === null
-    ) {
-      // Not loaded yet
+    if (this.containerRef.current === null || this.documentRef.current === null)
       return;
-    }
 
     const selection = window.getSelection();
 
-    console.log('selection', selection);
-
-    if (selection?.toString() === '') {
-      // Selection is empty
-      return;
-    }
+    if (selection?.toString() === '') return;
 
     const rangeAt0 = selection.getRangeAt(0);
+    console.log('selection.getRangeAt(0)', rangeAt0);
+    selection?.empty(); // important!
 
     const {
       commonAncestorContainer,
@@ -279,15 +288,8 @@ export default class SinglePagePDFViewer extends React.Component<
       startOffset,
     } = rangeAt0;
 
-    console.log('selection.getRangeAt(0)', rangeAt0);
-    console.log('startOffset', startOffset, 'endOffset', endOffset);
-    console.log('startContainer', startContainer);
-    console.log('endContainer', endContainer);
-
-    if (!this.containerRef.current.contains(commonAncestorContainer)) {
-      // Selection partially outside PDF document
-      return;
-    }
+    // Selection partially outside PDF document
+    if (!this.containerRef.current.contains(commonAncestorContainer)) return;
 
     const [startTotalOffset, endTotalOffset] = await Promise.all([
       this.getTotalOffset(startContainer, startOffset),
@@ -295,7 +297,11 @@ export default class SinglePagePDFViewer extends React.Component<
     ]);
 
     console.log(`Selected ${startTotalOffset} to ${endTotalOffset}`);
-    this.setState({ start: startTotalOffset + 1, end: endTotalOffset + 1 });
+    this.setState({ start: startTotalOffset, end: endTotalOffset });
+  };
+
+  onMouseDown = async () => {
+    this.setState({ start: Infinity, end: Infinity });
   };
 
   render = (): React.ReactElement => {
@@ -320,11 +326,14 @@ export default class SinglePagePDFViewer extends React.Component<
           onLoadSuccess={this.onDocumentLoadSuccess}
           inputRef={(ref) => (this.containerRef.current = ref)}
           onMouseUp={this.onMouseUp}
+          onMouseDown={this.onMouseDown}
         >
           <Page
             pageNumber={pageNumber}
             onLoadSuccess={this.onPageLoad}
             scale={scale}
+            // renderTextLayer={false}
+            // renderMode={'svg'}
             customTextRenderer={this.makeNewTextRenderer(start, end)}
           />
         </Document>
