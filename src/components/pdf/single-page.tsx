@@ -5,6 +5,32 @@ import React from 'react';
 import * as DOM from 'react-dom';
 import { Document, Page } from 'react-pdf';
 
+interface IBookmark {
+  start: number;
+  end: number;
+  color: string;
+}
+
+// bookmark factory
+const constructBookmark = (
+  start: number,
+  end: number,
+  color: string
+): IBookmark => {
+  return { start, end, color };
+};
+
+let bookmarks: IBookmark[] = [
+  constructBookmark(5, 10, 'red'),
+  constructBookmark(100, 200, 'cyan'),
+  constructBookmark(300, 350, 'green'),
+  // collisioned bookmarks
+  constructBookmark(614, 906, 'olive'),
+  constructBookmark(730, 1200, 'lime'),
+  // second page
+  constructBookmark(5500, 6000, 'purple'),
+];
+
 interface ISinglePagePDFViewerProps {
   pdf: string;
   parentWidth: number;
@@ -37,6 +63,7 @@ export default class SinglePagePDFViewer extends React.Component<
 > {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
+  private newPatternWorkResult: boolean;
 
   constructor(props: ISinglePagePDFViewerProps) {
     super(props);
@@ -51,6 +78,8 @@ export default class SinglePagePDFViewer extends React.Component<
 
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
+
+    this.newPatternWorkResult = false;
   }
 
   getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
@@ -112,6 +141,7 @@ export default class SinglePagePDFViewer extends React.Component<
       pageOffset + itemOffset + offset
     );
 
+    // need to do this after next/prev buttons pressed for bookmarks work
     count_init = pageOffset;
 
     return pageOffset + itemOffset + offset;
@@ -149,37 +179,51 @@ export default class SinglePagePDFViewer extends React.Component<
     return tmp;
   };
 
-  getMarkedText = (text, key) => {
+  getMarkedText = (text: string, color: string, key: any) => {
     return (
-      <mark key={key} style={{ backgroundColor: 'black' }}>
+      <mark key={key} style={{ backgroundColor: color }}>
         {text}
       </mark>
     );
   };
 
-  newPattern = (text, start, end, counter) => {
-    console.log(counter, start, end, text);
+  newPattern = (text, bookmark: IBookmark, counter) => {
+    console.log(counter, bookmark.start, bookmark.end, text);
     let result = text;
     let dbg = 'unmarked:';
-    if (counter >= start && counter + text.length <= end) {
+    this.newPatternWorkResult = false;
+    if (counter >= bookmark.start && counter + text.length <= bookmark.end) {
       // mark all text
       dbg = 'mark all text:';
-      result = this.getMarkedText(text, counter);
-    } else if (counter >= start && counter < end) {
+      result = this.getMarkedText(text, bookmark.color, counter);
+      this.newPatternWorkResult = true;
+    } else if (counter >= bookmark.start && counter < bookmark.end) {
       // mark left part
       dbg = 'mark left part:';
-      result = splitDuo(end - counter)(text);
-      result[0] = this.getMarkedText(result[0], counter);
-    } else if (counter + text.length > start && counter + text.length <= end) {
+      result = splitDuo(bookmark.end - counter)(text);
+      result[0] = this.getMarkedText(result[0], bookmark.color, counter);
+      this.newPatternWorkResult = true;
+    } else if (
+      counter + text.length > bookmark.start &&
+      counter + text.length <= bookmark.end
+    ) {
       // mark right part
       dbg = 'mark right part:';
-      result = splitDuo(start - counter)(text);
-      result[1] = this.getMarkedText(result[1], counter);
-    } else if (counter < start && counter + text.length > end) {
+      result = splitDuo(bookmark.start - counter)(text);
+      result[1] = this.getMarkedText(result[1], bookmark.color, counter);
+      this.newPatternWorkResult = true;
+    } else if (
+      counter < bookmark.start &&
+      counter + text.length > bookmark.end
+    ) {
       // mark middle
       dbg = 'mark middle:';
-      result = splitTriple(start - counter, end - counter)(text);
-      result[1] = this.getMarkedText(result[1], counter);
+      result = splitTriple(
+        bookmark.start - counter,
+        bookmark.end - counter
+      )(text);
+      result[1] = this.getMarkedText(result[1], bookmark.color, counter);
+      this.newPatternWorkResult = true;
     }
     console.log(dbg, result);
     return result;
@@ -191,7 +235,17 @@ export default class SinglePagePDFViewer extends React.Component<
     return (textItem) => {
       let pattern = '';
       if (textItem.str) {
-        pattern = this.newPattern(textItem.str, start, end, counter);
+        // just our new selection:
+        pattern = this.newPattern(
+          textItem.str,
+          { start, end, color: 'black' },
+          counter
+        );
+        // after executing newPattern() the newPatternWorkResult variable changed (or not) (yes, this is crunch)
+        bookmarks.forEach((bookmark) => {
+          if (!this.newPatternWorkResult)
+            pattern = this.newPattern(textItem.str, bookmark, counter);
+        });
         counter += textItem.str.length;
       }
       return pattern;
