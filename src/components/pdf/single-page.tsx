@@ -190,7 +190,7 @@ export default class SinglePagePDFViewer extends React.Component<
   };
 
   newPattern = (text, bookmark: IBookmark, counter) => {
-    console.log(counter, bookmark.start, bookmark.end, text);
+    // console.log(counter, bookmark.start, bookmark.end, text);
     let result = text;
     let dbg = 'unmarked:';
     this.newPatternWorkResult = false;
@@ -227,7 +227,7 @@ export default class SinglePagePDFViewer extends React.Component<
       result[1] = this.getMarkedText(result[1], bookmark.color, counter);
       this.newPatternWorkResult = true;
     }
-    console.log(dbg, result);
+    // console.log(dbg, result);
     return result;
   };
 
