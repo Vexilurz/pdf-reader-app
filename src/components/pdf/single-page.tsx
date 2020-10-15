@@ -332,12 +332,22 @@ export default class SinglePagePDFViewer extends React.Component<
     // CRUNCH!!!
     bookmarks = test_bookmarks;
 
-    if (this.containerRef.current === null || this.documentRef.current === null)
+    if (
+      this.containerRef.current === null ||
+      this.documentRef.current === null
+    ) {
+      // for re-render bookmarks
+      this.setState({ start: Infinity, end: Infinity });
       return;
+    }
 
     const selection = window.getSelection();
 
-    if (selection?.toString() === '') return;
+    if (selection?.toString() === '') {
+      // for re-render bookmarks
+      this.setState({ start: Infinity, end: Infinity });
+      return;
+    }
 
     const rangeAt0 = selection.getRangeAt(0);
     console.log('selection.getRangeAt(0)', rangeAt0);
@@ -352,7 +362,11 @@ export default class SinglePagePDFViewer extends React.Component<
     } = rangeAt0;
 
     // Selection partially outside PDF document
-    if (!this.containerRef.current.contains(commonAncestorContainer)) return;
+    if (!this.containerRef.current.contains(commonAncestorContainer)) {
+      // for re-render bookmarks
+      this.setState({ start: Infinity, end: Infinity });
+      return;
+    }
 
     const [startTotalOffset, endTotalOffset] = await Promise.all([
       this.getTotalOffset(startContainer, startOffset),
