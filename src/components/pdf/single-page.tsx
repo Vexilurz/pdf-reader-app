@@ -29,6 +29,8 @@ const splitTriple = (start, end) => (x) => [
 
 const splitDuo = (due) => (x) => [x.slice(0, due), x.slice(due)];
 
+let count_init = 0;
+
 export default class SinglePagePDFViewer extends React.Component<
   ISinglePagePDFViewerProps,
   ISinglePagePDFViewerState
@@ -101,14 +103,16 @@ export default class SinglePagePDFViewer extends React.Component<
       this.getPageOffset(pageNumber),
       this.getItemOffset(pageNumber, itemIndex),
     ]);
-    // console.log(
-    //   'pageOffset',
-    //   pageOffset,
-    //   'itemOffset',
-    //   itemOffset,
-    //   'return',
-    //   pageOffset + itemOffset + offset
-    // );
+    console.log(
+      'pageOffset',
+      pageOffset,
+      'itemOffset',
+      itemOffset,
+      'return',
+      pageOffset + itemOffset + offset
+    );
+
+    count_init = pageOffset;
 
     return pageOffset + itemOffset + offset;
   };
@@ -183,7 +187,7 @@ export default class SinglePagePDFViewer extends React.Component<
 
   makeNewTextRenderer = (start, end) => {
     // console.log('makeNewTextRenderer', start, end);
-    let counter = 0;
+    let counter = count_init;
     return (textItem) => {
       let pattern = '';
       if (textItem.str) {
