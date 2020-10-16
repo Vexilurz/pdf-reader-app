@@ -6,7 +6,7 @@ let newPatternWorkResult: boolean = false;
 let count_init = 0;
 
 const getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
-  const page = await this.documentRef.current.getPage(pageNumber);
+  const page = await this.documentRef.current.getPage(pageNumber); // shit. here we go again.......
   const textContent = await page.getTextContent();
   console.log('getItemOffset', itemIndex, textContent);
 
@@ -19,7 +19,7 @@ const getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
 const getPageOffset = async (pageNumber) => {
   const pageLengths = await Promise.all(
     Array.from({ length: pageNumber - 1 }, (_, index) =>
-      this.getItemOffset(index + 1)
+      getItemOffset(index + 1)
     )
   );
 
@@ -30,7 +30,7 @@ const getItemIndex = (item) => {
   let index = 0;
 
   while ((item = item.previousSibling) !== null) {
-    index++;
+    index += 1;
   }
 
   return index;
@@ -41,10 +41,10 @@ export const getTotalOffset = async (container, offset) => {
   const textLayer = textLayerItem.parentNode;
   const page = textLayer.parentNode;
   const pageNumber = parseInt(page.dataset.pageNumber, 10);
-  const itemIndex = this.getItemIndex(textLayerItem);
+  const itemIndex = getItemIndex(textLayerItem);
   const [pageOffset, itemOffset] = await Promise.all([
-    this.getPageOffset(pageNumber),
-    this.getItemOffset(pageNumber, itemIndex),
+    getPageOffset(pageNumber),
+    getItemOffset(pageNumber, itemIndex),
   ]);
 
   // CRUNCH:
