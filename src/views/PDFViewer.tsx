@@ -1,6 +1,6 @@
 import * as React from 'react';
-import SinglePagePDFViewer from '../components/pdf/single-page';
-import AllPagesPDFViewer from '../components/pdf/all-pages';
+import PDFPage from '../components/pdf/pdfPage';
+import { TEST_BOOKMARKS } from '../types/pdfBookmark';
 
 const pdfPath = '/public/example.pdf';
 
@@ -13,7 +13,7 @@ export default class PDFViewer extends React.Component<IPDFViewerProps> {
     return (
       <div className="pdf-viewer" id="pdf-viewer">
         <h4>Single Page</h4>
-        <SinglePagePDFViewer pdf={pdfPath} />
+        <PDFPage pdf={pdfPath} bookmarks={TEST_BOOKMARKS} />
       </div>
     );
   }
