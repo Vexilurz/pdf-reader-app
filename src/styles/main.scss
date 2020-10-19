@@ -4,10 +4,15 @@ html {
 }
 
 body {
-  // padding: 0px 16px;
+  margin: 0px;
   height: 100%;
   width: 100%;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
 }
 
 $color1: #0077b5;
