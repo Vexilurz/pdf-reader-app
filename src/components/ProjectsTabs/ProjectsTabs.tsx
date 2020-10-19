@@ -1,9 +1,7 @@
 import './projects-tabs.scss';
 import * as React from 'react';
 
-export interface IProjectsTabsProps {
-  visible: boolean;
-}
+export interface IProjectsTabsProps {}
 export interface IProjectsTabsState {}
 
 export default class ProjectsTabs extends React.Component<
@@ -13,15 +11,6 @@ export default class ProjectsTabs extends React.Component<
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { visible } = this.props;
-    return (
-      <div>
-        {!visible ? null : (
-          <div className="projects-tabs">
-            <h4>Projects tabs</h4>
-          </div>
-        )}
-      </div>
-    );
+    return <div className="projects-tabs">Projects tabs</div>;
   }
 }

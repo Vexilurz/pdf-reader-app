@@ -14,18 +14,6 @@ export const MainLayout: React.FunctionComponent<ILayoutProps> = () => {
       <LeftBar visible={true} />
       <RightBar visible={true} />
       <MiddleSpace visible={true} />
-      {/* <div className="container">
-        <div className="sidebar">Sidebar</div>
-        <div className="header">
-          <h1>My Application</h1>
-        </div>
-        <div className="body">
-          <PDFViewer />
-        </div>
-        <div className="footer">
-          <p>Footer</p>
-        </div>
-      </div> */}
     </div>
   );
 };

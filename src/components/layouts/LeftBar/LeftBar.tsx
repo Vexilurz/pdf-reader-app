@@ -1,5 +1,6 @@
 import './left-bar.scss';
 import * as React from 'react';
+import EventsArea from '../../EventsArea/EventsArea';
 
 export interface ILeftBarProps {
   visible: boolean;
@@ -18,7 +19,7 @@ export default class LeftBar extends React.Component<
 
     return (
       <div className="left-bar" style={{ visibility: isVisible }}>
-        Left Bar
+        <EventsArea />
       </div>
     );
   }

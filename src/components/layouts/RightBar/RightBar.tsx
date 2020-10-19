@@ -1,5 +1,6 @@
 import './right-bar.scss';
 import * as React from 'react';
+import BookmarksArea from '../../BookmarksArea/BookmarksArea';
 
 export interface IRightBarProps {
   visible: boolean;
@@ -18,7 +19,7 @@ export default class RightBar extends React.Component<
 
     return (
       <div className="right-bar" style={{ visibility: isVisible }}>
-        Right bar
+        <BookmarksArea />
       </div>
     );
   }

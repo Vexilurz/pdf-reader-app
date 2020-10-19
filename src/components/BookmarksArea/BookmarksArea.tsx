@@ -1,9 +1,7 @@
 import './bookmarks-area.scss';
 import * as React from 'react';
 
-export interface IBookmarksAreaProps {
-  visible: boolean;
-}
+export interface IBookmarksAreaProps {}
 export interface IBookmarksAreaState {}
 
 export default class BookmarksArea extends React.Component<
@@ -13,15 +11,6 @@ export default class BookmarksArea extends React.Component<
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { visible } = this.props;
-    return (
-      <div>
-        {!visible ? null : (
-          <div className="bookmarks-area">
-            <h4>Bookmarks area</h4>
-          </div>
-        )}
-      </div>
-    );
+    return <div className="bookmarks-area">Bookmarks area</div>;
   }
 }
