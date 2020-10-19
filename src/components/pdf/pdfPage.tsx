@@ -3,7 +3,7 @@
 import './pdf.scss';
 import React from 'react';
 import * as DOM from 'react-dom';
-import { Document, Page } from 'react-pdf';
+import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 import { IBookmark } from '../../types/pdfBookmark';
 import { pdfRenderer, getTotalOffset } from '../../utils/pdfUtils';
 
