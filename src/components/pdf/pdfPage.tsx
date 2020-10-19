@@ -131,8 +131,8 @@ export default class PDFPage extends React.Component<
     }
 
     const [startTotalOffset, endTotalOffset] = await Promise.all([
-      getTotalOffset(startContainer, startOffset),
-      getTotalOffset(endContainer, endOffset),
+      getTotalOffset(startContainer, startOffset, this.documentRef),
+      getTotalOffset(endContainer, endOffset, this.documentRef),
     ]);
 
     this.setState({

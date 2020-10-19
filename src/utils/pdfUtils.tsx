@@ -5,8 +5,11 @@ import { splitTriple, splitDuo } from './splitUtils';
 let newPatternWorkResult: boolean = false;
 let count_init = 0;
 
+// crunch:
+let documentRef;
+
 const getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
-  const page = await this.documentRef.current.getPage(pageNumber); // shit. here we go again.......
+  const page = await documentRef.current.getPage(pageNumber); // shit. here we go again.......
   const textContent = await page.getTextContent();
   console.log('getItemOffset', itemIndex, textContent);
 
@@ -36,7 +39,8 @@ const getItemIndex = (item) => {
   return index;
 };
 
-export const getTotalOffset = async (container, offset) => {
+export const getTotalOffset = async (container, offset, ref) => {
+  documentRef = ref;
   const textLayerItem = container.parentNode;
   const textLayer = textLayerItem.parentNode;
   const page = textLayer.parentNode;
@@ -62,8 +66,13 @@ const getMarkedText = (text: string, color: string, key: any) => {
   );
 };
 
+const getUnmarkedText = (text: string, key: any) => {
+  return <span key={key}>{text}</span>;
+};
+
 const newPattern = (text, bookmark: IBookmark, counter) => {
   // console.log(counter, bookmark.start, bookmark.end, text);
+  // let result = getUnmarkedText(text, counter);
   let result = text;
   let dbg = 'unmarked:';
   newPatternWorkResult = false;
