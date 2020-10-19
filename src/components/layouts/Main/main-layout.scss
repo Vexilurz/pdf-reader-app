@@ -1,0 +1,10 @@
+.main-layout {
+  background-color: #0077b5;
+  display: grid;
+  grid-template-columns: 250px auto 250px;
+  grid-template-rows: 100px auto;
+  gap: 0px 0px;
+  grid-template-areas:
+    'top-bar top-bar top-bar'
+    'left-bar middle-space right-bar';
+}

@@ -29,9 +29,11 @@
     "pack": "npm run build-prod && npx electron-packager ./dist --out ./pack --overwrite"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.4.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-pdf": "^5.0.0",
+    "react-redux": "^7.2.1",
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {

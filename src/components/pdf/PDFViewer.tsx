@@ -1,6 +1,6 @@
 import * as React from 'react';
-import PDFPage from '../components/pdf/pdfPage';
-import { TEST_BOOKMARKS } from '../types/pdfBookmark';
+import PDFPage from './PDFPage';
+import { TEST_BOOKMARKS } from '../../types/pdfBookmark';
 
 const pdfPath = '/public/example.pdf';
 
