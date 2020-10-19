@@ -14,9 +14,11 @@ export default class MiddleSpace extends React.Component<
 
   render(): React.ReactElement {
     const { visible } = this.props;
+    const isVisible = visible ? 'visible' : 'hidden';
+
     return (
-      <div>
-        {!visible ? null : <div className="middle-space">Middle space</div>}
+      <div className="middle-space" style={{ visibility: isVisible }}>
+        Middle space
       </div>
     );
   }

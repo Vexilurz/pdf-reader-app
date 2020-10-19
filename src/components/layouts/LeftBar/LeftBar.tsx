@@ -14,8 +14,12 @@ export default class LeftBar extends React.Component<
 
   render(): React.ReactElement {
     const { visible } = this.props;
+    const isVisible = visible ? 'visible' : 'hidden';
+
     return (
-      <div>{!visible ? null : <div className="left-bar">Left bar</div>}</div>
+      <div className="left-bar" style={{ visibility: isVisible }}>
+        Left Bar
+      </div>
     );
   }
 }

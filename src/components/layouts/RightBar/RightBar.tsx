@@ -14,8 +14,12 @@ export default class RightBar extends React.Component<
 
   render(): React.ReactElement {
     const { visible } = this.props;
+    const isVisible = visible ? 'visible' : 'hidden';
+
     return (
-      <div>{!visible ? null : <div className="right-bar">Right bar</div>}</div>
+      <div className="right-bar" style={{ visibility: isVisible }}>
+        Right bar
+      </div>
     );
   }
 }

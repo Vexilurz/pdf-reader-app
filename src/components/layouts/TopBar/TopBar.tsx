@@ -14,8 +14,12 @@ export default class TopBar extends React.Component<
 
   render(): React.ReactElement {
     const { visible } = this.props;
+    const isVisible = visible ? 'visible' : 'hidden';
+
     return (
-      <div>{!visible ? null : <div className="top-bar">Top bar</div>}</div>
+      <div className="top-bar" style={{ visibility: isVisible }}>
+        Top Bar
+      </div>
     );
   }
 }
