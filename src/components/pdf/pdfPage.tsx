@@ -10,13 +10,13 @@ import { pdfRenderer, getTotalOffset } from '../../utils/pdfUtils';
 interface IPDFPageProps {
   pdf: string;
   bookmarks: IBookmark[];
+  parentRef: React.RefObject<any>;
 }
 
 interface IPDFPageState {
   numPages: number;
   pageNumber: number;
   scale: number;
-  parentDiv?: any;
   setPages?: Object;
   startSelection: number;
   endSelection: number;
@@ -44,14 +44,12 @@ export default class PDFPage extends React.Component<
     this.documentRef = React.createRef();
   }
 
-  componentDidMount() {
-    const parent = DOM.findDOMNode(this).parentNode; // deprecated?
-    this.setState({ parentDiv: parent });
-  }
+  componentDidMount() {}
 
   calcScale = (page) => {
-    if (this.state.parentDiv) {
-      const pageScale = this.state.parentDiv.clientWidth / page.originalWidth;
+    const parent = this.props.parentRef.current;
+    if (parent) {
+      const pageScale = parent.clientWidth / page.originalWidth;
       if (this.state.scale !== pageScale) {
         this.setState({ scale: pageScale });
       }
