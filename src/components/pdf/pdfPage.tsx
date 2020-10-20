@@ -4,7 +4,7 @@ import './pdf.scss';
 import React from 'react';
 import * as DOM from 'react-dom';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
-import { IBookmark } from '../../types/pdfBookmark';
+import { IBookmark } from '../../types/bookmark';
 import { pdfRenderer, getTotalOffset } from '../../utils/pdfUtils';
 
 interface IPDFPageProps {

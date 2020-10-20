@@ -1,5 +1,5 @@
 import React from 'react';
-import { IBookmark } from '../types/pdfBookmark';
+import { IBookmark } from '../types/bookmark';
 import { splitTriple, splitDuo } from './splitUtils';
 
 let newPatternWorkResult: boolean = false;

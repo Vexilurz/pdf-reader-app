@@ -1,6 +1,7 @@
 import './middle-space.scss';
 import * as React from 'react';
 import PDFViewer from '../../PDF/PDFViewer';
+import StartPage from '../../StartPage/StartPage';
 
 export interface IMiddleSpaceProps {
   visible: boolean;
@@ -19,7 +20,8 @@ export default class MiddleSpace extends React.Component<
 
     return (
       <div className="middle-space" style={{ visibility: isVisible }}>
-        <PDFViewer />
+        {/* <PDFViewer /> */}
+        <StartPage />
       </div>
     );
   }

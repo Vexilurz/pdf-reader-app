@@ -1,6 +1,6 @@
 import './events-area.scss';
 import * as React from 'react';
-import Counter from '../Counter/Counter';
+// import Counter from '../Counter/Counter';
 
 export interface IEventsAreaProps {}
 export interface IEventsAreaState {}
@@ -15,7 +15,7 @@ export default class EventsArea extends React.Component<
     return (
       <div className="events-area">
         Events area
-        <Counter offset={100} />
+        {/* <Counter offset={100} /> */}
       </div>
     );
   }
