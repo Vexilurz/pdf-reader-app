@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-// import counterReducer from './counterSlice';
+import appStateReducer from './appStateSlice';
 import projectFileReducer from './projectFileSlice';
 
 export default configureStore({
   reducer: {
-    // counter: counterReducer,
+    appState: appStateReducer,
     projectFile: projectFileReducer,
   },
 });

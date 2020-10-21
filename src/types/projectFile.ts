@@ -5,6 +5,18 @@ export interface IProjectFile {
   events: IEvent[];
 }
 
+export const newFile = (name: string): IProjectFile => {
+  return {
+    name,
+    events: [],
+  };
+};
+
+export const NEW_FILE: IProjectFile = {
+  name: 'new file',
+  events: [],
+};
+
 export const TEST_PROJECT: IProjectFile = {
   name: 'test project',
   events: [

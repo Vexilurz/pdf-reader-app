@@ -1,24 +1,26 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { TEST_PROJECT } from '../types/projectFile';
+import { IProjectFile } from '../types/projectFile';
 
 export const projectFileSlice = createSlice({
   name: 'projectFile',
   initialState: {
     path: '',
-    content: TEST_PROJECT, // todo: replace to {}
+    content: {},
   },
   reducers: {
-    setFilePath: (state, action) => {
-      state.path = action.payload;
+    setFile: (state, { payload }) => {
+      state.path = payload.path;
+      state.content = payload.content;
     },
   },
 });
 
-export const { setFilePath } = projectFileSlice.actions;
+export const { setFile } = projectFileSlice.actions;
 
-export interface IOpenFileProps {
+export interface IProjectFileProps {
   path: string;
-  setFilePath: typeof setFilePath;
+  content: IProjectFile;
+  setFile: typeof setFile;
 }
 
 export default projectFileSlice.reducer;

@@ -2,13 +2,14 @@ import './middle-space.scss';
 import * as React from 'react';
 import PDFViewer from '../../PDF/PDFViewer';
 import StartPage from '../../StartPage/StartPage';
+import { connect } from 'react-redux';
 
 export interface IMiddleSpaceProps {
   visible: boolean;
 }
 export interface IMiddleSpaceState {}
 
-export default class MiddleSpace extends React.Component<
+class MiddleSpace extends React.Component<
   IMiddleSpaceProps,
   IMiddleSpaceState
 > {
@@ -18,11 +19,30 @@ export default class MiddleSpace extends React.Component<
     const { visible } = this.props;
     const isVisible = visible ? 'visible' : 'hidden';
 
+    const { currentAppState } = this.props;
+
     return (
       <div className="middle-space" style={{ visibility: isVisible }}>
         {/* <PDFViewer /> */}
-        <StartPage />
+        {currentAppState === 'pdf-viewer' ? (
+          // <PDFViewer />
+          <div>pdf viewer {JSON.stringify(this.props.projectFileContent)}</div>
+        ) : (
+          <StartPage />
+        )}
       </div>
     );
   }
 }
+
+const mapStateToProps = function (state) {
+  return {
+    currentAppState: state.appState.current,
+    projectFileContent: state.projectFile.content,
+  };
+};
+
+// const mapDispatchToProps = {
+// };
+
+export default connect(mapStateToProps)(MiddleSpace);

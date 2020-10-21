@@ -1,35 +1,48 @@
 import './start-page.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
+import { connect } from 'react-redux';
+import { setFile } from '../../reduxStore/projectFileSlice';
+import { setAppState } from '../../reduxStore/appStateSlice';
+// import fs from 'fs';
+// import { TEST_PROJECT } from '../../types/projectFile';
 
 export interface IStartPageProps {}
 export interface IStartPageState {
-  openFile: string;
-  newFile: string;
+  // openFile: string;
+  // newFile: string;
 }
 
-export default class StartPage extends React.Component<
-  IStartPageProps,
-  IStartPageState
-> {
-  constructor(props: IStartPageProps) {
-    super(props);
-    this.state = {
-      openFile: '',
-      newFile: '',
-    };
-  }
+class StartPage extends React.Component<IStartPageProps, IStartPageState> {
+  // constructor(props: IStartPageProps & IProjectFileProps) {
+  //   super(props);
+  //   this.state = {
+  //     openFile: '',
+  //     newFile: '',
+  //   };
+  // }
 
   componentDidMount(): void {
     this.initListeners();
   }
 
   initListeners = (): void => {
-    ipcRenderer.on('open-file-dialog-response', (event, responce) => {
-      this.setState({ openFile: responce.path });
+    ipcRenderer.on('open-file-dialog-response', (event, response) => {
+      console.log(response);
+      this.props.setFile(response);
+      this.props.setAppState({ current: 'pdf-viewer' });
+      // this.setState({ openFile: response.path });
     });
-    ipcRenderer.on('new-file-dialog-response', (event, responce) => {
-      this.setState({ newFile: responce.path });
+
+    ipcRenderer.on('new-file-dialog-response', (event, response) => {
+      // fs.writeFile(response.path, JSON.stringify(TEST_PROJECT), (err) => {
+      //   if (err) throw err;
+      //   console.log('The file has been saved!');
+      // });
+      console.log(response);
+      this.props.setFile(response);
+      this.props.setAppState({ current: 'pdf-viewer' });
+      // this.setState({ newFile: response.path });
     });
   };
 
@@ -42,7 +55,7 @@ export default class StartPage extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { openFile, newFile } = this.state;
+    // const { openFile, newFile } = this.state;
     return (
       <div className="start-page">
         <div className="start-page-sidebar">
@@ -62,10 +75,24 @@ export default class StartPage extends React.Component<
           </button>
         </div>
         <div className="start-page-recent">
-          <div>New file: {newFile}</div>
-          <div>Open file: {openFile}</div>
+          {/* <div>New file: {newFile}</div>
+          <div>Open file: {openFile}</div> */}
         </div>
       </div>
     );
   }
 }
+
+// const mapStateToProps = function (state, ownProps: IStartPageProps) {
+//   return {
+//     path: state.projectFile.path,
+//     content: state.projectFile.content,
+//   };
+// };
+
+const mapDispatchToProps = {
+  setFile,
+  setAppState,
+};
+
+export default connect(null, mapDispatchToProps)(StartPage);
