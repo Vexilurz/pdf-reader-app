@@ -19,7 +19,6 @@ function createRenderConfig(isDev) {
 
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
-      modules: ['.', 'node_modules'],
     },
 
     mode: isDev ? DEVELOPMENT : PRODUCTION,
@@ -142,6 +141,10 @@ function createMainConfig(isDev) {
 
     entry: {
       'main-process': './main-process.ts',
+    },
+
+    resolve: {
+      extensions: ['.js', '.ts', '.json'],
     },
 
     output: {
