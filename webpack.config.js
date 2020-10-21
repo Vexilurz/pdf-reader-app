@@ -19,6 +19,7 @@ function createRenderConfig(isDev) {
 
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+      modules: ['.', 'node_modules'],
     },
 
     mode: isDev ? DEVELOPMENT : PRODUCTION,

@@ -15,31 +15,38 @@ export default class FileDialogButton extends React.Component<
 > {
   // constructor(props: IFileDialogButtonProps) {
   //   super(props);
-  //   this.state = {
-  //     choosedFile = '',
-  //   };
+  // this.state = {
+  //   choosedFile = '',
+  // };
+  // this.onChange.bind(this);
   // }
 
   componentDidMount() {}
 
-  render(): React.ReactElement {
+  onChange = (event) => {
     const { caption, onFileChoose } = this.props;
+    if (event.target.files) {
+      const fileName = event.target.files[0].path;
+      // this.setState({ choosedFile: fileName });
+      console.log(caption, fileName);
+      onFileChoose(fileName);
+    }
+  };
+
+  render(): React.ReactElement {
+    const { caption } = this.props;
+    const id = 'file-upload-' + caption.toLowerCase().replace(' ', '-');
     return (
       <div className="file-dialog-button" id={caption}>
-        <label htmlFor="file-upload" className="custom-file-upload">
+        <label htmlFor={id} className="custom-file-upload">
           {caption}
         </label>
         <input
-          id="file-upload"
+          id={id}
           type="file"
+          name={caption}
           className="input-file"
-          onChange={(event) => {
-            if (event.target.files) {
-              const fileName = event.target.files[0].path;
-              // this.setState({ choosedFile: fileName });
-              onFileChoose(fileName);
-            }
-          }}
+          onChange={this.onChange}
         />
       </div>
     );
