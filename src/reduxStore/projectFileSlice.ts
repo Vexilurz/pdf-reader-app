@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { TEST_PROJECT } from '../types/projectFile'
+import { TEST_PROJECT } from '../types/projectFile';
 
 export const projectFileSlice = createSlice({
   name: 'projectFile',

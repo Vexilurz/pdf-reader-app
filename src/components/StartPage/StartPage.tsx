@@ -1,7 +1,6 @@
 import './start-page.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
-import FileDialogButton from '../FileDialogButton/FileDialogButton';
 
 export interface IStartPageProps {}
 export interface IStartPageState {
@@ -19,24 +18,27 @@ export default class StartPage extends React.Component<
       openFile: '',
       newFile: '',
     };
+  }
+
+  componentDidMount(): void {
+    this.initListeners();
+  }
+
+  initListeners = (): void => {
     ipcRenderer.on('open-file-dialog-response', (event, responce) => {
-      console.log(event, responce);
+      this.setState({ openFile: responce.path });
     });
-  }
-
-  componentDidMount() {
-    // this.onNewFileChoose.bind(this);
-    // this.onOpenFileChoose.bind(this);
-  }
-
-  onNewFileChoose = (fileName: string) => {
-    console.log('im in new file');
-    this.setState({ newFile: fileName });
+    ipcRenderer.on('new-file-dialog-response', (event, responce) => {
+      this.setState({ newFile: responce.path });
+    });
   };
 
-  onOpenFileChoose = (fileName: string) => {
-    console.log('im in open file');
-    this.setState({ openFile: fileName });
+  onOpenFileClick = (): void => {
+    ipcRenderer.send('show-open-file-dialog');
+  };
+
+  onNewFileClick = (): void => {
+    ipcRenderer.send('show-new-file-dialog');
   };
 
   render(): React.ReactElement {
@@ -44,21 +46,19 @@ export default class StartPage extends React.Component<
     return (
       <div className="start-page">
         <div className="start-page-sidebar">
-          <FileDialogButton
-            caption="New file"
-            onFileChoose={(param) => this.onNewFileChoose(param)}
-          />
-          <FileDialogButton
-            caption="Open file"
-            onFileChoose={(param) => this.onOpenFileChoose(param)}
-          />
           <button
             type="button"
-            onClick={() => {
-              ipcRenderer.send('open-file-dialog', 'asdasdasdasd');
-            }}
+            className="new-file-button"
+            onClick={this.onNewFileClick}
           >
-            Go to Foo
+            New file
+          </button>
+          <button
+            type="button"
+            className="open-file-button"
+            onClick={this.onOpenFileClick}
+          >
+            Open file
           </button>
         </div>
         <div className="start-page-recent">

@@ -17,7 +17,6 @@ interface IPDFPageState {
   numPages: number;
   pageNumber: number;
   scale: number;
-  setPages?: Object;
   startSelection: number;
   endSelection: number;
 }
@@ -35,7 +34,6 @@ export default class PDFPage extends React.Component<
       numPages: 0,
       pageNumber: 1,
       scale: 1.0,
-      setPages: {},
       startSelection: Infinity,
       endSelection: Infinity,
     };

@@ -19,7 +19,6 @@ export default class PDFViewer extends React.Component<IPDFViewerProps> {
   render(): React.ReactElement {
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
-        <h4>Single Page</h4>
         <PDFPage
           pdf={pdfPath}
           bookmarks={TEST_BOOKMARKS}

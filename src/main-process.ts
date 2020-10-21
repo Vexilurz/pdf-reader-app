@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from 'electron';
-import { initListeners } from './listeners/listeners';
+import initListeners from './listeners/listeners';
 
 declare const ENVIRONMENT: string;
 
