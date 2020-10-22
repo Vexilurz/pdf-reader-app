@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import PDFViewer from '../../PDF/PDFViewer';
 import StartPage from '../../StartPage/StartPage';
 import NewFileForm from '../../NewFileForm/NewFileForm';
+import EventEditForm from '../../EventEditForm/EventEditForm';
 import { StoreType } from '../../../reduxStore/store';
 import * as appConst from '../../../types/textConstants';
 
@@ -12,10 +13,7 @@ export interface IMiddleSpaceProps {
 }
 export interface IMiddleSpaceState {}
 
-class MiddleSpace extends React.Component<
-  IMiddleSpaceProps & StatePropsType,
-  IMiddleSpaceState
-> {
+class MiddleSpace extends React.Component<StatePropsType, IMiddleSpaceState> {
   componentDidMount() {}
 
   render(): React.ReactElement {
@@ -33,7 +31,7 @@ class MiddleSpace extends React.Component<
       // pageContent = <PDFViewer />
       pageContent = <div>{JSON.stringify(projectFileContent)}</div>;
     } else if (currentAppState === appConst.EVENT_FORM) {
-      pageContent = <div>Event form</div>;
+      pageContent = <EventEditForm />;
     }
 
     return (

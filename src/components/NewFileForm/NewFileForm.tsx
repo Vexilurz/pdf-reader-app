@@ -65,10 +65,10 @@ class NewFileForm extends React.Component<
     const { path } = this.state;
     return (
       <div className="new-file-form">
-        <div className="project-name-input">
+        <div className="project-name">
           Name:
           <input
-            className="name-input"
+            className="project-name-input"
             type="text"
             style={{
               width: '350px',

@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
+import * as appConst from '../types/textConstants';
 
 export const appStateSlice = createSlice({
   name: 'appState',
   initialState: {
-    // can be: 'start-page', 'new-file-form', 'pdf-viewer', 'event-form'
-    current: 'start-page',
+    current: appConst.EVENT_FORM,
   },
   reducers: {
     setAppState: (state, { payload }) => {

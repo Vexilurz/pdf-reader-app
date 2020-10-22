@@ -2,6 +2,7 @@ import './start-page.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
@@ -10,7 +11,7 @@ export interface IStartPageProps {}
 export interface IStartPageState {}
 
 class StartPage extends React.Component<
-  IStartPageProps & DispatchPropsType,
+  StatePropsType & DispatchPropsType,
   IStartPageState
 > {
   componentDidMount(): void {
@@ -59,11 +60,18 @@ class StartPage extends React.Component<
   }
 }
 
+const mapStateToProps = (state: StoreType, ownProps: IStartPageProps) => {
+  return {
+    // visible: ownProps.visible,
+  };
+};
+
 const mapDispatchToProps = {
   setFile: projectFileActions.setFile,
   setAppState: appStateActions.setAppState,
 };
 
+type StatePropsType = ReturnType<typeof mapStateToProps>;
 type DispatchPropsType = typeof mapDispatchToProps;
 
-export default connect(null, mapDispatchToProps)(StartPage);
+export default connect(mapStateToProps, mapDispatchToProps)(StartPage);
