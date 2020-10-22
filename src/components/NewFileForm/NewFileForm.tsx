@@ -7,6 +7,7 @@ import {
   IProjectFileState,
 } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import * as appConst from '../../types/textConstants';
 
 export interface INewFileFormProps {}
 export interface INewFileFormState {
@@ -31,7 +32,7 @@ class NewFileForm extends React.Component<
   }
 
   initListeners = (): void => {
-    ipcRenderer.on('new-file-dialog-response', (event, response) => {
+    ipcRenderer.on(appConst.NEW_FILE_DIALOG_RESPONSE, (event, response) => {
       console.log(response);
       this.setState({ path: response.path });
     });
@@ -40,20 +41,24 @@ class NewFileForm extends React.Component<
   onCreateNewFileClick = (): void => {
     const { setFile, setAppState } = this.props;
     const { path } = this.state;
-    const newFile: IProjectFileState = {
-      path,
-      content: {
-        name: this.projectName,
-        events: [],
-      },
-    };
-    setFile(newFile);
-    setAppState({ current: 'pdf-viewer' });
-    //todo: save file?
+    if (path !== '') {
+      const newFile: IProjectFileState = {
+        path,
+        content: {
+          name: this.projectName,
+          events: [],
+        },
+      };
+      setFile(newFile);
+      setAppState({ current: appConst.PDF_VIEWER });
+      //todo: save file?
+    } else {
+      //todo: show message "please set save path to new file"
+    }
   };
 
   onSetFilePathClick = (): void => {
-    ipcRenderer.send('show-new-file-dialog');
+    ipcRenderer.send(appConst.SHOW_NEW_FILE_DIALOG);
   };
 
   render(): React.ReactElement {
@@ -81,7 +86,7 @@ class NewFileForm extends React.Component<
           >
             Set file path
           </button>
-          {path}
+          Path to save:{path}
         </div>
         <div className="create-new-file">
           <button

@@ -4,6 +4,7 @@ import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import * as appConst from '../../types/textConstants';
 
 export interface IStartPageProps {}
 export interface IStartPageState {}
@@ -17,21 +18,20 @@ class StartPage extends React.Component<
   }
 
   initListeners = (): void => {
-    ipcRenderer.on('open-file-dialog-response', (event, response) => {
-      console.log(response);
+    ipcRenderer.on(appConst.OPEN_FILE_DIALOG_RESPONSE, (event, response) => {
       const { setFile, setAppState } = this.props;
       setFile(response);
-      setAppState({ current: 'pdf-viewer' });
+      setAppState({ current: appConst.PDF_VIEWER });
     });
   };
 
   onOpenFileClick = (): void => {
-    ipcRenderer.send('show-open-file-dialog');
+    ipcRenderer.send(appConst.SHOW_OPEN_FILE_DIALOG);
   };
 
   onNewFileClick = (): void => {
     const { setAppState } = this.props;
-    setAppState({ current: 'new-file-form' });
+    setAppState({ current: appConst.NEW_FILE_FORM });
   };
 
   render(): React.ReactElement {

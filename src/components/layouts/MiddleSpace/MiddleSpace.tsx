@@ -5,6 +5,7 @@ import PDFViewer from '../../PDF/PDFViewer';
 import StartPage from '../../StartPage/StartPage';
 import NewFileForm from '../../NewFileForm/NewFileForm';
 import { StoreType } from '../../../reduxStore/store';
+import * as appConst from '../../../types/textConstants';
 
 export interface IMiddleSpaceProps {
   visible: boolean;
@@ -23,14 +24,16 @@ class MiddleSpace extends React.Component<
 
     const { currentAppState, projectFileContent } = this.props;
 
-    let pageContent = <div />;
-    if (currentAppState === 'start-page') {
+    let pageContent = <div>ERROR: Wrong appState current value</div>;
+    if (currentAppState === appConst.START_PAGE) {
       pageContent = <StartPage />;
-    } else if (currentAppState === 'new-file-form') {
+    } else if (currentAppState === appConst.NEW_FILE_FORM) {
       pageContent = <NewFileForm />;
-    } else if (currentAppState === 'pdf-viewer') {
-      // <PDFViewer />
-      pageContent = <div>pdf viewer {JSON.stringify(projectFileContent)}</div>;
+    } else if (currentAppState === appConst.PDF_VIEWER) {
+      // pageContent = <PDFViewer />
+      pageContent = <div>{JSON.stringify(projectFileContent)}</div>;
+    } else if (currentAppState === appConst.EVENT_FORM) {
+      pageContent = <div>Event form</div>;
     }
 
     return (
@@ -41,10 +44,11 @@ class MiddleSpace extends React.Component<
   }
 }
 
-const mapStateToProps = (state: StoreType) => {
+const mapStateToProps = (state: StoreType, ownProps: IMiddleSpaceProps) => {
   return {
     currentAppState: state.appState.current,
     projectFileContent: state.projectFile.content,
+    visible: ownProps.visible,
   };
 };
 
