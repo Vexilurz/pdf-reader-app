@@ -3,6 +3,7 @@ import * as React from 'react';
 import PDFViewer from '../../PDF/PDFViewer';
 import StartPage from '../../StartPage/StartPage';
 import { connect } from 'react-redux';
+import { StoreType } from '../../../reduxStore/store';
 
 export interface IMiddleSpaceProps {
   visible: boolean;
@@ -35,7 +36,7 @@ class MiddleSpace extends React.Component<
   }
 }
 
-const mapStateToProps = function (state) {
+const mapStateToProps = function (state: StoreType) {
   return {
     currentAppState: state.appState.current,
     projectFileContent: state.projectFile.content,
