@@ -13,11 +13,6 @@ export const appStateSlice = createSlice({
   },
 });
 
-export const { setAppState } = appStateSlice.actions;
-
-export interface IAppStateProps {
-  current: string;
-  setAppState: typeof setAppState;
-}
+export const { actions } = appStateSlice;
 
 export default appStateSlice.reducer;
