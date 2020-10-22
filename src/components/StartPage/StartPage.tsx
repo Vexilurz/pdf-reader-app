@@ -23,13 +23,6 @@ class StartPage extends React.Component<
       setFile(response);
       setAppState({ current: 'pdf-viewer' });
     });
-
-    ipcRenderer.on('new-file-dialog-response', (event, response) => {
-      console.log(response);
-      const { setFile, setAppState } = this.props;
-      setFile(response);
-      setAppState({ current: 'pdf-viewer' });
-    });
   };
 
   onOpenFileClick = (): void => {
@@ -37,7 +30,8 @@ class StartPage extends React.Component<
   };
 
   onNewFileClick = (): void => {
-    ipcRenderer.send('show-new-file-dialog');
+    const { setAppState } = this.props;
+    setAppState({ current: 'new-file-form' });
   };
 
   render(): React.ReactElement {

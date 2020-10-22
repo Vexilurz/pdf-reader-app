@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { IProjectFile } from '../types/projectFile';
 
-interface IProjectFileState {
+export interface IProjectFileState {
   path: string;
   content: IProjectFile | null;
 }

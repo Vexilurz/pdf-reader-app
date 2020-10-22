@@ -3,6 +3,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import PDFViewer from '../../PDF/PDFViewer';
 import StartPage from '../../StartPage/StartPage';
+import NewFileForm from '../../NewFileForm/NewFileForm';
 import { StoreType } from '../../../reduxStore/store';
 
 export interface IMiddleSpaceProps {
@@ -22,15 +23,19 @@ class MiddleSpace extends React.Component<
 
     const { currentAppState, projectFileContent } = this.props;
 
+    let pageContent = <div />;
+    if (currentAppState === 'start-page') {
+      pageContent = <StartPage />;
+    } else if (currentAppState === 'new-file-form') {
+      pageContent = <NewFileForm />;
+    } else if (currentAppState === 'pdf-viewer') {
+      // <PDFViewer />
+      pageContent = <div>pdf viewer {JSON.stringify(projectFileContent)}</div>;
+    }
+
     return (
       <div className="middle-space" style={{ visibility: isVisible }}>
-        {/* <PDFViewer /> */}
-        {currentAppState === 'pdf-viewer' ? (
-          // <PDFViewer />
-          <div>pdf viewer {JSON.stringify(projectFileContent)}</div>
-        ) : (
-          <StartPage />
-        )}
+        {pageContent}
       </div>
     );
   }

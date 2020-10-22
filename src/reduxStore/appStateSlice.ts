@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const appStateSlice = createSlice({
   name: 'appState',
   initialState: {
-    // can be: 'start-page', 'pdf-viewer', 'event-form'
+    // can be: 'start-page', 'new-file-form', 'pdf-viewer', 'event-form'
     current: 'start-page',
   },
   reducers: {
