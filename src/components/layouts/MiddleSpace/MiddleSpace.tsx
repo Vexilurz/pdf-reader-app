@@ -29,7 +29,12 @@ class MiddleSpace extends React.Component<StatePropsType, IMiddleSpaceState> {
       pageContent = <NewFileForm />;
     } else if (currentAppState === appConst.PDF_VIEWER) {
       // pageContent = <PDFViewer />
-      pageContent = <div>{JSON.stringify(projectFileContent)}</div>;
+      pageContent = (
+        <div>
+          <PDFViewer />
+          {JSON.stringify(projectFileContent)}
+        </div>
+      );
     } else if (currentAppState === appConst.EVENT_FORM) {
       pageContent = <EventEditForm />;
     }

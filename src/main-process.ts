@@ -32,7 +32,7 @@ function createWindow() {
 
 app.on('ready', () => {
   createWindow();
-  initListeners(win);
+  initListeners();
 });
 
 app.on('window-all-closed', () => {

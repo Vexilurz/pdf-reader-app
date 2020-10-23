@@ -4,7 +4,7 @@ import * as appConst from '../types/textConstants';
 export const appStateSlice = createSlice({
   name: 'appState',
   initialState: {
-    current: appConst.EVENT_FORM,
+    current: appConst.START_PAGE,
   },
   reducers: {
     setAppState: (state, { payload }) => {

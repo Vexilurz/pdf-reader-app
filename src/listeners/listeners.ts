@@ -1,8 +1,7 @@
-import { BrowserWindow } from 'electron';
-import initFileDialogListener from './fileDialogListener';
+import initFileDialogListeners from './fileDialogListeners';
+import initpdfViewerListeners from './pdfViewerListeners';
 
-export default (win: BrowserWindow | null): void => {
-  if (win !== null) {
-    initFileDialogListener(win);
-  }
+export default (): void => {
+  initFileDialogListeners();
+  initpdfViewerListeners();
 };

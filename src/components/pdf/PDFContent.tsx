@@ -7,13 +7,17 @@ import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 import { IBookmark } from '../../types/bookmark';
 import { pdfRenderer, getTotalOffset } from '../../utils/pdfUtils';
 
-interface IPDFPageProps {
-  pdf: string;
+export interface IPDFdata {
+  data: Uint8Array;
+}
+
+interface IPDFContentProps {
+  pdf: IPDFdata;
   bookmarks: IBookmark[];
   parentRef: React.RefObject<any>;
 }
 
-interface IPDFPageState {
+interface IPDFContentState {
   numPages: number;
   pageNumber: number;
   scale: number;
@@ -21,14 +25,14 @@ interface IPDFPageState {
   endSelection: number;
 }
 
-export default class PDFPage extends React.Component<
-  IPDFPageProps,
-  IPDFPageState
+export default class PDFContent extends React.Component<
+  IPDFContentProps,
+  IPDFContentState
 > {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
 
-  constructor(props: IPDFPageProps) {
+  constructor(props: IPDFContentProps) {
     super(props);
     this.state = {
       numPages: 0,
