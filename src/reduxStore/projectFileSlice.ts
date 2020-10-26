@@ -16,7 +16,8 @@ export const projectFileSlice = createSlice({
   initialState,
   reducers: {
     // todo: add types to payloads
-    setCurrentFile: (state, { payload }) => {
+    setCurrentFile: (state, action) => {
+      const payload: IProjectFileWithPath = action.payload;
       if (payload) {
         const { path, content } = payload;
         state.current = { path, content };
@@ -24,7 +25,8 @@ export const projectFileSlice = createSlice({
         state.current = null;
       }
     },
-    addFileToOpened: (state, { payload }) => {
+    addFileToOpened: (state, action) => {
+      const payload: IProjectFileWithPath = action.payload;
       const { path, content } = payload;
       const found = state.opened.find((item) => {
         return item.path === path;

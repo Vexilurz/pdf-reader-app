@@ -6,13 +6,10 @@ import * as DOM from 'react-dom';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 import { IBookmark } from '../../types/bookmark';
 import { pdfRenderer, getTotalOffset } from '../../utils/pdfUtils';
-
-export interface IPDFdata {
-  data: Uint8Array;
-}
+import { IPDFdata } from '../../types/pdf';
 
 interface IPDFContentProps {
-  pdf: IPDFdata;
+  pdf: IPDFdata | null;
   bookmarks: IBookmark[];
   parentRef: React.RefObject<any>;
 }

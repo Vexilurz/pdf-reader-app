@@ -5,4 +5,12 @@
   margin: 10px;
   font-size: 10pt;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-pdf-file {
+  background-color: #bbbbbb;
+  color: blue;
+  cursor: pointer;
 }

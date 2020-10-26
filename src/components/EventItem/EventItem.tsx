@@ -5,9 +5,11 @@ import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
 // import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 // import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
 import { deletePathFromFilename } from '../../utils/commonUtils';
+import { IPDFdata } from '../../types/pdf';
 
 export interface IEventItemProps {
   event: IEvent;
@@ -28,24 +30,37 @@ class EventItem extends React.Component<
   }
 
   initListeners = (): void => {
-    // ipcRenderer.on(appConst.PDF_FILE_CONTENT_RESPONSE, (event, data) => {
-    //   this.setState({ pdfData: { data } });
-    // });
+    const { setPdf, setLoading } = this.props;
+    ipcRenderer.on(
+      appConst.PDF_FILE_CONTENT_RESPONSE,
+      (event, data: Uint8Array) => {
+        setPdf({ data });
+        setLoading(false);
+      }
+    );
   };
 
   render(): React.ReactElement {
-    const { event } = this.props;
+    const { event, setLoading } = this.props;
     return (
       <div className="event-item">
         <div className="event-title">{event.title}</div>
         <div className="event-description">{event.description}</div>
         <div className="event-date">{event?.date?.toString()}</div>
         <div className="event-pdf-files">
-          {event.files.map((file, index) => {
+          {event.files.map((path, index) => {
             return (
-              <div className="event-pdf-file" key={'event-key' + index}>
-                {deletePathFromFilename(file)}
-              </div>
+              <button
+                type="button"
+                className="event-pdf-file"
+                key={'event-key' + index}
+                onClick={() => {
+                  setLoading(true);
+                  ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
+                }}
+              >
+                {deletePathFromFilename(path)}
+              </button>
             );
           })}
         </div>
@@ -54,7 +69,10 @@ class EventItem extends React.Component<
   }
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  setPdf: pdfViewerActions.setPdf,
+  setLoading: pdfViewerActions.setLoading,
+};
 
 const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {
   return {
