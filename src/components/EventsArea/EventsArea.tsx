@@ -22,6 +22,7 @@ class EventsArea extends React.Component<
     const { projectFileContent } = this.props;
     return (
       <div className="events-area">
+        Events area
         {projectFileContent?.events?.map((event, index) => {
           return <EventItem event={event} key={'event-item-key' + index} />;
         })}

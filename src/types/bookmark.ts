@@ -1,5 +1,6 @@
 export interface IBookmark {
   comment: string;
+  file: string;
   start: number;
   end: number;
   color: string;
@@ -8,20 +9,22 @@ export interface IBookmark {
 // bookmark factory
 export const createBookmark = (
   comment: string,
+  file: string,
   start: number,
   end: number,
   color: string
 ): IBookmark => {
-  return { comment, start, end, color };
+  return { comment, file, start, end, color };
 };
 
+const TEST_FILE = 'D:/Work/documenthub_v2/public/example.pdf';
 export const TEST_BOOKMARKS: IBookmark[] = [
-  createBookmark('comment', 5, 10, 'red'),
-  createBookmark('comment', 100, 200, 'cyan'),
-  createBookmark('comment', 300, 350, 'green'),
+  createBookmark('comment', TEST_FILE, 5, 10, 'red'),
+  createBookmark('comment', TEST_FILE, 100, 200, 'cyan'),
+  createBookmark('comment', TEST_FILE, 300, 350, 'green'),
   // collisioned bookmarks
-  createBookmark('comment', 614, 906, 'olive'),
-  createBookmark('comment', 730, 1200, 'lime'),
+  createBookmark('comment', TEST_FILE, 614, 906, 'olive'),
+  createBookmark('comment', TEST_FILE, 730, 1200, 'lime'),
   // second page
-  createBookmark('comment', 5500, 6000, 'purple'),
+  createBookmark('comment', TEST_FILE, 5500, 6000, 'purple'),
 ];

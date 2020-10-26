@@ -43,7 +43,7 @@ class EventItem extends React.Component<
           {event.files.map((file, index) => {
             return (
               <div className="event-pdf-file" key={'event-key' + index}>
-                {file.path.replace(/^.*[\\\/]/, '')}
+                {file.replace(/^.*[\\\/]/, '')}
               </div>
             );
           })}
