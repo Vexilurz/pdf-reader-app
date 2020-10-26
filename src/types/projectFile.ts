@@ -7,6 +7,11 @@ export interface IProjectFile {
   bookmarks: IBookmark[];
 }
 
+export interface IProjectFileWithPath {
+  path: string;
+  content: IProjectFile | null;
+}
+
 export const newFile = (name: string): IProjectFile => {
   return {
     name,

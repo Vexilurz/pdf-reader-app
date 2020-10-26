@@ -7,6 +7,7 @@ import { StoreType } from '../../reduxStore/store';
 // import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
+import { deletePathFromFilename } from '../../utils/commonUtils';
 
 export interface IEventItemProps {
   event: IEvent;
@@ -43,7 +44,7 @@ class EventItem extends React.Component<
           {event.files.map((file, index) => {
             return (
               <div className="event-pdf-file" key={'event-key' + index}>
-                {file.replace(/^.*[\\\/]/, '')}
+                {deletePathFromFilename(file)}
               </div>
             );
           })}
@@ -53,16 +54,11 @@ class EventItem extends React.Component<
   }
 }
 
-const mapDispatchToProps = {
-  // setFile: projectFileActions.setFile,
-  // setAppState: appStateActions.setAppState,
-};
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {
   return {
     event: ownProps.event,
-    // currentAppState: state.appState.current,
-    // projectFileContent: state.projectFile.content,
   };
 };
 

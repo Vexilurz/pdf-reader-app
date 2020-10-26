@@ -6,6 +6,7 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
+import { IProjectFileWithPath } from '../../types/projectFile';
 
 export interface IStartPageProps {}
 export interface IStartPageState {}
@@ -19,11 +20,15 @@ class StartPage extends React.Component<
   }
 
   initListeners = (): void => {
-    ipcRenderer.on(appConst.OPEN_FILE_DIALOG_RESPONSE, (event, response) => {
-      const { setFile, setAppState } = this.props;
-      setFile(response);
-      setAppState({ current: appConst.PDF_VIEWER });
-    });
+    ipcRenderer.on(
+      appConst.OPEN_FILE_DIALOG_RESPONSE,
+      (event, response: IProjectFileWithPath) => {
+        const { setCurrentFile, setAppState, addFileToOpened } = this.props;
+        setCurrentFile(response);
+        addFileToOpened(response);
+        setAppState({ current: appConst.PDF_VIEWER });
+      }
+    );
   };
 
   onOpenFileClick = (): void => {
@@ -67,7 +72,8 @@ const mapStateToProps = (state: StoreType, ownProps: IStartPageProps) => {
 };
 
 const mapDispatchToProps = {
-  setFile: projectFileActions.setFile,
+  setCurrentFile: projectFileActions.setCurrentFile,
+  addFileToOpened: projectFileActions.addFileToOpened,
   setAppState: appStateActions.setAppState,
 };
 

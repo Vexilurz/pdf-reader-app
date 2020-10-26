@@ -19,11 +19,11 @@ class EventsArea extends React.Component<
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { projectFileContent } = this.props;
+    const { currentProjectFile } = this.props;
     return (
       <div className="events-area">
         Events area
-        {projectFileContent?.events?.map((event, index) => {
+        {currentProjectFile?.content?.events?.map((event, index) => {
           return <EventItem event={event} key={'event-item-key' + index} />;
         })}
       </div>
@@ -31,15 +31,11 @@ class EventsArea extends React.Component<
   }
 }
 
-const mapDispatchToProps = {
-  // setFile: projectFileActions.setFile,
-  // setAppState: appStateActions.setAppState,
-};
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: StoreType, ownProps: IEventsAreaProps) => {
   return {
-    // currentAppState: state.appState.current,
-    projectFileContent: state.projectFile.content,
+    currentProjectFile: state.projectFile.current,
   };
 };
 

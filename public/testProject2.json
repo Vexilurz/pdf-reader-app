@@ -1,0 +1,26 @@
+{
+  "name": "cool",
+  "events": [
+    {
+      "title": "my event",
+      "description": "description 1",
+      "date": "2020-10-21T17:24:45.694Z",
+      "files": ["D:/qwe.pdf", "D:/Work/documenthub_v2/public/WS2812B.pdf"]
+    },
+    {
+      "title": "cool event",
+      "description": "description 2",
+      "date": "2020-10-21T17:24:45.694Z",
+      "files": ["D:/Work/documenthub_v2/public/example.pdf"]
+    }
+  ],
+  "bookmarks": [
+    {
+      "comment": "bookmark comment",
+      "file": "D:/Work/documenthub_v2/public/example.pdf",
+      "start": 15,
+      "end": 20,
+      "color": "brown"
+    }
+  ]
+}

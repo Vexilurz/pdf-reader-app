@@ -7,6 +7,7 @@ import { StoreType } from '../../reduxStore/store';
 // import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
 import { IBookmark } from '../../types/bookmark';
+import { deletePathFromFilename } from '../../utils/commonUtils';
 
 export interface IBookmarkItemProps {
   bookmark: IBookmark;
@@ -40,7 +41,9 @@ class BookmarkItem extends React.Component<
         style={{ backgroundColor: bookmark.color }}
       >
         <div className="bookmark-comment">{bookmark.comment}</div>
-        <div className="bookmark-file">{bookmark.file}</div>
+        <div className="bookmark-file">
+          {deletePathFromFilename(bookmark.file)}
+        </div>
         <div className="bookmark-position">
           {bookmark.start} .. {bookmark.end}
         </div>
@@ -55,16 +58,11 @@ class BookmarkItem extends React.Component<
   }
 }
 
-const mapDispatchToProps = {
-  // setFile: projectFileActions.setFile,
-  // setAppState: appStateActions.setAppState,
-};
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {
   return {
     bookmark: ownProps.bookmark,
-    // currentAppState: state.appState.current,
-    // projectFileContent: state.projectFile.content,
   };
 };
 

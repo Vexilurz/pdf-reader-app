@@ -2,11 +2,9 @@ import './new-file-form.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
-import {
-  actions as projectFileActions,
-  IProjectFileState,
-} from '../../reduxStore/projectFileSlice';
+import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import { IProjectFileWithPath } from '../../types/projectFile';
 import * as appConst from '../../types/textConstants';
 
 export interface INewFileFormProps {}
@@ -39,25 +37,27 @@ class NewFileForm extends React.Component<
   };
 
   onCreateNewFileClick = (): void => {
-    const { setFile, setAppState } = this.props;
+    const { setCurrentFile, setAppState, addFileToOpened } = this.props;
     const { path } = this.state;
     if (path !== '') {
-      const newFile: IProjectFileState = {
+      const newFile: IProjectFileWithPath = {
         path,
         content: {
           name: this.projectName,
           events: [],
+          bookmarks: [],
         },
       };
-      setFile(newFile);
+      setCurrentFile(newFile);
+      addFileToOpened(newFile);
       setAppState({ current: appConst.PDF_VIEWER });
-      //todo: save file?
+      // todo: save file?
     } else {
-      //todo: show message "please set save path to new file"
+      // todo: show message "please set save path to new file"
     }
   };
 
-  onSetFilePathClick = (): void => {
+  onSetCurrentFilePathClick = (): void => {
     ipcRenderer.send(appConst.SHOW_NEW_FILE_DIALOG);
   };
 
@@ -82,7 +82,7 @@ class NewFileForm extends React.Component<
           <button
             type="button"
             className="set-file-path-button"
-            onClick={this.onSetFilePathClick}
+            onClick={this.onSetCurrentFilePathClick}
           >
             Set file path
           </button>
@@ -103,7 +103,8 @@ class NewFileForm extends React.Component<
 }
 
 const mapDispatchToProps = {
-  setFile: projectFileActions.setFile,
+  setCurrentFile: projectFileActions.setCurrentFile,
+  addFileToOpened: projectFileActions.addFileToOpened,
   setAppState: appStateActions.setAppState,
 };
 

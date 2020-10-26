@@ -19,11 +19,11 @@ class BookmarksArea extends React.Component<
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { projectFileContent } = this.props;
+    const { currentProjectFile } = this.props;
     return (
       <div className="bookmarks-area">
         Bookmarks area
-        {projectFileContent?.bookmarks?.map((bookmark, index) => {
+        {currentProjectFile?.content?.bookmarks?.map((bookmark, index) => {
           return (
             <BookmarkItem
               bookmark={bookmark}
@@ -36,15 +36,11 @@ class BookmarksArea extends React.Component<
   }
 }
 
-const mapDispatchToProps = {
-  // setFile: projectFileActions.setFile,
-  // setAppState: appStateActions.setAppState,
-};
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarksAreaProps) => {
   return {
-    // currentAppState: state.appState.current,
-    projectFileContent: state.projectFile.content,
+    currentProjectFile: state.projectFile.current,
   };
 };
 

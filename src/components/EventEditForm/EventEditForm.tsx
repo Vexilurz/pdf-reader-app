@@ -78,15 +78,11 @@ class EventEditForm extends React.Component<
 }
 
 const mapDispatchToProps = {
-  // setFile: projectFileActions.setFile,
   setAppState: appStateActions.setAppState,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {
-  return {
-    // currentAppState: state.appState.current,
-    // projectFileContent: state.projectFile.content,
-  };
+  return {};
 };
 
 type StatePropsType = ReturnType<typeof mapStateToProps>;

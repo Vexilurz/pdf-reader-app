@@ -1,23 +1,35 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IProjectFile } from '../types/projectFile';
+import { IProjectFileWithPath } from '../types/projectFile';
 
 export interface IProjectFileState {
-  path: string;
-  content: IProjectFile | null;
+  current: IProjectFileWithPath | null;
+  opened: IProjectFileWithPath[];
 }
 
 const initialState: IProjectFileState = {
-  path: '',
-  content: null,
+  current: null,
+  opened: [],
 };
 
 export const projectFileSlice = createSlice({
   name: 'projectFile',
   initialState,
   reducers: {
-    setFile: (state, { payload }) => {
-      state.path = payload.path;
-      state.content = payload.content;
+    // todo: add types to payloads
+    setCurrentFile: (state, { payload }) => {
+      if (payload) {
+        const { path, content } = payload;
+        state.current = { path, content };
+      } else {
+        state.current = null;
+      }
+    },
+    addFileToOpened: (state, { payload }) => {
+      const { path, content } = payload;
+      const found = state.opened.find((item) => {
+        return item.path === path;
+      });
+      if (!found) state.opened.push({ path, content });
     },
   },
 });
