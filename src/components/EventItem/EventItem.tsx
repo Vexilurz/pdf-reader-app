@@ -1,3 +1,4 @@
+import './event-item.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
@@ -33,7 +34,6 @@ class EventItem extends React.Component<
 
   render(): React.ReactElement {
     const { event } = this.props;
-    console.log('event', event);
     return (
       <div className="event-item">
         <div className="event-title">{event.title}</div>
@@ -43,7 +43,7 @@ class EventItem extends React.Component<
           {event.files.map((file, index) => {
             return (
               <div className="event-pdf-file" key={'event-key' + index}>
-                {file.path}
+                {file.path.replace(/^.*[\\\/]/, '')}
               </div>
             );
           })}
