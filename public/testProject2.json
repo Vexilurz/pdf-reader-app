@@ -5,7 +5,10 @@
       "title": "my event",
       "description": "description 1",
       "date": "2020-10-21T17:24:45.694Z",
-      "files": ["D:/qwe.pdf", "D:/Work/documenthub_v2/public/WS2812B.pdf"]
+      "files": [
+        "D:/Work/documenthub_v2/public/ug571-ultrascale-selectio.pdf",
+        "D:/Work/documenthub_v2/public/WS2812B.pdf"
+      ]
     },
     {
       "title": "cool event",

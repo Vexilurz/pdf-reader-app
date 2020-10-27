@@ -7,9 +7,10 @@ import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 import { IBookmark } from '../../types/bookmark';
 import { pdfRenderer, getTotalOffset } from '../../utils/pdfUtils';
 import { IPDFdata } from '../../types/pdf';
+import { CircularProgress } from '@material-ui/core';
 
 interface IPDFContentProps {
-  pdf: IPDFdata | null;
+  pdfData: IPDFdata | null;
   bookmarks: IBookmark[];
   parentRef: React.RefObject<any>;
 }
@@ -143,7 +144,7 @@ export default class PDFContent extends React.Component<
   };
 
   render = (): React.ReactElement => {
-    const { pdf, bookmarks } = this.props;
+    const { pdfData: pdf, bookmarks } = this.props;
     const {
       pageNumber,
       numPages,
@@ -162,6 +163,7 @@ export default class PDFContent extends React.Component<
           inputRef={(ref) => (this.containerRef.current = ref)}
           onMouseUp={this.onMouseUp}
           onMouseDown={this.onMouseDown}
+          loading={<CircularProgress size={'100px'} />}
         >
           <Page
             pageNumber={pageNumber}

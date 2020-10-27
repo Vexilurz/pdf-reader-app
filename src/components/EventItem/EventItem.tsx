@@ -3,13 +3,9 @@ import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
-// import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
-// import { actions as appStateActions } from '../../reduxStore/appStateSlice';
-import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
 import { deletePathFromFilename } from '../../utils/commonUtils';
-import { IPDFdata } from '../../types/pdf';
 
 export interface IEventItemProps {
   event: IEvent;
@@ -29,19 +25,10 @@ class EventItem extends React.Component<
     this.initListeners();
   }
 
-  initListeners = (): void => {
-    const { setPdf, setLoading } = this.props;
-    ipcRenderer.on(
-      appConst.PDF_FILE_CONTENT_RESPONSE,
-      (event, data: Uint8Array) => {
-        setPdf({ data });
-        setLoading(false);
-      }
-    );
-  };
+  initListeners = (): void => {};
 
   render(): React.ReactElement {
-    const { event, setLoading } = this.props;
+    const { event } = this.props;
     return (
       <div className="event-item">
         <div className="event-title">{event.title}</div>
@@ -55,7 +42,6 @@ class EventItem extends React.Component<
                 className="event-pdf-file"
                 key={'event-key' + index}
                 onClick={() => {
-                  setLoading(true);
                   ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
                 }}
               >
@@ -69,10 +55,7 @@ class EventItem extends React.Component<
   }
 }
 
-const mapDispatchToProps = {
-  setPdf: pdfViewerActions.setPdf,
-  setLoading: pdfViewerActions.setLoading,
-};
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {
   return {

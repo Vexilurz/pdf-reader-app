@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IProjectFileWithPath } from '../types/projectFile';
 
 export interface IProjectFileState {
@@ -15,9 +15,11 @@ export const projectFileSlice = createSlice({
   name: 'projectFile',
   initialState,
   reducers: {
-    // todo: add types to payloads
-    setCurrentFile: (state, action) => {
-      const payload: IProjectFileWithPath = action.payload;
+    setCurrentFile: (
+      state: IProjectFileState,
+      action: PayloadAction<IProjectFileWithPath>
+    ) => {
+      const { payload } = action;
       if (payload) {
         const { path, content } = payload;
         state.current = { path, content };
@@ -25,8 +27,11 @@ export const projectFileSlice = createSlice({
         state.current = null;
       }
     },
-    addFileToOpened: (state, action) => {
-      const payload: IProjectFileWithPath = action.payload;
+    addFileToOpened: (
+      state: IProjectFileState,
+      action: PayloadAction<IProjectFileWithPath>
+    ) => {
+      const { payload } = action;
       const { path, content } = payload;
       const found = state.opened.find((item) => {
         return item.path === path;

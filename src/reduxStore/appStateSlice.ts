@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import * as appConst from '../types/textConstants';
 
 export interface IAppState {
@@ -13,8 +13,8 @@ export const appStateSlice = createSlice({
   name: 'appState',
   initialState,
   reducers: {
-    setAppState: (state, action) => {
-      const payload: IAppState = action.payload;
+    setAppState: (state: IAppState, action: PayloadAction<IAppState>) => {
+      const { payload } = action;
       state.current = payload.current;
     },
   },
