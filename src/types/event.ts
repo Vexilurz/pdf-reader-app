@@ -4,7 +4,7 @@ export interface IEvent {
   id: string;
   title: string;
   description: string;
-  date: Date;
+  date: string;
   files: string[];
 }
 
@@ -12,6 +12,6 @@ export const NEW_EVENT: IEvent = {
   id: uuidv4(),
   title: '',
   description: '',
-  date: new Date(),
+  date: '',
   files: [],
 };

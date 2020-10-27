@@ -21,7 +21,6 @@ class EventsArea extends React.Component<
   onCreateNewEventClick = () => {
     const { setAppState, setEditingEvent } = this.props;
     setEditingEvent(NEW_EVENT);
-    setAppState(appConst.EVENT_FORM);
   };
 
   render(): React.ReactElement {

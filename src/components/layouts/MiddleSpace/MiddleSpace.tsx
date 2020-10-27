@@ -17,10 +17,8 @@ class MiddleSpace extends React.Component<StatePropsType, IMiddleSpaceState> {
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { visible, editingEvent } = this.props;
+    const { visible, editingEvent, currentAppState } = this.props;
     const isVisible = visible ? 'visible' : 'hidden';
-
-    const { currentAppState } = this.props;
 
     let pageContent = <div>ERROR: Wrong appState current value</div>;
     if (currentAppState === appConst.START_PAGE) {

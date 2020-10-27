@@ -32,7 +32,6 @@ class EventItem extends React.Component<
   onClick = () => {
     const { setAppState, setEditingEvent, event } = this.props;
     setEditingEvent(event);
-    setAppState(appConst.EVENT_FORM);
   };
 
   render(): React.ReactElement {

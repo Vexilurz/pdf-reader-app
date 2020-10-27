@@ -6,13 +6,18 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
-import { IEvent } from '../../types/event';
+import { IEvent, NEW_EVENT } from '../../types/event';
+import { NEW_FILE } from '../../types/projectFile';
 
 export interface IEventEditFormProps {
   event: IEvent;
 }
 export interface IEventEditFormState {
-  event: IEvent;
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  files: string[];
 }
 
 class EventEditForm extends React.Component<
@@ -22,42 +27,52 @@ class EventEditForm extends React.Component<
   constructor(props: IEventEditFormProps & DispatchPropsType) {
     super(props);
     this.state = {
-      event: {
-        id: '',
-        title: '',
-        description: '',
-        date: new Date(),
-        files: [],
-      },
+      id: NEW_EVENT.id,
+      title: NEW_EVENT.title,
+      description: NEW_EVENT.description,
+      date: NEW_EVENT.date,
+      files: NEW_EVENT.files,
     };
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.event !== prevState.event) {
-      return { event: nextProps.event };
-    } else return null;
-  }
+  // static getDerivedStateFromProps(nextProps, prevState) {
+  //   console.log('nextProps', nextProps, 'prevState', prevState);
+  //   if (nextProps.event !== prevState.event) {
+  //     return { event: nextProps.event };
+  //   } else return null;
+  // }
 
   componentDidMount(): void {
     this.initListeners();
   }
 
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (prevProps.event !== this.props.event) {
-  //     // Perform some operation here
-  //     this.setState({ someState: someValue });
-  //   }
-  // }
+  componentDidUpdate(prevProps, prevState) {
+    const { event } = this.props;
+    console.log(
+      'props.event',
+      event,
+      'prevProps',
+      prevProps,
+      'prevState',
+      prevState
+    );
+    if (prevState.id !== event.id) {
+      const { id, title, description, date, files } = event;
+      this.setState({ id, title, description, date, files });
+    }
+  }
 
   initListeners = (): void => {};
 
   onSetEventClick = (): void => {
     const { setEvent } = this.props;
-    const { event } = this.state;
+    const { id, title, description, date, files } = this.state;
+    const event: IEvent = { id, title, description, date, files };
     setEvent(event);
   };
 
   render(): React.ReactElement {
+    const { id, title, description, date, files } = this.state;
     return (
       <div className="event-edit-form">
         <div className="event-title-label">Event title:</div>
@@ -65,30 +80,28 @@ class EventEditForm extends React.Component<
           <input
             className="event-title-input"
             type="text"
+            value={title} // this may be recoursive, need to take that from props...
             style={{
               width: '400px',
             }}
             onChange={(e) => {
-              const { event } = this.state;
-              event.title = e.target.value;
-              this.setState({ event });
+              this.setState({ title: e.target.value });
             }}
           />
         </div>
-        <div className="date-picker">Event date picker here</div>
+        <div className="date-picker">Event date picker here {date}</div>
         <div className="description-label">Description:</div>
         <div className="event-description">
           <input
             className="event-description-area"
             type="textarea"
+            value={description} // this may be recoursive, need to take that from props...
             style={{
               width: '400px',
               height: '150px',
             }}
             onChange={(e) => {
-              const { event } = this.state;
-              event.description = e.target.value;
-              this.setState({ event });
+              this.setState({ description: e.target.value });
             }}
           />
         </div>

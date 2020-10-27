@@ -23,6 +23,7 @@ export const appStateSlice = createSlice({
     setEditingEvent: (state: IAppState, action: PayloadAction<IEvent>) => {
       const { payload } = action;
       state.editingEvent = payload;
+      state.current = appConst.EVENT_FORM;
     },
   },
 });

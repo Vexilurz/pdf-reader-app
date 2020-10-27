@@ -41,14 +41,11 @@ export const projectFileSlice = createSlice({
     },
     setEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
       const { payload } = action;
-      const found = state.current?.content?.events?.find((item) => {
+      const index = state.current?.content?.events?.findIndex((item) => {
         return item.id === payload.id;
       });
-      if (found) {
-        found.title = payload.title;
-        found.description = payload.description;
-        found.date = payload.date;
-        found.files = payload.files;
+      if (index !== -1) {
+        state.current.content.events[index] = payload;
       } else {
         state.current?.content?.events?.push(payload);
       }
