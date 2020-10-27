@@ -29,7 +29,7 @@ class ProjectsTabs extends React.Component<
               key={'project-tab-key' + index}
               onClick={() => {
                 setCurrentFile(project);
-                setAppState({ current: appConst.PDF_VIEWER });
+                setAppState(appConst.PDF_VIEWER);
               }}
             >
               {project.content?.name} ({deletePathFromFilename(project.path)})
@@ -42,7 +42,7 @@ class ProjectsTabs extends React.Component<
           key="project-tab-add"
           onClick={() => {
             setCurrentFile(null);
-            setAppState({ current: appConst.START_PAGE });
+            setAppState(appConst.START_PAGE);
           }}
         >
           +

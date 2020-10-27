@@ -2,6 +2,7 @@
   "name": "cool",
   "events": [
     {
+      "id": "1",
       "title": "my event",
       "description": "description 1",
       "date": "2020-10-21T17:24:45.694Z",
@@ -11,6 +12,7 @@
       ]
     },
     {
+      "id": "2",
       "title": "cool event",
       "description": "description 2",
       "date": "2020-10-21T17:24:45.694Z",

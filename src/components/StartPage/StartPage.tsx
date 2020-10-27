@@ -26,7 +26,7 @@ class StartPage extends React.Component<
         const { setCurrentFile, setAppState, addFileToOpened } = this.props;
         setCurrentFile(response);
         addFileToOpened(response);
-        setAppState({ current: appConst.PDF_VIEWER });
+        setAppState(appConst.PDF_VIEWER);
       }
     );
   };
@@ -37,7 +37,7 @@ class StartPage extends React.Component<
 
   onNewFileClick = (): void => {
     const { setAppState } = this.props;
-    setAppState({ current: appConst.NEW_FILE_FORM });
+    setAppState(appConst.NEW_FILE_FORM);
   };
 
   render(): React.ReactElement {

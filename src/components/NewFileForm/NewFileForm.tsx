@@ -50,7 +50,7 @@ class NewFileForm extends React.Component<
       };
       setCurrentFile(newFile);
       addFileToOpened(newFile);
-      setAppState({ current: appConst.PDF_VIEWER });
+      setAppState(appConst.PDF_VIEWER);
       // todo: save file?
     } else {
       // todo: show message "please set save path to new file"

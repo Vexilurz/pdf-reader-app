@@ -6,7 +6,7 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
-import { IEvent } from '../../types/event';
+import { IEvent, NEW_EVENT } from '../../types/event';
 import EventItem from '../EventItem/EventItem';
 
 export interface IEventsAreaProps {}
@@ -18,6 +18,12 @@ class EventsArea extends React.Component<
 > {
   componentDidMount() {}
 
+  onCreateNewEventClick = () => {
+    const { setAppState, setEditingEvent } = this.props;
+    setEditingEvent(NEW_EVENT);
+    setAppState(appConst.EVENT_FORM);
+  };
+
   render(): React.ReactElement {
     const { currentProjectFile } = this.props;
     return (
@@ -26,12 +32,22 @@ class EventsArea extends React.Component<
         {currentProjectFile?.content?.events?.map((event, index) => {
           return <EventItem event={event} key={'event-item-key' + index} />;
         })}
+        <button
+          type="button"
+          className="create-new-event-button"
+          onClick={this.onCreateNewEventClick}
+        >
+          Create new event
+        </button>
       </div>
     );
   }
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  setAppState: appStateActions.setAppState,
+  setEditingEvent: appStateActions.setEditingEvent,
+};
 
 const mapStateToProps = (state: StoreType, ownProps: IEventsAreaProps) => {
   return {

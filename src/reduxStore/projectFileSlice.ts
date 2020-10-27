@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IProjectFileWithPath } from '../types/projectFile';
+import { IEvent } from '../types/event';
 
 export interface IProjectFileState {
   current: IProjectFileWithPath | null;
@@ -37,6 +38,20 @@ export const projectFileSlice = createSlice({
         return item.path === path;
       });
       if (!found) state.opened.push({ path, content });
+    },
+    setEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
+      const { payload } = action;
+      const found = state.current?.content?.events?.find((item) => {
+        return item.id === payload.id;
+      });
+      if (found) {
+        found.title = payload.title;
+        found.description = payload.description;
+        found.date = payload.date;
+        found.files = payload.files;
+      } else {
+        state.current?.content?.events?.push(payload);
+      }
     },
   },
 });
