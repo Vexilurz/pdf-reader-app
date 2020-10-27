@@ -20,7 +20,7 @@ class MiddleSpace extends React.Component<StatePropsType, IMiddleSpaceState> {
     const { visible } = this.props;
     const isVisible = visible ? 'visible' : 'hidden';
 
-    const { currentAppState, currentProjectFile } = this.props;
+    const { currentAppState } = this.props;
 
     let pageContent = <div>ERROR: Wrong appState current value</div>;
     if (currentAppState === appConst.START_PAGE) {
@@ -28,13 +28,7 @@ class MiddleSpace extends React.Component<StatePropsType, IMiddleSpaceState> {
     } else if (currentAppState === appConst.NEW_FILE_FORM) {
       pageContent = <NewFileForm />;
     } else if (currentAppState === appConst.PDF_VIEWER) {
-      // pageContent = <PDFViewer />
-      pageContent = (
-        <div>
-          <PDFViewer />
-          {JSON.stringify(currentProjectFile?.content)}
-        </div>
-      );
+      pageContent = <PDFViewer />;
     } else if (currentAppState === appConst.EVENT_FORM) {
       pageContent = <EventEditForm />;
     }
@@ -50,7 +44,6 @@ class MiddleSpace extends React.Component<StatePropsType, IMiddleSpaceState> {
 const mapStateToProps = (state: StoreType, ownProps: IMiddleSpaceProps) => {
   return {
     currentAppState: state.appState.current,
-    currentProjectFile: state.projectFile.current,
     visible: ownProps.visible,
   };
 };

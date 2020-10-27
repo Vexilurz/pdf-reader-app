@@ -40,8 +40,10 @@ class PDFViewer extends React.Component<
 
   render(): React.ReactElement {
     const { pdfData } = this.state;
+    const { pdfPath } = this.props;
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
+        {pdfPath}
         <PDFContent
           pdfData={pdfData}
           bookmarks={TEST_BOOKMARKS}
@@ -57,7 +59,9 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
-  return {};
+  return {
+    pdfPath: state.pdfViewer.pdfPath,
+  };
 };
 
 type StatePropsType = ReturnType<typeof mapStateToProps>;

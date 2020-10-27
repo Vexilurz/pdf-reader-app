@@ -1,32 +1,25 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { IPDFdata } from '../types/pdf';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface IPDFViewerState {
-  pdf: IPDFdata | null;
-  loading: boolean;
+  pdfPath: string;
 }
 
 const initialState: IPDFViewerState = {
-  pdf: null,
-  loading: true,
+  pdfPath: '',
 };
 
 export const pdfViewerSlice = createSlice({
   name: 'pdfViewer',
   initialState,
   reducers: {
-    setPdf: (state, action) => {
-      const payload: IPDFdata = action.payload;
+    setPdfPath: (state: IPDFViewerState, action: PayloadAction<string>) => {
+      const { payload } = action;
       if (payload) {
-        state.pdf = payload;
+        state.pdfPath = payload;
       } else {
-        state.pdf = null;
+        state.pdfPath = '';
       }
     },
-    setLoading: (state, action) => {
-      const payload: boolean = action.payload;
-      state.loading = payload;
-    }
   },
 });
 

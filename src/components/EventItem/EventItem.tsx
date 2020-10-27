@@ -6,6 +6,7 @@ import { StoreType } from '../../reduxStore/store';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
 import { deletePathFromFilename } from '../../utils/commonUtils';
+import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 
 export interface IEventItemProps {
   event: IEvent;
@@ -28,7 +29,7 @@ class EventItem extends React.Component<
   initListeners = (): void => {};
 
   render(): React.ReactElement {
-    const { event } = this.props;
+    const { event, setPdfPath } = this.props;
     return (
       <div className="event-item">
         <div className="event-title">{event.title}</div>
@@ -43,6 +44,7 @@ class EventItem extends React.Component<
                 key={'event-key' + index}
                 onClick={() => {
                   ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
+                  setPdfPath(path);
                 }}
               >
                 {deletePathFromFilename(path)}
@@ -55,7 +57,9 @@ class EventItem extends React.Component<
   }
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  setPdfPath: pdfViewerActions.setPdfPath,
+};
 
 const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {
   return {
