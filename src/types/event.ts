@@ -6,14 +6,12 @@ export interface IEvent {
   description: string;
   date: string;
   files: string[];
-  isNew: boolean;
 }
 
 export const getNewEvent = (): IEvent => ({
   id: uuidv4(),
   title: '',
   description: '',
-  date: '',
+  date: new Date().toString(),
   files: [],
-  isNew: true,
 });
