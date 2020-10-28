@@ -6,85 +6,72 @@ import DatePicker from 'react-datepicker';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
 import * as appConst from '../../types/textConstants';
-import { IEvent } from '../../types/event';
 
-export interface IEventEditFormProps {
-  event: IEvent;
-}
-export interface IEventEditFormState {
-  selectedDate: Date;
-}
+export interface IEventEditFormProps {}
+export interface IEventEditFormState {}
 
 class EventEditForm extends React.Component<
   StatePropsType & DispatchPropsType,
   IEventEditFormState
 > {
-  private inputTitleRef: React.RefObject<any>;
-  private inputDescriptionRef: React.RefObject<any>;
-
-  constructor(props: IEventEditFormProps & DispatchPropsType) {
+  constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
-    // this.onSetEventClick = this.onSetEventClick.bind(this);
-    this.inputTitleRef = React.createRef();
-    this.inputDescriptionRef = React.createRef();
-    this.state = {
-      selectedDate: new Date(props.event.date),
-    };
+    this.state = {};
   }
 
   componentDidMount(): void {
-    this.grabDefaultValues();
     this.initListeners();
   }
 
-  componentDidUpdate(): void {
-    this.grabDefaultValues();
-  }
-
-  grabDefaultValues = () => {
-    const { event } = this.props;
-    this.inputTitleRef.current.value = event.title;
-    this.inputDescriptionRef.current.value = event.description;
-  };
+  componentDidUpdate(prevProps, prevState): void {}
 
   initListeners = (): void => {};
 
   onSetEventClick = (): void => {
-    const { addEvent, updateEvent, event, setAppState } = this.props;
-    const { selectedDate } = this.state;
-    const newEvent = { ...event };
-    newEvent.title = this.inputTitleRef.current.value;
-    newEvent.description = this.inputDescriptionRef.current.value;
-    newEvent.date = selectedDate.toString();
-    newEvent.isNew = false;
-    if (event.isNew) addEvent(newEvent);
-    else updateEvent(newEvent);
+    const {
+      addEvent,
+      updateEvent,
+      editingEvent,
+      isNew,
+      setAppState,
+    } = this.props;
+    if (isNew) addEvent(editingEvent);
+    else updateEvent(editingEvent);
     setAppState(appConst.PDF_VIEWER);
   };
 
   render(): React.ReactElement {
-    const { event } = this.props;
-    const { selectedDate } = this.state;
+    const { editingEvent, setEditingEvent, isNew } = this.props;
     return (
       <div className="event-edit-form">
-        <div className="event-id">ID: {event.id}</div>
+        <div className="event-id">ID: {editingEvent.id}</div>
         <div className="event-title-label">Event title:</div>
         <div className="event-title">
           <input
             className="event-title-input"
             type="text"
-            ref={this.inputTitleRef}
             style={{
               width: '400px',
+            }}
+            value={editingEvent.title}
+            onChange={(e) => {
+              const updatedEvent = { ...editingEvent };
+              updatedEvent.title = e.target.value;
+              setEditingEvent(updatedEvent);
             }}
           />
         </div>
         <div className="date-picker">
           Event date:
           <DatePicker
-            selected={selectedDate}
-            onChange={(date: Date) => this.setState({ selectedDate: date })}
+            selected={new Date(editingEvent.date)}
+            onChange={(date: Date) => {
+              const updatedEvent = { ...editingEvent };
+              updatedEvent.date = date.toString();
+              setEditingEvent(updatedEvent);
+            }}
           />
         </div>
         <div className="description-label">Description:</div>
@@ -92,10 +79,15 @@ class EventEditForm extends React.Component<
           <input
             className="event-description-area"
             type="textarea"
-            ref={this.inputDescriptionRef}
             style={{
               width: '400px',
               height: '150px',
+            }}
+            value={editingEvent.description}
+            onChange={(e) => {
+              const updatedEvent = { ...editingEvent };
+              updatedEvent.description = e.target.value;
+              setEditingEvent(updatedEvent);
             }}
           />
         </div>
@@ -106,7 +98,7 @@ class EventEditForm extends React.Component<
             className="set-event-button"
             onClick={this.onSetEventClick}
           >
-            {event.isNew ? 'Add event' : 'Update event'}
+            {isNew ? 'Add event' : 'Update event'}
           </button>
         </div>
       </div>
@@ -118,11 +110,13 @@ const mapDispatchToProps = {
   addEvent: projectFileActions.addEvent,
   updateEvent: projectFileActions.updateEvent,
   setAppState: appStateActions.setAppState,
+  setEditingEvent: editingEventActions.setEditingEvent,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {
   return {
-    event: ownProps.event,
+    editingEvent: state.editingEvent.event,
+    isNew: state.editingEvent.isNew,
   };
 };
 

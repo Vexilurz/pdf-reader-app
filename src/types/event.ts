@@ -6,7 +6,6 @@ export interface IEvent {
   description: string;
   date: string;
   files: string[];
-  isNew: boolean;
 }
 
 export const getNewEvent = (): IEvent => ({
@@ -15,5 +14,4 @@ export const getNewEvent = (): IEvent => ({
   description: '',
   date: new Date().toString(),
   files: [],
-  isNew: true,
 });

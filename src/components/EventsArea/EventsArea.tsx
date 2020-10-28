@@ -2,7 +2,9 @@ import './events-area.scss';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
+import * as appConst from '../../types/textConstants';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
 import { getNewEvent } from '../../types/event';
 import EventItem from '../EventItem/EventItem';
 
@@ -16,8 +18,10 @@ class EventsArea extends React.Component<
   componentDidMount() {}
 
   onCreateNewEventClick = () => {
-    const { editEvent } = this.props;
-    editEvent(getNewEvent());
+    const { setAppState, setEditingEvent, setIsNew } = this.props;
+    setEditingEvent(getNewEvent());
+    setIsNew(true);
+    setAppState(appConst.EVENT_FORM);
   };
 
   render(): React.ReactElement {
@@ -42,7 +46,8 @@ class EventsArea extends React.Component<
 
 const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
-  editEvent: appStateActions.editEvent,
+  setEditingEvent: editingEventActions.setEditingEvent,
+  setIsNew: editingEventActions.setIsNew,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventsAreaProps) => {

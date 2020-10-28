@@ -8,6 +8,7 @@ import { IEvent } from '../../types/event';
 import { deletePathFromFilename } from '../../utils/commonUtils';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
 
 export interface IEventItemProps {
   event: IEvent;
@@ -30,8 +31,10 @@ class EventItem extends React.Component<
   initListeners = (): void => {};
 
   onEditEventClick = () => {
-    const { editEvent, event } = this.props;
-    editEvent(event);
+    const { setAppState, setEditingEvent, setIsNew, event } = this.props;
+    setEditingEvent(event);
+    setIsNew(false);
+    setAppState(appConst.EVENT_FORM);
   };
 
   render(): React.ReactElement {
@@ -73,7 +76,8 @@ class EventItem extends React.Component<
 const mapDispatchToProps = {
   setPdfPath: pdfViewerActions.setPdfPath,
   setAppState: appStateActions.setAppState,
-  editEvent: appStateActions.editEvent,
+  setEditingEvent: editingEventActions.setEditingEvent,
+  setIsNew: editingEventActions.setIsNew,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {
