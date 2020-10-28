@@ -13,7 +13,7 @@ export const getNewEvent = (): IEvent => ({
   id: uuidv4(),
   title: '',
   description: '',
-  date: '',
+  date: new Date().toString(),
   files: [],
   isNew: true,
 });

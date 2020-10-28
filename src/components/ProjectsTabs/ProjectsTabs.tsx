@@ -1,6 +1,5 @@
 import './projects-tabs.scss';
 import * as React from 'react';
-import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
@@ -41,7 +40,6 @@ class ProjectsTabs extends React.Component<
           className="project-tab"
           key="project-tab-add"
           onClick={() => {
-            setCurrentFile(null);
             setAppState(appConst.START_PAGE);
           }}
         >

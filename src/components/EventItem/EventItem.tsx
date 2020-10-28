@@ -37,7 +37,14 @@ class EventItem extends React.Component<
   render(): React.ReactElement {
     const { event, setPdfPath } = this.props;
     return (
-      <div className="event-item" onClick={this.onEditEventClick}>
+      <div className="event-item">
+        <button
+          type="button"
+          className="event-edit-button"
+          onClick={this.onEditEventClick}
+        >
+          Edit
+        </button>
         <div className="event-title">{event.title}</div>
         <div className="event-description">{event.description}</div>
         <div className="event-date">{event?.date?.toString()}</div>

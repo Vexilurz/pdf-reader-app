@@ -4,7 +4,7 @@ import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
-import { IProjectFileWithPath } from '../../types/projectFile';
+import { IProjectFileWithPath, getNewFile } from '../../types/projectFile';
 import * as appConst from '../../types/textConstants';
 
 export interface INewFileFormProps {}
@@ -42,11 +42,7 @@ class NewFileForm extends React.Component<
     if (path !== '') {
       const newFile: IProjectFileWithPath = {
         path,
-        content: {
-          name: this.projectNameRef.current.value,
-          events: [],
-          bookmarks: [],
-        },
+        content: getNewFile(this.projectNameRef.current.value),
       };
       setCurrentFile(newFile);
       addFileToOpened(newFile);
@@ -54,6 +50,7 @@ class NewFileForm extends React.Component<
       // todo: save file?
     } else {
       // todo: show message "please set save path to new file"
+      setAppState(appConst.START_PAGE);
     }
   };
 

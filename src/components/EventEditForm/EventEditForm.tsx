@@ -1,6 +1,8 @@
 import './event-edit-form.scss';
+import 'react-datepicker/dist/react-datepicker.css';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import DatePicker from 'react-datepicker';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
@@ -10,7 +12,9 @@ import { IEvent } from '../../types/event';
 export interface IEventEditFormProps {
   event: IEvent;
 }
-export interface IEventEditFormState {}
+export interface IEventEditFormState {
+  selectedDate: Date;
+}
 
 class EventEditForm extends React.Component<
   StatePropsType & DispatchPropsType,
@@ -24,7 +28,9 @@ class EventEditForm extends React.Component<
     // this.onSetEventClick = this.onSetEventClick.bind(this);
     this.inputTitleRef = React.createRef();
     this.inputDescriptionRef = React.createRef();
-    this.state = {};
+    this.state = {
+      selectedDate: new Date(props.event.date),
+    };
   }
 
   componentDidMount(): void {
@@ -46,9 +52,11 @@ class EventEditForm extends React.Component<
 
   onSetEventClick = (): void => {
     const { addEvent, updateEvent, event, setAppState } = this.props;
+    const { selectedDate } = this.state;
     const newEvent = { ...event };
     newEvent.title = this.inputTitleRef.current.value;
     newEvent.description = this.inputDescriptionRef.current.value;
+    newEvent.date = selectedDate.toString();
     newEvent.isNew = false;
     if (event.isNew) addEvent(newEvent);
     else updateEvent(newEvent);
@@ -57,8 +65,10 @@ class EventEditForm extends React.Component<
 
   render(): React.ReactElement {
     const { event } = this.props;
+    const { selectedDate } = this.state;
     return (
       <div className="event-edit-form">
+        <div className="event-id">ID: {event.id}</div>
         <div className="event-title-label">Event title:</div>
         <div className="event-title">
           <input
@@ -70,7 +80,13 @@ class EventEditForm extends React.Component<
             }}
           />
         </div>
-        <div className="date-picker">Event date picker here {event.date}</div>
+        <div className="date-picker">
+          Event date:
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date: Date) => this.setState({ selectedDate: date })}
+          />
+        </div>
         <div className="description-label">Description:</div>
         <div className="event-description">
           <input
