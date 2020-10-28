@@ -132,7 +132,7 @@ class EventEditForm extends React.Component<
             );
           })}
         </div>
-        <div className="file-drop-area">
+        <div className="event-form-dropzone">
           <Dropzone onDrop={this.onFilesDrop}>
             {({ getRootProps, getInputProps }) => (
               <section>
