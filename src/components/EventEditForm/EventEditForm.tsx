@@ -3,6 +3,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
+import Dropzone from 'react-dropzone';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
@@ -91,7 +92,38 @@ class EventEditForm extends React.Component<
             }}
           />
         </div>
-        <div className="file-drop-area">File drop area here</div>
+        <div className="event-files">
+          {editingEvent.files.map((file, index) => {
+            return (
+              <div className="event-file" key={'event-file-key' + index}>
+                {file}
+              </div>
+            );
+          })}
+        </div>
+        <div className="file-drop-area">
+          <Dropzone
+            onDrop={(acceptedFiles) => {
+              const updatedEvent = { ...editingEvent };
+              const files = Object.assign([], updatedEvent.files);
+              acceptedFiles.forEach((file) => {
+                const path = file.path.replace('\\', '/');
+                if (files.indexOf(path) === -1) files.push(path);
+              });
+              updatedEvent.files = files;
+              setEditingEvent(updatedEvent);
+            }}
+          >
+            {({ getRootProps, getInputProps }) => (
+              <section>
+                <div {...getRootProps()}>
+                  <input {...getInputProps()} />
+                  <p>Drag 'n' drop some files here, or click to select files</p>
+                </div>
+              </section>
+            )}
+          </Dropzone>
+        </div>
         <div className="set-event">
           <button
             type="button"
