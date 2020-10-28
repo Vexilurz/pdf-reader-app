@@ -43,6 +43,30 @@ class EventEditForm extends React.Component<
     setAppState(appConst.PDF_VIEWER);
   };
 
+  // todo: find type of acceptedFiles of Dropzone.onDrop
+  onFilesDrop = (acceptedFiles) => {
+    const { editingEvent, setEditingEvent } = this.props;
+    const updatedEvent = { ...editingEvent };
+    const files = Object.assign([], updatedEvent.files);
+    acceptedFiles.forEach((file) => {
+      // todo: use toLowerCase when compare?
+      const { path } = file;
+      if (files.indexOf(path) === -1) files.push(path);
+    });
+    updatedEvent.files = files;
+    setEditingEvent(updatedEvent);
+  };
+
+  onDeleteEventFile = (file: string) => () => {
+    const { editingEvent, setEditingEvent } = this.props;
+    const updatedEvent = { ...editingEvent };
+    const files = Object.assign([], updatedEvent.files);
+    const index = files.indexOf(file);
+    if (index > -1) files.splice(index, 1);
+    updatedEvent.files = files;
+    setEditingEvent(updatedEvent);
+  };
+
   render(): React.ReactElement {
     const { editingEvent, setEditingEvent, isNew } = this.props;
     return (
@@ -96,24 +120,20 @@ class EventEditForm extends React.Component<
           {editingEvent.files.map((file, index) => {
             return (
               <div className="event-file" key={'event-file-key' + index}>
+                <button
+                  type="button"
+                  className="delete-event-file-button"
+                  onClick={this.onDeleteEventFile(file)}
+                >
+                  X
+                </button>
                 {file}
               </div>
             );
           })}
         </div>
         <div className="file-drop-area">
-          <Dropzone
-            onDrop={(acceptedFiles) => {
-              const updatedEvent = { ...editingEvent };
-              const files = Object.assign([], updatedEvent.files);
-              acceptedFiles.forEach((file) => {
-                const path = file.path.replace('\\', '/');
-                if (files.indexOf(path) === -1) files.push(path);
-              });
-              updatedEvent.files = files;
-              setEditingEvent(updatedEvent);
-            }}
-          >
+          <Dropzone onDrop={this.onFilesDrop}>
             {({ getRootProps, getInputProps }) => (
               <section>
                 <div {...getRootProps()}>
