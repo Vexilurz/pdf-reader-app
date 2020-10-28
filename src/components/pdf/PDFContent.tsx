@@ -4,38 +4,38 @@ import './pdf.scss';
 import React from 'react';
 import * as DOM from 'react-dom';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
-import { IBookmark } from '../../types/pdfBookmark';
+import { IBookmark } from '../../types/bookmark';
 import { pdfRenderer, getTotalOffset } from '../../utils/pdfUtils';
+import { IPDFdata } from '../../types/pdf';
+import { CircularProgress } from '@material-ui/core';
 
-interface IPDFPageProps {
-  pdf: string;
+interface IPDFContentProps {
+  pdfData: IPDFdata | null;
   bookmarks: IBookmark[];
+  parentRef: React.RefObject<any>;
 }
 
-interface IPDFPageState {
+interface IPDFContentState {
   numPages: number;
   pageNumber: number;
   scale: number;
-  parentDiv?: any;
-  setPages?: Object;
   startSelection: number;
   endSelection: number;
 }
 
-export default class PDFPage extends React.Component<
-  IPDFPageProps,
-  IPDFPageState
+export default class PDFContent extends React.Component<
+  IPDFContentProps,
+  IPDFContentState
 > {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
 
-  constructor(props: IPDFPageProps) {
+  constructor(props: IPDFContentProps) {
     super(props);
     this.state = {
       numPages: 0,
       pageNumber: 1,
       scale: 1.0,
-      setPages: {},
       startSelection: Infinity,
       endSelection: Infinity,
     };
@@ -44,14 +44,12 @@ export default class PDFPage extends React.Component<
     this.documentRef = React.createRef();
   }
 
-  componentDidMount() {
-    const parent = DOM.findDOMNode(this).parentNode; // deprecated?
-    this.setState({ parentDiv: parent });
-  }
+  componentDidMount() {}
 
   calcScale = (page) => {
-    if (this.state.parentDiv) {
-      const pageScale = this.state.parentDiv.clientWidth / page.originalWidth;
+    const parent = this.props.parentRef.current;
+    if (parent) {
+      const pageScale = parent.clientWidth / page.originalWidth;
       if (this.state.scale !== pageScale) {
         this.setState({ scale: pageScale });
       }
@@ -146,7 +144,7 @@ export default class PDFPage extends React.Component<
   };
 
   render = (): React.ReactElement => {
-    const { pdf, bookmarks } = this.props;
+    const { pdfData: pdf, bookmarks } = this.props;
     const {
       pageNumber,
       numPages,
@@ -165,6 +163,7 @@ export default class PDFPage extends React.Component<
           inputRef={(ref) => (this.containerRef.current = ref)}
           onMouseUp={this.onMouseUp}
           onMouseDown={this.onMouseDown}
+          loading={<CircularProgress size={'100px'} />}
         >
           <Page
             pageNumber={pageNumber}

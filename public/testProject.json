@@ -1,0 +1,47 @@
+{
+  "name": "awesome",
+  "events": [
+    {
+      "title": "event 1",
+      "description": "description 1",
+      "date": "2020-10-21T17:24:45.694Z",
+      "files": ["D:/qwe.pdf", "D:/asd.pdf"]
+    },
+    {
+      "title": "event 2",
+      "description": "description 2",
+      "date": "2020-10-21T17:24:45.694Z",
+      "files": ["D:/zxc.pdf"]
+    }
+  ],
+  "bookmarks": [
+    {
+      "comment": "comment 1",
+      "file": "D:/qwe.pdf",
+      "start": 15,
+      "end": 20,
+      "color": "red"
+    },
+    {
+      "comment": "comment 2",
+      "file": "D:/asd.pdf",
+      "start": 100,
+      "end": 130,
+      "color": "blue"
+    },
+    {
+      "comment": "comment 5",
+      "file": "D:/zxc.pdf",
+      "start": 300,
+      "end": 330,
+      "color": "green"
+    },
+    {
+      "comment": "comment 6",
+      "file": "D:/zxc.pdf",
+      "start": 100,
+      "end": 130,
+      "color": "yellow"
+    }
+  ]
+}

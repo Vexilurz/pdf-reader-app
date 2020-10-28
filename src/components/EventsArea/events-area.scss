@@ -1,4 +1,11 @@
 .events-area {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.create-new-event-button {
+  width: 100%;
+  margin-top: auto;
 }

@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron';
+import initListeners from './listeners/listeners';
 
 declare const ENVIRONMENT: string;
 
@@ -31,6 +32,7 @@ function createWindow() {
 
 app.on('ready', () => {
   createWindow();
+  initListeners();
 });
 
 app.on('window-all-closed', () => {

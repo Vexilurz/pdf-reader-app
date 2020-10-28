@@ -1,16 +1,50 @@
 import './bookmarks-area.scss';
 import * as React from 'react';
+import { ipcRenderer } from 'electron';
+import { connect } from 'react-redux';
+import { StoreType } from '../../reduxStore/store';
+import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
+import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import * as appConst from '../../types/textConstants';
+import { IBookmark } from '../../types/bookmark';
+import BookmarkItem from '../BookmarkItem/BookmarkItem';
 
 export interface IBookmarksAreaProps {}
 export interface IBookmarksAreaState {}
 
-export default class BookmarksArea extends React.Component<
-  IBookmarksAreaProps,
+class BookmarksArea extends React.Component<
+  StatePropsType & DispatchPropsType,
   IBookmarksAreaState
 > {
   componentDidMount() {}
 
   render(): React.ReactElement {
-    return <div className="bookmarks-area">Bookmarks area</div>;
+    const { currentProjectFile } = this.props;
+    return (
+      <div className="bookmarks-area">
+        Bookmarks area
+        {currentProjectFile?.content?.bookmarks?.map((bookmark, index) => {
+          return (
+            <BookmarkItem
+              bookmark={bookmark}
+              key={'bookmark-item-key' + index}
+            />
+          );
+        })}
+      </div>
+    );
   }
 }
+
+const mapDispatchToProps = {};
+
+const mapStateToProps = (state: StoreType, ownProps: IBookmarksAreaProps) => {
+  return {
+    currentProjectFile: state.projectFile.current,
+  };
+};
+
+type StatePropsType = ReturnType<typeof mapStateToProps>;
+type DispatchPropsType = typeof mapDispatchToProps;
+
+export default connect(mapStateToProps, mapDispatchToProps)(BookmarksArea);

@@ -6,6 +6,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const DefinePlugin = require('webpack').DefinePlugin;
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
+require('babel-polyfill');
 
 // const to avoid typos
 const DEVELOPMENT = 'development';
@@ -140,7 +141,11 @@ function createMainConfig(isDev) {
     mode: isDev ? DEVELOPMENT : PRODUCTION,
 
     entry: {
-      'main-process': './main-process.ts',
+      'main-process': ['babel-polyfill', './main-process.ts'],
+    },
+
+    resolve: {
+      extensions: ['.js', '.ts', '.json'],
     },
 
     output: {
