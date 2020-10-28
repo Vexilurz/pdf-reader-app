@@ -1,14 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IProjectFileWithPath } from '../types/projectFile';
+import { IProjectFileWithPath, getNewFile } from '../types/projectFile';
 import { IEvent } from '../types/event';
 
 export interface IProjectFileState {
-  current: IProjectFileWithPath | null;
+  current: IProjectFileWithPath;
   opened: IProjectFileWithPath[];
 }
 
 const initialState: IProjectFileState = {
-  current: null,
+  current: { path: '', content: getNewFile('') },
   opened: [],
 };
 
@@ -21,12 +21,8 @@ export const projectFileSlice = createSlice({
       action: PayloadAction<IProjectFileWithPath>
     ) => {
       const { payload } = action;
-      if (payload) {
-        const { path, content } = payload;
-        state.current = { path, content };
-      } else {
-        state.current = null;
-      }
+      const { path, content } = payload;
+      state.current = { path, content };
     },
     addFileToOpened: (
       state: IProjectFileState,
@@ -39,16 +35,18 @@ export const projectFileSlice = createSlice({
       });
       if (!found) state.opened.push({ path, content });
     },
-    setEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
+    updateEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
       const { payload } = action;
-      const index = state.current?.content?.events?.findIndex((item) => {
-        return item.id === payload.id;
-      });
-      if (index !== -1) {
-        state.current.content.events[index] = payload;
-      } else {
-        state.current?.content?.events?.push(payload);
-      }
+      state.current.content.events = state.current.content.events.map(
+        (event) => {
+          if (event.id === payload.id) return payload;
+          return event;
+        }
+      );
+    },
+    addEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
+      const { payload } = action;
+      state.current.content.events.push(payload);
     },
   },
 });

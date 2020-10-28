@@ -29,15 +29,15 @@ class EventItem extends React.Component<
 
   initListeners = (): void => {};
 
-  onClick = () => {
-    const { setAppState, setEditingEvent, event } = this.props;
-    setEditingEvent(event);
+  onEditEventClick = () => {
+    const { editEvent, event } = this.props;
+    editEvent(event);
   };
 
   render(): React.ReactElement {
     const { event, setPdfPath } = this.props;
     return (
-      <div className="event-item" onClick={this.onClick}>
+      <div className="event-item" onClick={this.onEditEventClick}>
         <div className="event-title">{event.title}</div>
         <div className="event-description">{event.description}</div>
         <div className="event-date">{event?.date?.toString()}</div>
@@ -66,7 +66,7 @@ class EventItem extends React.Component<
 const mapDispatchToProps = {
   setPdfPath: pdfViewerActions.setPdfPath,
   setAppState: appStateActions.setAppState,
-  setEditingEvent: appStateActions.setEditingEvent,
+  editEvent: appStateActions.editEvent,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {

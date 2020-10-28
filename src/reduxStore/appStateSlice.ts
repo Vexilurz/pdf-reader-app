@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import * as appConst from '../types/textConstants';
-import { IEvent, NEW_EVENT } from '../types/event';
+import { IEvent, getNewEvent } from '../types/event';
 
 export interface IAppState {
   current: string;
@@ -9,7 +9,7 @@ export interface IAppState {
 
 const initialState: IAppState = {
   current: appConst.START_PAGE,
-  editingEvent: NEW_EVENT,
+  editingEvent: getNewEvent(),
 };
 
 export const appStateSlice = createSlice({
@@ -20,7 +20,7 @@ export const appStateSlice = createSlice({
       const { payload } = action;
       state.current = payload;
     },
-    setEditingEvent: (state: IAppState, action: PayloadAction<IEvent>) => {
+    editEvent: (state: IAppState, action: PayloadAction<IEvent>) => {
       const { payload } = action;
       state.editingEvent = payload;
       state.current = appConst.EVENT_FORM;

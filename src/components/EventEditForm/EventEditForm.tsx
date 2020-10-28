@@ -1,78 +1,62 @@
 import './event-edit-form.scss';
 import * as React from 'react';
-import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
-import { IEvent, NEW_EVENT } from '../../types/event';
-import { NEW_FILE } from '../../types/projectFile';
+import { IEvent } from '../../types/event';
 
 export interface IEventEditFormProps {
   event: IEvent;
 }
-export interface IEventEditFormState {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  files: string[];
-}
+export interface IEventEditFormState {}
 
 class EventEditForm extends React.Component<
   StatePropsType & DispatchPropsType,
   IEventEditFormState
 > {
+  private inputTitleRef: React.RefObject<any>;
+  private inputDescriptionRef: React.RefObject<any>;
+
   constructor(props: IEventEditFormProps & DispatchPropsType) {
     super(props);
-    this.state = {
-      id: NEW_EVENT.id,
-      title: NEW_EVENT.title,
-      description: NEW_EVENT.description,
-      date: NEW_EVENT.date,
-      files: NEW_EVENT.files,
-    };
+    // this.onSetEventClick = this.onSetEventClick.bind(this);
+    this.inputTitleRef = React.createRef();
+    this.inputDescriptionRef = React.createRef();
+    this.state = {};
   }
 
-  // static getDerivedStateFromProps(nextProps, prevState) {
-  //   console.log('nextProps', nextProps, 'prevState', prevState);
-  //   if (nextProps.event !== prevState.event) {
-  //     return { event: nextProps.event };
-  //   } else return null;
-  // }
-
   componentDidMount(): void {
+    this.grabDefaultValues();
     this.initListeners();
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { event } = this.props;
-    console.log(
-      'props.event',
-      event,
-      'prevProps',
-      prevProps,
-      'prevState',
-      prevState
-    );
-    if (prevState.id !== event.id) {
-      const { id, title, description, date, files } = event;
-      this.setState({ id, title, description, date, files });
-    }
+  componentDidUpdate(): void {
+    this.grabDefaultValues();
   }
+
+  grabDefaultValues = () => {
+    const { event } = this.props;
+    this.inputTitleRef.current.value = event.title;
+    this.inputDescriptionRef.current.value = event.description;
+  };
 
   initListeners = (): void => {};
 
   onSetEventClick = (): void => {
-    const { setEvent } = this.props;
-    const { id, title, description, date, files } = this.state;
-    const event: IEvent = { id, title, description, date, files };
-    setEvent(event);
+    const { addEvent, updateEvent, event, setAppState } = this.props;
+    const newEvent = { ...event };
+    newEvent.title = this.inputTitleRef.current.value;
+    newEvent.description = this.inputDescriptionRef.current.value;
+    newEvent.isNew = false;
+    if (event.isNew) addEvent(newEvent);
+    else updateEvent(newEvent);
+    setAppState(appConst.PDF_VIEWER);
   };
 
   render(): React.ReactElement {
-    const { id, title, description, date, files } = this.state;
+    const { event } = this.props;
     return (
       <div className="event-edit-form">
         <div className="event-title-label">Event title:</div>
@@ -80,28 +64,22 @@ class EventEditForm extends React.Component<
           <input
             className="event-title-input"
             type="text"
-            value={title} // this may be recoursive, need to take that from props...
+            ref={this.inputTitleRef}
             style={{
               width: '400px',
             }}
-            onChange={(e) => {
-              this.setState({ title: e.target.value });
-            }}
           />
         </div>
-        <div className="date-picker">Event date picker here {date}</div>
+        <div className="date-picker">Event date picker here {event.date}</div>
         <div className="description-label">Description:</div>
         <div className="event-description">
           <input
             className="event-description-area"
             type="textarea"
-            value={description} // this may be recoursive, need to take that from props...
+            ref={this.inputDescriptionRef}
             style={{
               width: '400px',
               height: '150px',
-            }}
-            onChange={(e) => {
-              this.setState({ description: e.target.value });
             }}
           />
         </div>
@@ -112,7 +90,7 @@ class EventEditForm extends React.Component<
             className="set-event-button"
             onClick={this.onSetEventClick}
           >
-            Set event
+            {event.isNew ? 'Add event' : 'Update event'}
           </button>
         </div>
       </div>
@@ -121,7 +99,8 @@ class EventEditForm extends React.Component<
 }
 
 const mapDispatchToProps = {
-  setEvent: projectFileActions.setEvent,
+  addEvent: projectFileActions.addEvent,
+  updateEvent: projectFileActions.updateEvent,
   setAppState: appStateActions.setAppState,
 };
 

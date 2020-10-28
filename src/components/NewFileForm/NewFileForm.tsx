@@ -16,10 +16,11 @@ class NewFileForm extends React.Component<
   INewFileFormProps & DispatchPropsType,
   INewFileFormState
 > {
-  private projectName = '';
+  private projectNameRef: React.RefObject<any>;
 
   constructor(props: INewFileFormProps & DispatchPropsType) {
     super(props);
+    this.projectNameRef = React.createRef();
     this.state = {
       path: '',
     };
@@ -31,7 +32,6 @@ class NewFileForm extends React.Component<
 
   initListeners = (): void => {
     ipcRenderer.on(appConst.NEW_FILE_DIALOG_RESPONSE, (event, response) => {
-      console.log(response);
       this.setState({ path: response.path });
     });
   };
@@ -43,7 +43,7 @@ class NewFileForm extends React.Component<
       const newFile: IProjectFileWithPath = {
         path,
         content: {
-          name: this.projectName,
+          name: this.projectNameRef.current.value,
           events: [],
           bookmarks: [],
         },
@@ -70,11 +70,9 @@ class NewFileForm extends React.Component<
           <input
             className="project-name-input"
             type="text"
+            ref={this.projectNameRef}
             style={{
               width: '350px',
-            }}
-            onChange={(event) => {
-              this.projectName = event.target.value;
             }}
           />
         </div>
@@ -86,7 +84,7 @@ class NewFileForm extends React.Component<
           >
             Set file path
           </button>
-          Path to save:{path}
+          Path to save: {path}
         </div>
         <div className="create-new-file">
           <button
