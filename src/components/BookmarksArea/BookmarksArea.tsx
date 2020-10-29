@@ -18,11 +18,20 @@ class BookmarksArea extends React.Component<
 > {
   componentDidMount() {}
 
+  onAddBookmark = () => {};
+
   render(): React.ReactElement {
     const { currentProjectFile } = this.props;
     return (
       <div className="bookmarks-area">
         Bookmarks area
+        <button
+          type="button"
+          className="add-bookmark-button"
+          onClick={this.onAddBookmark}
+        >
+          Add bookmark
+        </button>
         {/* {currentProjectFile?.content?.bookmarks?.map((bookmark, index) => {
           return (
             <BookmarkItem

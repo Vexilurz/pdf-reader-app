@@ -11,6 +11,7 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
+import { IPdfFileWithBookmarks } from '../../types/pdf';
 
 export interface IEventItemProps {
   event: IEvent;
@@ -54,10 +55,10 @@ class EventItem extends React.Component<
     updateEvent(updatedEvent);
   };
 
-  onPdfFileClick = (path: string) => () => {
-    const { setPdfPath, setAppState } = this.props;
-    ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
-    setPdfPath(path);
+  onPdfFileClick = (file: IPdfFileWithBookmarks) => () => {
+    const { setPdfFile, setAppState, event } = this.props;
+    ipcRenderer.send(appConst.LOAD_PDF_FILE, file.path);
+    setPdfFile({ file, eventID: event.id });
     setAppState(appConst.PDF_VIEWER);
   };
 
@@ -77,15 +78,14 @@ class EventItem extends React.Component<
         <div className="event-date">{event?.date?.toString()}</div>
         <div className="event-pdf-files">
           {event.files.map((file, index) => {
-            const { path } = file;
             return (
               <button
                 type="button"
                 className="event-pdf-file"
                 key={'event-key' + index}
-                onClick={this.onPdfFileClick(path)}
+                onClick={this.onPdfFileClick(file)}
               >
-                {deletePathFromFilename(path)}
+                {deletePathFromFilename(file.path)}
               </button>
             );
           })}
@@ -108,7 +108,7 @@ class EventItem extends React.Component<
 }
 
 const mapDispatchToProps = {
-  setPdfPath: pdfViewerActions.setPdfPath,
+  setPdfFile: pdfViewerActions.setPdfFile,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
   setIsNew: editingEventActions.setIsNew,

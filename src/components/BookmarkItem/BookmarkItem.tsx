@@ -1,11 +1,9 @@
 import './bookmark-item.scss';
 import * as React from 'react';
-import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
 // import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 // import { actions as appStateActions } from '../../reduxStore/appStateSlice';
-import * as appConst from '../../types/textConstants';
 import { IBookmark } from '../../types/bookmark';
 import { deletePathFromFilename } from '../../utils/commonUtils';
 

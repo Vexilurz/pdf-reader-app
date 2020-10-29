@@ -1,10 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { IBookmark } from './bookmark';
-
-interface IPdfFileWithBookmarks {
-  path: string;
-  bookmarks: IBookmark[];
-}
+import { IPdfFileWithBookmarks } from './pdf';
 
 export interface IEvent {
   id: string;

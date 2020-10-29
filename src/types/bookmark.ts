@@ -1,4 +1,7 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export interface IBookmark {
+  id: string;
   comment: string;
   start: number;
   end: number;
@@ -12,16 +15,5 @@ export const createBookmark = (
   end: number,
   color: string
 ): IBookmark => {
-  return { comment, start, end, color };
+  return { id: uuidv4(), comment, start, end, color };
 };
-
-export const TEST_BOOKMARKS: IBookmark[] = [
-  createBookmark('comment', 5, 10, 'red'),
-  createBookmark('comment', 100, 200, 'cyan'),
-  createBookmark('comment', 300, 350, 'green'),
-  // collisioned bookmarks
-  createBookmark('comment', 614, 906, 'olive'),
-  createBookmark('comment', 730, 1200, 'lime'),
-  // second page
-  createBookmark('comment', 5500, 6000, 'purple'),
-];

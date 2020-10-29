@@ -6,6 +6,7 @@ import { CircularProgress } from '@material-ui/core';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 import { StoreType } from '../../reduxStore/store';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IPDFdata } from '../../types/pdf';
 import * as DOM from 'react-dom';
@@ -20,8 +21,6 @@ export interface IPDFViewerState {
   numPages: number;
   pageNumber: number;
   scale: number;
-  startSelection: number;
-  endSelection: number;
 }
 
 class PDFViewer extends React.Component<
@@ -38,8 +37,6 @@ class PDFViewer extends React.Component<
       numPages: 0,
       pageNumber: 1,
       scale: 1.0,
-      startSelection: Infinity,
-      endSelection: Infinity,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
@@ -108,10 +105,13 @@ class PDFViewer extends React.Component<
   };
 
   clearSelection = () => {
-    this.setState({ startSelection: Infinity, endSelection: Infinity });
+    const { setSelection } = this.props;
+    setSelection({ start: Infinity, end: Infinity });
   };
 
   onMouseUp = async () => {
+    const { setSelection } = this.props;
+
     if (
       this.containerRef.current === null ||
       this.documentRef.current === null
@@ -145,9 +145,9 @@ class PDFViewer extends React.Component<
       getTotalOffset(endContainer, endOffset, this.documentRef),
     ]);
 
-    this.setState({
-      startSelection: startTotalOffset,
-      endSelection: endTotalOffset,
+    setSelection({
+      start: startTotalOffset,
+      end: endTotalOffset,
     });
   };
 
@@ -156,20 +156,13 @@ class PDFViewer extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { pdfPath } = this.props;
-    const {
-      pdfData,
-      pageNumber,
-      numPages,
-      scale,
-      startSelection,
-      endSelection,
-    } = this.state;
+    const { pdfFile, pdfSelection } = this.props;
+    const { pdfData, pageNumber, numPages, scale } = this.state;
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
-        {pdfPath}
+        {pdfFile.file.path}
         <div>
-          Start: {startSelection}, End: {endSelection}
+          Start: {pdfSelection.start}, End: {pdfSelection.end}
         </div>
         <Document
           file={pdfData}
@@ -186,8 +179,8 @@ class PDFViewer extends React.Component<
             // renderTextLayer={false}
             // renderMode={'svg'}
             customTextRenderer={pdfRenderer(
-              startSelection,
-              endSelection,
+              pdfSelection.start,
+              pdfSelection.end,
               [] // bookmarks
             )}
           />
@@ -234,11 +227,13 @@ class PDFViewer extends React.Component<
 
 const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
+  setSelection: pdfViewerActions.setSelection,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
   return {
-    pdfPath: state.pdfViewer.pdfPath,
+    pdfFile: state.pdfViewer.pdfFile,
+    pdfSelection: state.pdfViewer.pdfSelection,
     parentRef: ownProps.parentRef,
   };
 };
