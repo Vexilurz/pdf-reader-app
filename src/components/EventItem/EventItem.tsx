@@ -62,7 +62,7 @@ class EventItem extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { event, setPdfPath, setAppState } = this.props;
+    const { event } = this.props;
     return (
       <div className="event-item">
         <button

@@ -18,6 +18,13 @@ class MiddleSpace extends React.Component<
   StatePropsType & DispatchPropsType,
   IMiddleSpaceState
 > {
+  private containerRef: React.RefObject<any>;
+
+  constructor(props: StatePropsType & DispatchPropsType) {
+    super(props);
+    this.containerRef = React.createRef();
+  }
+
   componentDidMount() {}
 
   render(): React.ReactElement {
@@ -30,13 +37,17 @@ class MiddleSpace extends React.Component<
     } else if (currentAppState === appConst.NEW_FILE_FORM) {
       pageContent = <ProjectEditForm />;
     } else if (currentAppState === appConst.PDF_VIEWER) {
-      pageContent = <PDFViewer />;
+      pageContent = <PDFViewer parentRef={this.containerRef} />;
     } else if (currentAppState === appConst.EVENT_FORM) {
       pageContent = <EventEditForm />;
     }
 
     return (
-      <div className="middle-space" style={{ visibility: isVisible }}>
+      <div
+        className="middle-space"
+        ref={this.containerRef}
+        style={{ visibility: isVisible }}
+      >
         <button
           type="button"
           className="save-project-button"
