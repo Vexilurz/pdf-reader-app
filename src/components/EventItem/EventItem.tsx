@@ -47,14 +47,22 @@ class EventItem extends React.Component<
     acceptedFiles.forEach((file) => {
       // todo: use toLowerCase when compare?
       const { path } = file;
-      if (files.indexOf(path) === -1) files.push(path);
+      const index = files.findIndex((f) => f.path === path);
+      if (index === -1) files.push(path);
     });
     updatedEvent.files = files;
     updateEvent(updatedEvent);
   };
 
+  onPdfFileClick = (path: string) => () => {
+    const { setPdfPath, setAppState } = this.props;
+    ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
+    setPdfPath(path);
+    setAppState(appConst.PDF_VIEWER);
+  };
+
   render(): React.ReactElement {
-    const { event, setPdfPath } = this.props;
+    const { event, setPdfPath, setAppState } = this.props;
     return (
       <div className="event-item">
         <button
@@ -68,16 +76,14 @@ class EventItem extends React.Component<
         <div className="event-description">{event.description}</div>
         <div className="event-date">{event?.date?.toString()}</div>
         <div className="event-pdf-files">
-          {event.files.map((path, index) => {
+          {event.files.map((file, index) => {
+            const { path } = file;
             return (
               <button
                 type="button"
                 className="event-pdf-file"
                 key={'event-key' + index}
-                onClick={() => {
-                  ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
-                  setPdfPath(path);
-                }}
+                onClick={this.onPdfFileClick(path)}
               >
                 {deletePathFromFilename(path)}
               </button>

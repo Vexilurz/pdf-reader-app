@@ -23,14 +23,14 @@ class BookmarksArea extends React.Component<
     return (
       <div className="bookmarks-area">
         Bookmarks area
-        {currentProjectFile?.content?.bookmarks?.map((bookmark, index) => {
+        {/* {currentProjectFile?.content?.bookmarks?.map((bookmark, index) => {
           return (
             <BookmarkItem
               bookmark={bookmark}
               key={'bookmark-item-key' + index}
             />
           );
-        })}
+        })} */}
       </div>
     );
   }

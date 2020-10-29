@@ -41,9 +41,9 @@ class BookmarkItem extends React.Component<
         style={{ backgroundColor: bookmark.color }}
       >
         <div className="bookmark-comment">{bookmark.comment}</div>
-        <div className="bookmark-file">
+        {/* <div className="bookmark-file">
           {deletePathFromFilename(bookmark.file)}
-        </div>
+        </div> */}
         <div className="bookmark-position">
           {bookmark.start} .. {bookmark.end}
         </div>

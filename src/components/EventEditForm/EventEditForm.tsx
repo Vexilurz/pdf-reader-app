@@ -51,17 +51,18 @@ class EventEditForm extends React.Component<
     acceptedFiles.forEach((file) => {
       // todo: use toLowerCase when compare?
       const { path } = file;
-      if (files.indexOf(path) === -1) files.push(path);
+      const index = files.findIndex((f) => f.path === path);
+      if (index === -1) files.push({ path, bookmarks: [] });
     });
     updatedEvent.files = files;
     setEditingEvent(updatedEvent);
   };
 
-  onDeleteEventFile = (file: string) => () => {
+  onDeleteEventFile = (path: string) => () => {
     const { editingEvent, setEditingEvent } = this.props;
     const updatedEvent = { ...editingEvent };
     const files = Object.assign([], updatedEvent.files);
-    const index = files.indexOf(file);
+    const index = files.findIndex((f) => f.path === path);
     if (index > -1) files.splice(index, 1);
     updatedEvent.files = files;
     setEditingEvent(updatedEvent);
@@ -118,16 +119,17 @@ class EventEditForm extends React.Component<
         </div>
         <div className="event-files">
           {editingEvent.files.map((file, index) => {
+            const { path } = file;
             return (
               <div className="event-file" key={'event-file-key' + index}>
                 <button
                   type="button"
                   className="delete-event-file-button"
-                  onClick={this.onDeleteEventFile(file)}
+                  onClick={this.onDeleteEventFile(path)}
                 >
                   X
                 </button>
-                {file}
+                {path}
               </div>
             );
           })}
