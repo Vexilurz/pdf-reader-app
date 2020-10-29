@@ -4,6 +4,7 @@ import * as appConst from '../types/textConstants';
 
 const saveCurrentProject = async (event, currentProject) => {
   const res = await fs.writeFile(currentProject.path, currentProject.content);
+  // todo: listen to this event in renderer to display success message
   event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
 };
 

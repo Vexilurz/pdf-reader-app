@@ -1,4 +1,4 @@
-import './new-file-form.scss';
+import './project-edit-form.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
@@ -7,18 +7,18 @@ import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { IProjectFileWithPath, getNewFile } from '../../types/projectFile';
 import * as appConst from '../../types/textConstants';
 
-export interface INewFileFormProps {}
-export interface INewFileFormState {
+export interface IProjectEditFormProps {}
+export interface IProjectEditFormState {
   path: string;
 }
 
-class NewFileForm extends React.Component<
-  INewFileFormProps & DispatchPropsType,
-  INewFileFormState
+class ProjectEditForm extends React.Component<
+  StatePropsType & DispatchPropsType,
+  IProjectEditFormState
 > {
   private projectNameRef: React.RefObject<any>;
 
-  constructor(props: INewFileFormProps & DispatchPropsType) {
+  constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     this.projectNameRef = React.createRef();
     this.state = {
@@ -61,7 +61,7 @@ class NewFileForm extends React.Component<
   render(): React.ReactElement {
     const { path } = this.state;
     return (
-      <div className="new-file-form">
+      <div className="project-edit-form">
         <div className="project-name">
           Name:
           <input
@@ -103,6 +103,11 @@ const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
 };
 
+const mapStateToProps = (state: StoreType, ownProps: IProjectEditFormProps) => {
+  return {};
+};
+
+type StatePropsType = ReturnType<typeof mapStateToProps>;
 type DispatchPropsType = typeof mapDispatchToProps;
 
-export default connect(null, mapDispatchToProps)(NewFileForm);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectEditForm);
