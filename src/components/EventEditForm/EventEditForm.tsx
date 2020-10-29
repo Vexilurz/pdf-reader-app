@@ -95,7 +95,7 @@ class EventEditForm extends React.Component<
             selected={new Date(editingEvent.date)}
             onChange={(date: Date) => {
               const updatedEvent = { ...editingEvent };
-              updatedEvent.date = date.toString();
+              updatedEvent.date = date.toUTCString();
               setEditingEvent(updatedEvent);
             }}
           />

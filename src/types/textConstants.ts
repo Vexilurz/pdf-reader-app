@@ -8,8 +8,10 @@ export const EVENT_FORM = 'event-form';
 export const SHOW_OPEN_FILE_DIALOG = 'show-open-file-dialog';
 export const SHOW_NEW_FILE_DIALOG = 'show-new-file-dialog';
 export const LOAD_PDF_FILE = 'load-pdf-file';
+export const SAVE_CURRENT_PROJECT = 'save-current-project';
 
 // renderer process listeners:
 export const OPEN_FILE_DIALOG_RESPONSE = 'open-file-dialog-response';
 export const NEW_FILE_DIALOG_RESPONSE = 'new-file-dialog-response';
 export const PDF_FILE_CONTENT_RESPONSE = 'pdf-file-content-response';
+export const SAVE_CURRENT_PROJECT_DONE = 'save-current-project-done';

@@ -48,7 +48,7 @@ class EventItem extends React.Component<
       // todo: use toLowerCase when compare?
       const { path } = file;
       const index = files.findIndex((f) => f.path === path);
-      if (index === -1) files.push(path);
+      if (index === -1) files.push({ path, bookmarks: [] });
     });
     updatedEvent.files = files;
     updateEvent(updatedEvent);

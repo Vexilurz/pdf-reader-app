@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ipcRenderer } from 'electron';
 import { IProjectFileWithPath, getNewFile } from '../types/projectFile';
 import { IEvent } from '../types/event';
+import * as appConst from '../types/textConstants';
 
 export interface IProjectFileState {
   current: IProjectFileWithPath;
@@ -24,16 +26,24 @@ export const projectFileSlice = createSlice({
       const { path, content } = payload;
       state.current = { path, content };
     },
+    saveCurrentProject: (state: IProjectFileState, action) => {
+      const { path } = state.current;
+      if (path !== '') {
+        const stringed = JSON.stringify(state.current.content);
+        ipcRenderer.send(appConst.SAVE_CURRENT_PROJECT, {
+          path: state.current.path,
+          content: stringed,
+        });
+      }
+    },
     addFileToOpened: (
       state: IProjectFileState,
       action: PayloadAction<IProjectFileWithPath>
     ) => {
       const { payload } = action;
       const { path, content } = payload;
-      const found = state.opened.find((item) => {
-        return item.path === path;
-      });
-      if (!found) state.opened.push({ path, content });
+      const index = state.opened.findIndex((item) => item.path === path);
+      if (index === -1) state.opened.push({ path, content });
     },
     updateEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
       const { payload } = action;

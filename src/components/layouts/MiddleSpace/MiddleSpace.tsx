@@ -6,6 +6,7 @@ import StartPage from '../../StartPage/StartPage';
 import NewFileForm from '../../NewFileForm/NewFileForm';
 import EventEditForm from '../../EventEditForm/EventEditForm';
 import { StoreType } from '../../../reduxStore/store';
+import { actions as projectFileActions } from '../../../reduxStore/projectFileSlice';
 import * as appConst from '../../../types/textConstants';
 
 export interface IMiddleSpaceProps {
@@ -13,7 +14,10 @@ export interface IMiddleSpaceProps {
 }
 export interface IMiddleSpaceState {}
 
-class MiddleSpace extends React.Component<StatePropsType, IMiddleSpaceState> {
+class MiddleSpace extends React.Component<
+  StatePropsType & DispatchPropsType,
+  IMiddleSpaceState
+> {
   componentDidMount() {}
 
   render(): React.ReactElement {
@@ -33,11 +37,24 @@ class MiddleSpace extends React.Component<StatePropsType, IMiddleSpaceState> {
 
     return (
       <div className="middle-space" style={{ visibility: isVisible }}>
+        <button
+          type="button"
+          className="save-project-button"
+          onClick={() => {
+            this.props.saveCurrentProject();
+          }}
+        >
+          [temporary button] Save project
+        </button>
         {pageContent}
       </div>
     );
   }
 }
+
+const mapDispatchToProps = {
+  saveCurrentProject: projectFileActions.saveCurrentProject,
+};
 
 const mapStateToProps = (state: StoreType, ownProps: IMiddleSpaceProps) => {
   return {
@@ -46,6 +63,7 @@ const mapStateToProps = (state: StoreType, ownProps: IMiddleSpaceProps) => {
   };
 };
 
+type DispatchPropsType = typeof mapDispatchToProps;
 type StatePropsType = ReturnType<typeof mapStateToProps>;
 
-export default connect(mapStateToProps)(MiddleSpace);
+export default connect(mapStateToProps, mapDispatchToProps)(MiddleSpace);
