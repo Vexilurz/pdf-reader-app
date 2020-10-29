@@ -156,11 +156,11 @@ class PDFViewer extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { pdfFile, pdfSelection } = this.props;
+    const { currentPdf, pdfSelection } = this.props;
     const { pdfData, pageNumber, numPages, scale } = this.state;
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
-        {pdfFile.file.path}
+        {currentPdf.path}
         <div>
           Start: {pdfSelection.start}, End: {pdfSelection.end}
         </div>
@@ -232,7 +232,7 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
   return {
-    pdfFile: state.pdfViewer.pdfFile,
+    currentPdf: state.projectFile.currentPdf,
     pdfSelection: state.pdfViewer.pdfSelection,
     parentRef: ownProps.parentRef,
   };

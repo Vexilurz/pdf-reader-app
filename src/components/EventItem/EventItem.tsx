@@ -56,9 +56,9 @@ class EventItem extends React.Component<
   };
 
   onPdfFileClick = (file: IPdfFileWithBookmarks) => () => {
-    const { setPdfFile, setAppState, event } = this.props;
+    const { setCurrentPdf, setAppState, event } = this.props;
     ipcRenderer.send(appConst.LOAD_PDF_FILE, file.path);
-    setPdfFile({ file, eventID: event.id });
+    setCurrentPdf({ path: file.path, eventID: event.id });
     setAppState(appConst.PDF_VIEWER);
   };
 
@@ -108,7 +108,7 @@ class EventItem extends React.Component<
 }
 
 const mapDispatchToProps = {
-  setPdfFile: pdfViewerActions.setPdfFile,
+  setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
   setIsNew: editingEventActions.setIsNew,

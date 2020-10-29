@@ -25,11 +25,7 @@ class BookmarkItem extends React.Component<
     this.initListeners();
   }
 
-  initListeners = (): void => {
-    // ipcRenderer.on(appConst.PDF_FILE_CONTENT_RESPONSE, (bookmark, data) => {
-    //   this.setState({ pdfData: { data } });
-    // });
-  };
+  initListeners = (): void => {};
 
   render(): React.ReactElement {
     const { bookmark } = this.props;
@@ -39,9 +35,6 @@ class BookmarkItem extends React.Component<
         style={{ backgroundColor: bookmark.color }}
       >
         <div className="bookmark-comment">{bookmark.comment}</div>
-        {/* <div className="bookmark-file">
-          {deletePathFromFilename(bookmark.file)}
-        </div> */}
         <div className="bookmark-position">
           {bookmark.start} .. {bookmark.end}
         </div>
