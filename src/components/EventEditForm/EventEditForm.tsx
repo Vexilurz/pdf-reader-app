@@ -37,10 +37,12 @@ class EventEditForm extends React.Component<
       editingEvent,
       isNew,
       setAppState,
+      calcCurrentIndexes,
     } = this.props;
     if (isNew) addEvent(editingEvent);
     else updateEvent(editingEvent);
     setAppState(appConst.PDF_VIEWER);
+    calcCurrentIndexes();
   };
 
   // todo: find type of acceptedFiles of Dropzone.onDrop
@@ -163,6 +165,7 @@ class EventEditForm extends React.Component<
 const mapDispatchToProps = {
   addEvent: projectFileActions.addEvent,
   updateEvent: projectFileActions.updateEvent,
+  calcCurrentIndexes: projectFileActions.calcCurrentIndexes,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
 };

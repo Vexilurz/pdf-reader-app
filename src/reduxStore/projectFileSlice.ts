@@ -30,6 +30,16 @@ const initialState: IProjectFileState = {
   currentIndexes: { fileIndex: -1, eventIndex: -1 },
 };
 
+const getCurrentIndexes = (state: IProjectFileState): IEventAndFileIndex => {
+  const eventIndex = state.current.content.events.findIndex(
+    (event) => event.id === state.currentPdf.eventID
+  );
+  const fileIndex = state.current.content.events[eventIndex].files.findIndex(
+    (file) => file.path === state.currentPdf.path
+  );
+  return { fileIndex, eventIndex };
+};
+
 export const projectFileSlice = createSlice({
   name: 'projectFile',
   initialState,
@@ -80,23 +90,47 @@ export const projectFileSlice = createSlice({
     ) => {
       const { payload } = action;
       state.currentPdf = payload;
-
-      const eventIndex = state.current.content.events.findIndex(
-        (e) => e.id === payload.eventID
-      );
-      const fileIndex = state.current.content.events[
-        eventIndex
-      ].files.findIndex((f) => f.path === payload.path);
-      state.currentIndexes = { fileIndex, eventIndex };
+      state.currentIndexes = getCurrentIndexes(state);
+    },
+    calcCurrentIndexes: (state: IProjectFileState) => {
+      state.currentIndexes = getCurrentIndexes(state);
     },
     addBookmark: (
       state: IProjectFileState,
       action: PayloadAction<IBookmark>
     ) => {
       const bookmark = action.payload;
-      state.current.content.events[state.currentIndexes.eventIndex].files[
-        state.currentIndexes.fileIndex
-      ].bookmarks.push(bookmark);
+      state.currentIndexes = getCurrentIndexes(state);
+      if (
+        state.currentIndexes.eventIndex > -1 &&
+        state.currentIndexes.fileIndex > -1
+      ) {
+        state.current.content.events[state.currentIndexes.eventIndex].files[
+          state.currentIndexes.fileIndex
+        ].bookmarks.push(bookmark);
+      }
+    },
+    updateBookmark: (
+      state: IProjectFileState,
+      action: PayloadAction<IBookmark>
+    ) => {
+      const bookmark = action.payload;
+      state.currentIndexes = getCurrentIndexes(state);
+      if (
+        state.currentIndexes.eventIndex > -1 &&
+        state.currentIndexes.fileIndex > -1
+      ) {
+        const index = state.current.content.events[
+          state.currentIndexes.eventIndex
+        ].files[state.currentIndexes.fileIndex].bookmarks.findIndex(
+          (b) => b.id === bookmark.id
+        );
+        if (index > -1) {
+          state.current.content.events[state.currentIndexes.eventIndex].files[
+            state.currentIndexes.fileIndex
+          ].bookmarks[index] = bookmark;
+        }
+      }
     },
     // deleteBookmark: (
     //   state: IProjectFileState,
