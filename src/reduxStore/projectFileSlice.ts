@@ -40,6 +40,17 @@ const getCurrentIndexes = (state: IProjectFileState): IEventAndFileIndex => {
   return { fileIndex, eventIndex };
 };
 
+const getBookmarkIndex = (state: IProjectFileState, bookmark: IBookmark): number => {
+  if (
+    state.currentIndexes.eventIndex > -1 &&
+    state.currentIndexes.fileIndex > -1
+  ) {
+    return state.current.content.events[state.currentIndexes.eventIndex].files[
+      state.currentIndexes.fileIndex
+    ].bookmarks.findIndex((b) => b.id === bookmark.id);
+  } else return -1;
+}
+
 export const projectFileSlice = createSlice({
   name: 'projectFile',
   initialState,
@@ -116,31 +127,26 @@ export const projectFileSlice = createSlice({
     ) => {
       const bookmark = action.payload;
       state.currentIndexes = getCurrentIndexes(state);
-      if (
-        state.currentIndexes.eventIndex > -1 &&
-        state.currentIndexes.fileIndex > -1
-      ) {
-        const index = state.current.content.events[
-          state.currentIndexes.eventIndex
-        ].files[state.currentIndexes.fileIndex].bookmarks.findIndex(
-          (b) => b.id === bookmark.id
-        );
-        if (index > -1) {
-          state.current.content.events[state.currentIndexes.eventIndex].files[
-            state.currentIndexes.fileIndex
-          ].bookmarks[index] = bookmark;
-        }
+      const index = getBookmarkIndex(state, bookmark);
+      if (index > -1) {
+        state.current.content.events[state.currentIndexes.eventIndex].files[
+          state.currentIndexes.fileIndex
+        ].bookmarks[index] = bookmark;
       }
     },
-    // deleteBookmark: (
-    //   state: IProjectFileState,
-    //   action: PayloadAction<IBookmark>
-    // ) => {
-    //   const bookmark = action.payload;
-
-    //   const index = state.pdfFile.file.bookmarks.findIndex((b) => b.id === payload.id);
-    //   if (index > -1) state.pdfFile.file.bookmarks.splice(index, 1);
-    // },
+    deleteBookmark: (
+      state: IProjectFileState,
+      action: PayloadAction<IBookmark>
+    ) => {
+      const bookmark = action.payload;
+      state.currentIndexes = getCurrentIndexes(state);
+      const index = getBookmarkIndex(state, bookmark);
+      if (index > -1) {
+        state.current.content.events[state.currentIndexes.eventIndex].files[
+          state.currentIndexes.fileIndex
+        ].bookmarks.splice(index, 1);
+      }
+    },
   },
 });
 

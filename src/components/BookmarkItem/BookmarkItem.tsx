@@ -52,6 +52,11 @@ class BookmarkItem extends React.Component<
     updateBookmark(newBookmark);
   };
 
+  onDelete = () => {
+    const { bookmark, deleteBookmark } = this.props;
+    deleteBookmark(bookmark);
+  };
+
   render(): React.ReactElement {
     const { bookmark } = this.props;
     const { comment, color } = this.state;
@@ -60,6 +65,13 @@ class BookmarkItem extends React.Component<
         className="bookmark-item"
         style={{ backgroundColor: bookmark.color }}
       >
+        <button
+          type="button"
+          className="delete-bookmark-button"
+          onClick={this.onDelete}
+        >
+          Delete
+        </button>
         {bookmark.needToEdit ? (
           <div className="bookmark-item-edit">
             <button
@@ -116,6 +128,7 @@ class BookmarkItem extends React.Component<
 
 const mapDispatchToProps = {
   updateBookmark: projectFileActions.updateBookmark,
+  deleteBookmark: projectFileActions.deleteBookmark,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {
