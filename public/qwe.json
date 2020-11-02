@@ -1,1 +1,55 @@
-{"name":"erergreg","events":[{"id":"c2bde890-27e0-4cf4-b6f8-deefd04f011d","title":"asfsfa","description":"asfasf","date":"Fri, 30 Oct 2020 07:11:26 GMT","files":[{"path":"D:\\Work\\documenthub_v2\\public\\example.pdf","bookmarks":[{"id":"be05d97c-b469-4c82-b269-b415a90ee132","comment":"we32g","start":0,"end":39,"color":"#f8e71c","needToEdit":false},{"id":"00d3b299-24d7-49a5-8a4c-39bd2c9bca4d","comment":"rthrth","start":2632,"end":2910,"color":"#d0021b","needToEdit":false}]},{"path":"D:\\Work\\documenthub_v2\\public\\WS2812B.pdf","bookmarks":[{"id":"357853eb-3b0a-47f3-b869-3cb14e97809f","comment":"new bookmark","start":886,"end":1499,"color":"lime","needToEdit":0}]}]}]}
+{
+  "name": "erergreg",
+  "events": [
+    {
+      "id": "c2bde890-27e0-4cf4-b6f8-deefd04f011d",
+      "title": "asfsfa",
+      "description": "asfasf",
+      "date": "Fri, 30 Oct 2020 07:11:26 GMT",
+      "files": [
+        {
+          "path": "D:\\Work\\documenthub_v2\\public\\example.pdf",
+          "bookmarks": [
+            {
+              "id": "be05d97c-b469-4c82-b269-b415a90ee132",
+              "comment": "we32g",
+              "start": 0,
+              "end": 39,
+              "color": "#f8e71c",
+              "needToEdit": false
+            },
+            {
+              "id": "00d3b299-24d7-49a5-8a4c-39bd2c9bca4d",
+              "comment": "rthrth",
+              "start": 2632,
+              "end": 2910,
+              "color": "#d0021b",
+              "needToEdit": false
+            },
+            {
+              "id": "00d3b299-24d7-49a5-123c-39bd2c9bca4d",
+              "comment": "erghhherh",
+              "start": 8632,
+              "end": 8910,
+              "color": "#00ffff",
+              "needToEdit": false
+            }
+          ]
+        },
+        {
+          "path": "D:\\Work\\documenthub_v2\\public\\WS2812B.pdf",
+          "bookmarks": [
+            {
+              "id": "357853eb-3b0a-47f3-b869-3cb14e97809f",
+              "comment": "new bookmark",
+              "start": 886,
+              "end": 1499,
+              "color": "lime",
+              "needToEdit": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

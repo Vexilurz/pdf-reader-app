@@ -10,8 +10,8 @@ import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IPDFdata } from '../../types/pdf';
 import * as DOM from 'react-dom';
-import { IBookmark } from '../../types/bookmark';
-import { pdfRenderer, getTotalOffset } from '../../utils/pdfUtils';
+import { IBookmark, createBookmark } from '../../types/bookmark';
+import { splitTriple, splitDuo } from '../../utils/splitUtils';
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
@@ -19,7 +19,6 @@ export interface IPDFViewerProps {
 export interface IPDFViewerState {
   pdfData: IPDFdata | null;
   numPages: number;
-  pageNumber: number;
   scale: number;
 }
 
@@ -29,17 +28,20 @@ class PDFViewer extends React.Component<
 > {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
+  private newPatternWorkResult: boolean;
+  private pagesOffsets: number[];
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     this.state = {
       pdfData: null,
       numPages: 0,
-      pageNumber: 1,
       scale: 1.0,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
+    this.newPatternWorkResult = false;
+    this.pagesOffsets = [];
   }
 
   componentDidMount(): void {
@@ -84,25 +86,166 @@ class PDFViewer extends React.Component<
 
   onDocumentLoadSuccess = (document) => {
     const { numPages } = document;
-
     this.setState({ numPages });
-    this.setState({ pageNumber: 1 });
-
     this.documentRef.current = document;
+
+    this.pagesOffsets = [];
+    for (let i = 0; i < numPages; i += 1) {
+      this.getPageOffset(i + 1).then((pageOffset) =>
+        this.pagesOffsets.push(pageOffset)
+      );
+    }
   };
 
-  changePage = (offset) => {
-    const { pageNumber } = this.state;
-    this.setState({ pageNumber: pageNumber + offset });
+  getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
+    const page = await this.documentRef.current.getPage(pageNumber);
+    const textContent = await page.getTextContent();
+    // console.log('getItemOffset', itemIndex, textContent);
+    return textContent.items
+      .slice(0, itemIndex)
+      .reduce((acc: number, item) => acc + item.str.length, 0);
   };
 
-  previousPage = () => {
-    this.changePage(-1);
+  // Calculates total length of all previous pages
+  getPageOffset = async (pageNumber: number) => {
+    const pageLengths = await Promise.all(
+      Array.from({ length: pageNumber - 1 }, (_, index) =>
+        this.getItemOffset(index + 1)
+      )
+    );
+    return pageLengths.reduce((acc, pageLength) => acc + pageLength, 0);
   };
 
-  nextPage = () => {
-    this.changePage(1);
+  getItemIndex = (item) => {
+    let index = 0;
+    while ((item = item.previousSibling) !== null) {
+      index += 1;
+    }
+    return index;
   };
+
+  getTotalOffset = async (container, offset) => {
+    const textLayerItem = container.parentNode;
+    const textLayer = textLayerItem.parentNode;
+    const page = textLayer.parentNode;
+    const pageNumber = parseInt(page.dataset.pageNumber, 10);
+    const itemIndex = this.getItemIndex(textLayerItem);
+    const [itemOffset] = await Promise.all([
+      // this.getPageOffset(pageNumber),
+      this.getItemOffset(pageNumber, itemIndex),
+    ]);
+
+    // console.log('getTotalOffset', pageOffset, itemOffset, offset);
+
+    return this.pagesOffsets[pageNumber - 1] + itemOffset + offset;
+  };
+
+  getMarkedText = (text: string, color: string, key: any) => {
+    return (
+      <mark key={key} style={{ backgroundColor: color }}>
+        {text}
+      </mark>
+    );
+  };
+
+  getUnmarkedText = (text: string, key: any) => {
+    return <span key={key}>{text}</span>;
+  };
+
+  newPattern = (text, bookmark: IBookmark, counter) => {
+    // console.log(counter, bookmark.start, bookmark.end, text);
+    // let result = getUnmarkedText(text, counter);
+    let result = text;
+    let dbg = 'unmarked:';
+    this.newPatternWorkResult = false;
+    if (counter >= bookmark.start && counter + text.length <= bookmark.end) {
+      // mark all text
+      dbg = 'mark all text:';
+      result = this.getMarkedText(text, bookmark.color, counter);
+      this.newPatternWorkResult = true;
+    } else if (counter >= bookmark.start && counter < bookmark.end) {
+      // mark left part
+      dbg = 'mark left part:';
+      result = splitDuo(bookmark.end - counter)(text);
+      result[0] = this.getMarkedText(result[0], bookmark.color, counter);
+      this.newPatternWorkResult = true;
+    } else if (
+      counter + text.length > bookmark.start &&
+      counter + text.length <= bookmark.end
+    ) {
+      // mark right part
+      dbg = 'mark right part:';
+      result = splitDuo(bookmark.start - counter)(text);
+      result[1] = this.getMarkedText(result[1], bookmark.color, counter);
+      this.newPatternWorkResult = true;
+    } else if (
+      counter < bookmark.start &&
+      counter + text.length > bookmark.end
+    ) {
+      // mark middle
+      dbg = 'mark middle:';
+      result = splitTriple(
+        bookmark.start - counter,
+        bookmark.end - counter
+      )(text);
+      result[1] = this.getMarkedText(result[1], bookmark.color, counter);
+      this.newPatternWorkResult = true;
+    }
+    // console.log(dbg, result);
+    return result;
+  };
+
+  pdfRenderer = (
+    pageNumber: number,
+    start: number,
+    end: number,
+    bookmarks: IBookmark[]
+  ) => {
+    let counter = this.pagesOffsets[pageNumber - 1];
+    // this is crunches. I don't know why renderer calls twice on the same textItem.
+    // that cause counter wrong calculation.
+    let prevTextItem = null;
+    let prevPattern = null;
+    return (textItem) => {
+      if (prevTextItem === textItem) {
+        return prevPattern;
+      } else {
+        // console.log('PDF renderer', start, end, textItem);
+        prevTextItem = textItem;
+        let pattern = '';
+        if (textItem.str) {
+          // just our new selection:
+          pattern = this.newPattern(
+            textItem.str,
+            createBookmark('selection', start, end, 'black'),
+            counter
+          );
+          // after executing newPattern() the newPatternWorkResult variable changed (or not) (yes, this is crunch)
+          bookmarks.forEach((bookmark) => {
+            if (!this.newPatternWorkResult)
+              pattern = this.newPattern(textItem.str, bookmark, counter);
+          });
+
+          counter += textItem.str.length;
+        }
+        prevPattern = pattern;
+        return pattern;
+      }
+    };
+  };
+
+  // changePage = (offset) => {
+  //   const { pageNumber } = this.state;
+  //   this.setState({ pageNumber: pageNumber + offset });
+  // };
+
+  // previousPage = () => {
+  //   this.changePage(-1);
+  // };
+
+  // nextPage = () => {
+  //   this.changePage(1);
+  // };
 
   clearSelection = () => {
     const { setSelection } = this.props;
@@ -125,13 +268,16 @@ class PDFViewer extends React.Component<
       return;
     }
 
+    const sel = selection.getRangeAt(0);
+    // console.log(sel);
+
     const {
       commonAncestorContainer,
       endContainer,
       endOffset,
       startContainer,
       startOffset,
-    } = selection.getRangeAt(0);
+    } = sel; //selection.getRangeAt(0);
 
     selection?.empty(); // important!
 
@@ -141,8 +287,8 @@ class PDFViewer extends React.Component<
     }
 
     const [startTotalOffset, endTotalOffset] = await Promise.all([
-      getTotalOffset(startContainer, startOffset, this.documentRef),
-      getTotalOffset(endContainer, endOffset, this.documentRef),
+      this.getTotalOffset(startContainer, startOffset),
+      this.getTotalOffset(endContainer, endOffset),
     ]);
 
     setSelection({
@@ -162,7 +308,7 @@ class PDFViewer extends React.Component<
       currentIndexes,
       currentProjectFile,
     } = this.props;
-    const { pdfData, pageNumber, numPages, scale } = this.state;
+    const { pdfData, numPages, scale } = this.state;
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
         {currentPdf.path}
@@ -177,21 +323,25 @@ class PDFViewer extends React.Component<
           onMouseDown={this.onMouseDown}
           loading={<CircularProgress size={'100px'} />}
         >
-          <Page
-            pageNumber={pageNumber}
-            onLoadSuccess={this.onPageLoad}
-            scale={scale}
-            // renderTextLayer={false}
-            // renderMode={'svg'}
-            customTextRenderer={pdfRenderer(
-              pdfSelection.start,
-              pdfSelection.end,
-              currentProjectFile.content.events[currentIndexes.eventIndex]
-                ?.files[currentIndexes.fileIndex]?.bookmarks
-            )}
-          />
+          {Array.from(new Array(numPages), (el, index) => (
+            <Page
+              key={`page_${index + 1}`}
+              pageNumber={index + 1}
+              onLoadSuccess={this.onPageLoad}
+              scale={scale}
+              // renderTextLayer={false}
+              // renderMode={'svg'}
+              customTextRenderer={this.pdfRenderer(
+                index + 1,
+                pdfSelection.start,
+                pdfSelection.end,
+                currentProjectFile.content.events[currentIndexes.eventIndex]
+                  ?.files[currentIndexes.fileIndex]?.bookmarks
+              )}
+            />
+          ))}
         </Document>
-        <div
+        {/* <div
           style={{
             display: 'flex',
             justifyContent: 'space-around',
@@ -225,7 +375,7 @@ class PDFViewer extends React.Component<
           >
             Next
           </button>
-        </div>
+        </div> */}
       </div>
     );
   }
