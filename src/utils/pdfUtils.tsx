@@ -1,5 +1,5 @@
 import React from 'react';
-import { IBookmark } from '../types/bookmark';
+import { IBookmark, createBookmark } from '../types/bookmark';
 import { splitTriple, splitDuo } from './splitUtils';
 
 let newPatternWorkResult: boolean = false;
@@ -9,9 +9,9 @@ let count_init = 0;
 let documentRef;
 
 const getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
-  const page = await documentRef.current.getPage(pageNumber); // shit. here we go again.......
+  const page = await documentRef.current.getPage(pageNumber);
   const textContent = await page.getTextContent();
-  console.log('getItemOffset', itemIndex, textContent);
+  // console.log('getItemOffset', itemIndex, textContent);
 
   return textContent.items
     .slice(0, itemIndex)
@@ -50,6 +50,8 @@ export const getTotalOffset = async (container, offset, ref) => {
     getPageOffset(pageNumber),
     getItemOffset(pageNumber, itemIndex),
   ]);
+
+  // console.log('getTotalOffset', pageOffset, itemOffset, offset);
 
   // CRUNCH:
   // need to do this after next/prev buttons pressed for bookmarks work
@@ -110,25 +112,40 @@ const newPattern = (text, bookmark: IBookmark, counter) => {
   return result;
 };
 
-export const pdfRenderer = (start, end, bookmarks: IBookmark[]) => {
+export const pdfRenderer = (
+  start: number,
+  end: number,
+  bookmarks: IBookmark[]
+) => {
   let counter = count_init;
+  // this is crunches. I don't know why renderer calls twice on the same textItem.
+  // that cause counter wrong calculation.
+  let prevTextItem = null;
+  let prevPattern = null;
   return (textItem) => {
-    let pattern = '';
-    if (textItem.str) {
-      // just our new selection:
-      pattern = newPattern(
-        textItem.str,
-        { start, end, color: 'black' },
-        counter
-      );
-      // after executing newPattern() the newPatternWorkResult variable changed (or not) (yes, this is crunch)
-      bookmarks.forEach((bookmark) => {
-        if (!newPatternWorkResult)
-          pattern = newPattern(textItem.str, bookmark, counter);
-      });
+    if (prevTextItem === textItem) {
+      return prevPattern;
+    } else {
+      // console.log('PDF renderer', start, end, textItem);
+      prevTextItem = textItem;
+      let pattern = '';
+      if (textItem.str) {
+        // just our new selection:
+        pattern = newPattern(
+          textItem.str,
+          createBookmark('selection', start, end, 'black'),
+          counter
+        );
+        // after executing newPattern() the newPatternWorkResult variable changed (or not) (yes, this is crunch)
+        bookmarks.forEach((bookmark) => {
+          if (!newPatternWorkResult)
+            pattern = newPattern(textItem.str, bookmark, counter);
+        });
 
-      counter += textItem.str.length;
+        counter += textItem.str.length;
+      }
+      prevPattern = pattern;
+      return pattern;
     }
-    return pattern;
   };
 };

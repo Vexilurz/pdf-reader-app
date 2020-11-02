@@ -156,7 +156,12 @@ class PDFViewer extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { currentPdf, pdfSelection } = this.props;
+    const {
+      currentPdf,
+      pdfSelection,
+      currentIndexes,
+      currentProjectFile,
+    } = this.props;
     const { pdfData, pageNumber, numPages, scale } = this.state;
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
@@ -181,7 +186,8 @@ class PDFViewer extends React.Component<
             customTextRenderer={pdfRenderer(
               pdfSelection.start,
               pdfSelection.end,
-              [] // bookmarks
+              currentProjectFile.content.events[currentIndexes.eventIndex]
+                ?.files[currentIndexes.fileIndex]?.bookmarks
             )}
           />
         </Document>
@@ -235,6 +241,8 @@ const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
     currentPdf: state.projectFile.currentPdf,
     pdfSelection: state.pdfViewer.pdfSelection,
     parentRef: ownProps.parentRef,
+    currentProjectFile: state.projectFile.currentProjectFile,
+    currentIndexes: state.projectFile.currentIndexes,
   };
 };
 

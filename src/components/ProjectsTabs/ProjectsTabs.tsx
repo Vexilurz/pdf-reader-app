@@ -28,11 +28,11 @@ class ProjectsTabs extends React.Component<
       <div className="projects-tabs">
         {openedProjectFiles.map((project, index) => {
           return (
-            <div className="project-tab">
+            <div className="project-tab" key={'project-tab-key' + index}>
               <button
                 type="button"
                 className="project-button"
-                key={'project-tab-key' + index}
+                key={'project-button-key' + index}
                 onClick={() => {
                   setCurrentFile(project);
                   setAppState(appConst.PDF_VIEWER);
@@ -43,7 +43,7 @@ class ProjectsTabs extends React.Component<
               <button
                 type="button"
                 className="close-button"
-                key={'close-tab-key' + index}
+                key={'close-button-key' + index}
                 onClick={() => {
                   if (currentProjectFile.path === project.path) {
                     setAppState(appConst.START_PAGE);
@@ -79,8 +79,8 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state: StoreType, ownProps: IProjectsTabsProps) => {
   return {
-    currentProjectFile: state.projectFile.current,
-    openedProjectFiles: state.projectFile.opened,
+    currentProjectFile: state.projectFile.currentProjectFile,
+    openedProjectFiles: state.projectFile.openedProjectFiles,
   };
 };
 

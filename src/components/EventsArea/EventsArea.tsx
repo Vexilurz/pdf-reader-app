@@ -52,7 +52,7 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state: StoreType, ownProps: IEventsAreaProps) => {
   return {
-    currentProjectFile: state.projectFile.current,
+    currentProjectFile: state.projectFile.currentProjectFile,
   };
 };
 

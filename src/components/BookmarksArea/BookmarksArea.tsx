@@ -57,7 +57,7 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarksAreaProps) => {
   return {
-    projectFile: state.projectFile.current.content,
+    projectFile: state.projectFile.currentProjectFile.content,
     indexes: state.projectFile.currentIndexes,
     selection: state.pdfViewer.pdfSelection,
   };
