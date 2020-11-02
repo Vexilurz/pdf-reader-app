@@ -5,6 +5,7 @@ import { IEvent } from '../types/event';
 import { IBookmark } from '../types/bookmark';
 import { IPdfFileWithBookmarks, getNewPdfFile } from '../types/pdf';
 import * as appConst from '../types/textConstants';
+import { actions as appStateActions } from './appStateSlice';
 
 interface IPdfFilePathWithEventID {
   path: string;
@@ -81,6 +82,16 @@ export const projectFileSlice = createSlice({
       const { path, content } = payload;
       const index = state.opened.findIndex((item) => item.path === path);
       if (index === -1) state.opened.push({ path, content });
+    },
+    deleteFileFromOpened: (
+      state: IProjectFileState,
+      action: PayloadAction<string>
+    ) => {
+      const path = action.payload;
+      const index = state.opened.findIndex((item) => item.path === path);
+      if (index > -1) {
+        state.opened.splice(index, 1);
+      }
     },
     updateEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
       const { payload } = action;

@@ -17,22 +17,43 @@ class ProjectsTabs extends React.Component<
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { openedProjectFiles, setAppState, setCurrentFile } = this.props;
+    const {
+      openedProjectFiles,
+      currentProjectFile,
+      setAppState,
+      setCurrentFile,
+      deleteFileFromOpened,
+    } = this.props;
     return (
       <div className="projects-tabs">
         {openedProjectFiles.map((project, index) => {
           return (
-            <button
-              type="button"
-              className="project-tab"
-              key={'project-tab-key' + index}
-              onClick={() => {
-                setCurrentFile(project);
-                setAppState(appConst.PDF_VIEWER);
-              }}
-            >
-              {project.content?.name} ({deletePathFromFilename(project.path)})
-            </button>
+            <div>
+              <button
+                type="button"
+                className="project-tab"
+                key={'project-tab-key' + index}
+                onClick={() => {
+                  setCurrentFile(project);
+                  setAppState(appConst.PDF_VIEWER);
+                }}
+              >
+                {project.content?.name} ({deletePathFromFilename(project.path)})
+              </button>
+              <button
+                type="button"
+                className="close-tab"
+                key={'close-tab-key' + index}
+                onClick={() => {
+                  if (currentProjectFile.path === project.path) {
+                    setAppState(appConst.START_PAGE);
+                  }
+                  deleteFileFromOpened(project.path);
+                }}
+              >
+                x
+              </button>
+            </div>
           );
         })}
         <button
@@ -52,6 +73,7 @@ class ProjectsTabs extends React.Component<
 
 const mapDispatchToProps = {
   setCurrentFile: projectFileActions.setCurrentFile,
+  deleteFileFromOpened: projectFileActions.deleteFileFromOpened,
   setAppState: appStateActions.setAppState,
 };
 
