@@ -28,10 +28,10 @@ class ProjectsTabs extends React.Component<
       <div className="projects-tabs">
         {openedProjectFiles.map((project, index) => {
           return (
-            <div>
+            <div className="project-tab">
               <button
                 type="button"
-                className="project-tab"
+                className="project-button"
                 key={'project-tab-key' + index}
                 onClick={() => {
                   setCurrentFile(project);
@@ -42,7 +42,7 @@ class ProjectsTabs extends React.Component<
               </button>
               <button
                 type="button"
-                className="close-tab"
+                className="close-button"
                 key={'close-tab-key' + index}
                 onClick={() => {
                   if (currentProjectFile.path === project.path) {
