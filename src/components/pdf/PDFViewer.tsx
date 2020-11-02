@@ -84,17 +84,20 @@ class PDFViewer extends React.Component<
     });
   };
 
-  onDocumentLoadSuccess = (document) => {
-    const { numPages } = document;
-    this.setState({ numPages });
-    this.documentRef.current = document;
-
+  calcPageOffsets = (numPages) => {
     this.pagesOffsets = [];
     for (let i = 0; i < numPages; i += 1) {
       this.getPageOffset(i + 1).then((pageOffset) =>
         this.pagesOffsets.push(pageOffset)
       );
     }
+  };
+
+  onDocumentLoadSuccess = (document) => {
+    const { numPages } = document;
+    this.setState({ numPages });
+    this.documentRef.current = document;
+    this.calcPageOffsets(numPages);
   };
 
   getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
@@ -195,12 +198,14 @@ class PDFViewer extends React.Component<
     return result;
   };
 
-  pdfRenderer = (
-    pageNumber: number,
-    start: number,
-    end: number,
-    bookmarks: IBookmark[]
-  ) => {
+  pdfRenderer = (pageNumber: number) => {
+    const { pdfSelection, currentIndexes, currentProjectFile } = this.props;
+
+    const bookmarks =
+      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
+        currentIndexes.fileIndex
+      ]?.bookmarks;
+
     let counter = this.pagesOffsets[pageNumber - 1];
     // this is crunches. I don't know why renderer calls twice on the same textItem.
     // that cause counter wrong calculation.
@@ -217,7 +222,12 @@ class PDFViewer extends React.Component<
           // just our new selection:
           pattern = this.newPattern(
             textItem.str,
-            createBookmark('selection', start, end, 'black'),
+            createBookmark(
+              'selection',
+              pdfSelection.start,
+              pdfSelection.end,
+              'black'
+            ),
             counter
           );
           // after executing newPattern() the newPatternWorkResult variable changed (or not) (yes, this is crunch)
@@ -331,13 +341,7 @@ class PDFViewer extends React.Component<
               scale={scale}
               // renderTextLayer={false}
               // renderMode={'svg'}
-              customTextRenderer={this.pdfRenderer(
-                index + 1,
-                pdfSelection.start,
-                pdfSelection.end,
-                currentProjectFile.content.events[currentIndexes.eventIndex]
-                  ?.files[currentIndexes.fileIndex]?.bookmarks
-              )}
+              customTextRenderer={this.pdfRenderer(index + 1)}
             />
           ))}
         </Document>
