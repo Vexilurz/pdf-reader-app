@@ -9,9 +9,7 @@ import { StoreType } from '../../../reduxStore/store';
 import { actions as projectFileActions } from '../../../reduxStore/projectFileSlice';
 import * as appConst from '../../../types/textConstants';
 
-export interface IMiddleSpaceProps {
-  visible: boolean;
-}
+export interface IMiddleSpaceProps {}
 export interface IMiddleSpaceState {}
 
 class MiddleSpace extends React.Component<
@@ -28,8 +26,7 @@ class MiddleSpace extends React.Component<
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { visible, currentAppState } = this.props;
-    const isVisible = visible ? 'visible' : 'hidden';
+    const { currentAppState } = this.props;
 
     let pageContent = <div>ERROR: Wrong appState current value</div>;
     if (currentAppState === appConst.START_PAGE) {
@@ -43,11 +40,7 @@ class MiddleSpace extends React.Component<
     }
 
     return (
-      <div
-        className="middle-space"
-        ref={this.containerRef}
-        style={{ visibility: isVisible }}
-      >
+      <div className="middle-space" ref={this.containerRef}>
         <button
           type="button"
           className="save-project-button"
@@ -70,7 +63,6 @@ const mapDispatchToProps = {
 const mapStateToProps = (state: StoreType, ownProps: IMiddleSpaceProps) => {
   return {
     currentAppState: state.appState.current,
-    visible: ownProps.visible,
   };
 };
 

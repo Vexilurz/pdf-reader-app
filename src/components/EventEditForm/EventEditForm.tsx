@@ -37,12 +37,18 @@ class EventEditForm extends React.Component<
       editingEvent,
       isNew,
       setAppState,
-      calcCurrentIndexes,
+      setCurrentPdf,
     } = this.props;
     if (isNew) addEvent(editingEvent);
     else updateEvent(editingEvent);
+    setCurrentPdf({ path: '', eventID: '' });
     setAppState(appConst.PDF_VIEWER);
-    calcCurrentIndexes();
+  };
+
+  onCancelClick = (): void => {
+    const { setAppState, setCurrentPdf } = this.props;
+    setCurrentPdf({ path: '', eventID: '' });
+    setAppState(appConst.PDF_VIEWER);
   };
 
   // todo: find type of acceptedFiles of Dropzone.onDrop
@@ -156,6 +162,13 @@ class EventEditForm extends React.Component<
           >
             {isNew ? 'Add event' : 'Update event'}
           </button>
+          <button
+            type="button"
+            className="cancel-button"
+            onClick={this.onCancelClick}
+          >
+            Cancel
+          </button>
         </div>
       </div>
     );
@@ -165,7 +178,7 @@ class EventEditForm extends React.Component<
 const mapDispatchToProps = {
   addEvent: projectFileActions.addEvent,
   updateEvent: projectFileActions.updateEvent,
-  calcCurrentIndexes: projectFileActions.calcCurrentIndexes,
+  setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
 };

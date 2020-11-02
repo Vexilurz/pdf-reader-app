@@ -40,6 +40,11 @@ class EventItem extends React.Component<
     setAppState(appConst.EVENT_FORM);
   };
 
+  onDeleteEventClick = () => {
+    const { deleteEvent, event } = this.props;
+    deleteEvent(event);
+  };
+
   // todo: refactor? almost the same in the EventEditForm
   onFilesDrop = (acceptedFiles) => {
     const { event, updateEvent } = this.props;
@@ -66,6 +71,13 @@ class EventItem extends React.Component<
     const { event } = this.props;
     return (
       <div className="event-item">
+        <button
+          type="button"
+          className="event-delete-button"
+          onClick={this.onDeleteEventClick}
+        >
+          Delete
+        </button>
         <button
           type="button"
           className="event-edit-button"
@@ -113,6 +125,7 @@ const mapDispatchToProps = {
   setEditingEvent: editingEventActions.setEditingEvent,
   setIsNew: editingEventActions.setIsNew,
   updateEvent: projectFileActions.updateEvent,
+  deleteEvent: projectFileActions.deleteEvent,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {

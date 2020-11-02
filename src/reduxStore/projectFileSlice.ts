@@ -34,7 +34,7 @@ const getCurrentIndexes = (state: IProjectFileState): IEventAndFileIndex => {
   const eventIndex = state.current.content.events.findIndex(
     (event) => event.id === state.currentPdf.eventID
   );
-  const fileIndex = state.current.content.events[eventIndex].files.findIndex(
+  const fileIndex = state.current.content.events[eventIndex]?.files.findIndex(
     (file) => file.path === state.currentPdf.path
   );
   return { fileIndex, eventIndex };
@@ -90,6 +90,13 @@ export const projectFileSlice = createSlice({
           return event;
         }
       );
+    },
+    deleteEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
+      const { payload } = action;
+      const index = state.current.content.events.findIndex(
+        (event) => event.id === payload.id
+      );
+      if (index > -1) state.current.content.events.splice(index, 1);
     },
     addEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
       const { payload } = action;

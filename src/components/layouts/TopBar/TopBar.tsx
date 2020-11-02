@@ -2,9 +2,7 @@ import './top-bar.scss';
 import * as React from 'react';
 import ProjectsTabs from '../../ProjectsTabs/ProjectsTabs';
 
-export interface ITopBarProps {
-  visible: boolean;
-}
+export interface ITopBarProps {}
 export interface ITopBarState {}
 
 export default class TopBar extends React.Component<
@@ -14,11 +12,8 @@ export default class TopBar extends React.Component<
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { visible } = this.props;
-    const isVisible = visible ? 'visible' : 'hidden';
-
     return (
-      <div className="top-bar" style={{ visibility: isVisible }}>
+      <div className="top-bar">
         <ProjectsTabs />
       </div>
     );
