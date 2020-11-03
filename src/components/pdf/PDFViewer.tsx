@@ -136,7 +136,7 @@ class PDFViewer extends React.Component<
   };
 
   getTotalOffset = async (container, offset) => {
-    const textLayerItem = container.parentNode;
+    const textLayerItem = container.parentNode.parentNode;
     const textLayer = textLayerItem.parentNode;
     const page = textLayer.parentNode;
     const pageNumber = parseInt(page.dataset.pageNumber, 10);
@@ -163,13 +163,13 @@ class PDFViewer extends React.Component<
     return <span key={key}>{text}</span>;
   };
 
-  newPattern = (text, bookmark: IBookmark, counter) => {
+  newPattern = (text: string, bookmark: IBookmark, counter: number) => {
     // console.log(counter, bookmark.start, bookmark.end, text);
-    // let result = getUnmarkedText(text, counter);
-    let result = text;
+    let result = this.getUnmarkedText(text, counter);
+    // let result = text;
     let dbg = 'unmarked:';
-    this.newPatternWorkResult = false;
-    if (counter >= bookmark.start && counter + text.length <= bookmark.end) {
+    const { length } = text;
+    if (counter >= bookmark.start && counter + length <= bookmark.end) {
       // mark all text
       dbg = 'mark all text:';
       result = this.getMarkedText(text, bookmark.color, counter);
@@ -181,18 +181,15 @@ class PDFViewer extends React.Component<
       result[0] = this.getMarkedText(result[0], bookmark.color, counter);
       this.newPatternWorkResult = true;
     } else if (
-      counter + text.length > bookmark.start &&
-      counter + text.length <= bookmark.end
+      counter + length > bookmark.start &&
+      counter + length <= bookmark.end
     ) {
       // mark right part
       dbg = 'mark right part:';
       result = splitDuo(bookmark.start - counter)(text);
       result[1] = this.getMarkedText(result[1], bookmark.color, counter);
       this.newPatternWorkResult = true;
-    } else if (
-      counter < bookmark.start &&
-      counter + text.length > bookmark.end
-    ) {
+    } else if (counter < bookmark.start && counter + length > bookmark.end) {
       // mark middle
       dbg = 'mark middle:';
       result = splitTriple(
@@ -218,7 +215,7 @@ class PDFViewer extends React.Component<
     // this is crunches. I don't know why renderer calls twice on the same textItem.
     // that cause counter wrong calculation.
     let prevTextItem = null;
-    let prevPattern = null;
+    // let prevPattern = null;
     console.log('%c%s', 'color: lime; font: 1.2rem/1 Tahoma;', 'PDF_RENDERER');
     // console.log(new Error().stack);
     return (textItem) => {
@@ -228,34 +225,46 @@ class PDFViewer extends React.Component<
       //   // pdfSelection.end,
       //   textItem
       // );
-      if (prevTextItem === textItem) {
-        console.log('prev');
-        return 'AAAA'; //prevPattern;
-      } else {
+      if (prevTextItem !== textItem) {
+        //   console.log('prev');
+        //   return 'AAAA'; //prevPattern;
+        // } else {
         prevTextItem = textItem;
         // return textItem.str;
         let pattern = '';
         if (textItem.str) {
-          // just our new selection:
-          pattern = this.newPattern(
-            textItem.str,
-            createBookmark(
-              'selection',
-              pdfSelection.start,
-              pdfSelection.end,
-              'black'
-            ),
-            counter
-          );
+          this.newPatternWorkResult = false;
+          if (
+            pdfSelection.start !== Infinity &&
+            pdfSelection.end !== Infinity
+          ) {
+            pattern = this.newPattern(
+              textItem.str,
+              createBookmark(
+                'selection',
+                pdfSelection.start,
+                pdfSelection.end,
+                'black'
+              ),
+              counter
+            );
+          }
           // after executing newPattern() the newPatternWorkResult variable changed (or not) (yes, this is crunch)
-          bookmarks.forEach((bookmark) => {
-            if (!this.newPatternWorkResult)
-              pattern = this.newPattern(textItem.str, bookmark, counter);
-          });
+          if (bookmarks.length > 0) {
+            let index = 0;
+            while (!this.newPatternWorkResult && index < bookmarks.length) {
+              pattern = this.newPattern(
+                textItem.str,
+                bookmarks[index],
+                counter
+              );
+              index += 1;
+            }
+          }
 
           counter += textItem.str.length;
         }
-        prevPattern = pattern;
+        // prevPattern = pattern;
         return pattern;
       }
     };
@@ -351,7 +360,7 @@ class PDFViewer extends React.Component<
             onLoadSuccess={this.onDocumentLoadSuccess}
             inputRef={(ref) => (this.containerRef.current = ref)}
             onMouseUp={this.onMouseUp}
-            onMouseDown={this.onMouseDown}
+            // onMouseDown={this.onMouseDown}
             loading={<CircularProgress size={'100px'} />}
           >
             {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
@@ -368,7 +377,7 @@ class PDFViewer extends React.Component<
                   }
                   pageNumber={index + 1}
                   onLoadSuccess={this.onPageLoad}
-                  // customTextRenderer={this.pdfRenderer(index + 1)}
+                  customTextRenderer={this.pdfRenderer(index + 1)}
                 />
               );
             })}
