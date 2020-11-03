@@ -4,10 +4,16 @@ import * as appConst from '../types/textConstants';
 
 // https://www.electronjs.org/docs/api/dialog
 
-const openFileDialog = async (event, arg) => {
-  const response = await dialog.showOpenDialog({ properties: ['openFile'] });
-  if (!response.canceled) {
-    const path = response.filePaths[0];
+const openFileDialog = async (event, arg: string) => {
+  let path = null;
+  if (arg) path = arg;
+  else {
+    const response = await dialog.showOpenDialog({ properties: ['openFile'] });
+    if (!response.canceled) {
+      path = response.filePaths[0];
+    }
+  }
+  if (path) {
     const content = await fs.readFile(path);
     event.reply(appConst.OPEN_FILE_DIALOG_RESPONSE, {
       path,

@@ -47,6 +47,7 @@ class ProjectEditForm extends React.Component<
       setCurrentFile(newFile);
       addFileToOpened(newFile);
       setAppState(appConst.PDF_VIEWER);
+      ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, newFile);
       // todo: save file?
     } else {
       // todo: show message "please set save path to new file"
