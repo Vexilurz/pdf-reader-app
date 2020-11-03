@@ -20,6 +20,7 @@ export interface IPDFViewerState {
   pdfData: IPDFdata | null;
   numPages: number;
   scale: number;
+  pagesRendered: any;
 }
 
 class PDFViewer extends React.Component<
@@ -37,6 +38,7 @@ class PDFViewer extends React.Component<
       pdfData: null,
       numPages: 0,
       scale: 1.0,
+      pagesRendered: null,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
@@ -45,17 +47,15 @@ class PDFViewer extends React.Component<
   }
 
   componentDidMount(): void {
-    this.initListeners();
-  }
-
-  initListeners = (): void => {
     ipcRenderer.on(
       appConst.PDF_FILE_CONTENT_RESPONSE,
       (event, data: Uint8Array) => {
         this.setState({ pdfData: { data } });
       }
     );
-  };
+  }
+
+  // shouldComponentUpdate()
 
   calcScale = (page) => {
     const parent = this.props.parentRef.current;
@@ -68,8 +68,9 @@ class PDFViewer extends React.Component<
   };
 
   onPageLoad = async (page) => {
-    this.removeTextLayerOffset();
-    this.calcScale(page);
+    console.log('page loaded');
+    // this.removeTextLayerOffset();
+    // this.calcScale(page);
   };
 
   removeTextLayerOffset = () => {
@@ -95,9 +96,16 @@ class PDFViewer extends React.Component<
 
   onDocumentLoadSuccess = (document) => {
     const { numPages } = document;
-    this.setState({ numPages });
+    this.setState({ numPages, pagesRendered: 0 });
     this.documentRef.current = document;
     this.calcPageOffsets(numPages);
+  };
+
+  onRenderSuccess = () => {
+    console.log('onRenderSuccess');
+    this.setState((prevState) => ({
+      pagesRendered: prevState.pagesRendered + 1,
+    }));
   };
 
   getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
@@ -211,12 +219,21 @@ class PDFViewer extends React.Component<
     // that cause counter wrong calculation.
     let prevTextItem = null;
     let prevPattern = null;
+    console.log('%c%s', 'color: lime; font: 1.2rem/1 Tahoma;', 'PDF_RENDERER');
+    // console.log(new Error().stack);
     return (textItem) => {
+      // console.log(
+      //   // 'PDF renderer',
+      //   // pdfSelection.start,
+      //   // pdfSelection.end,
+      //   textItem
+      // );
       if (prevTextItem === textItem) {
-        return prevPattern;
+        console.log('prev');
+        return 'AAAA'; //prevPattern;
       } else {
-        // console.log('PDF renderer', start, end, textItem);
         prevTextItem = textItem;
+        // return textItem.str;
         let pattern = '';
         if (textItem.str) {
           // just our new selection:
@@ -312,39 +329,52 @@ class PDFViewer extends React.Component<
   };
 
   render(): React.ReactElement {
-    const {
-      currentPdf,
-      pdfSelection,
-      currentIndexes,
-      currentProjectFile,
-    } = this.props;
-    const { pdfData, numPages, scale } = this.state;
+    const { currentPdf, pdfSelection } = this.props;
+    // const { pdfData, numPages, scale } = this.state;
+    const { pdfData, numPages, pagesRendered } = this.state;
+
+    /**
+     * The amount of pages we want to render now. Always 1 more than already rendered,
+     * no more than total amount of pages in the document.
+     */
+    const pagesRenderedPlusOne = Math.min(pagesRendered + 1, numPages);
+
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
         {currentPdf.path}
         <div>
           Start: {pdfSelection.start}, End: {pdfSelection.end}
         </div>
-        <Document
-          file={pdfData}
-          onLoadSuccess={this.onDocumentLoadSuccess}
-          inputRef={(ref) => (this.containerRef.current = ref)}
-          onMouseUp={this.onMouseUp}
-          onMouseDown={this.onMouseDown}
-          loading={<CircularProgress size={'100px'} />}
-        >
-          {Array.from(new Array(numPages), (el, index) => (
-            <Page
-              key={`page_${index + 1}`}
-              pageNumber={index + 1}
-              onLoadSuccess={this.onPageLoad}
-              scale={scale}
-              // renderTextLayer={false}
-              // renderMode={'svg'}
-              customTextRenderer={this.pdfRenderer(index + 1)}
-            />
-          ))}
-        </Document>
+        {pdfData ? (
+          <Document
+            file={pdfData}
+            onLoadSuccess={this.onDocumentLoadSuccess}
+            inputRef={(ref) => (this.containerRef.current = ref)}
+            onMouseUp={this.onMouseUp}
+            onMouseDown={this.onMouseDown}
+            loading={<CircularProgress size={'100px'} />}
+          >
+            {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
+              const isCurrentlyRendering = pagesRenderedPlusOne === index + 1;
+              const isLastPage = numPages === index + 1;
+              const needsCallbackToRenderNextPage =
+                isCurrentlyRendering && !isLastPage;
+
+              return (
+                <Page
+                  key={`page_${index + 1}`}
+                  onRenderSuccess={
+                    needsCallbackToRenderNextPage ? this.onRenderSuccess : null
+                  }
+                  pageNumber={index + 1}
+                  onLoadSuccess={this.onPageLoad}
+                  // customTextRenderer={this.pdfRenderer(index + 1)}
+                />
+              );
+            })}
+          </Document>
+        ) : null}
+
         {/* <div
           style={{
             display: 'flex',
