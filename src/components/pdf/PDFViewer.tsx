@@ -69,8 +69,8 @@ class PDFViewer extends React.Component<
 
   onPageLoad = async (page) => {
     console.log('page loaded');
-    // this.removeTextLayerOffset();
-    // this.calcScale(page);
+    this.removeTextLayerOffset();
+    this.calcScale(page);
   };
 
   removeTextLayerOffset = () => {
@@ -339,8 +339,7 @@ class PDFViewer extends React.Component<
 
   render(): React.ReactElement {
     const { currentPdf, pdfSelection } = this.props;
-    // const { pdfData, numPages, scale } = this.state;
-    const { pdfData, numPages, pagesRendered } = this.state;
+    const { pdfData, numPages, pagesRendered, scale } = this.state;
 
     /**
      * The amount of pages we want to render now. Always 1 more than already rendered,
@@ -361,7 +360,7 @@ class PDFViewer extends React.Component<
             inputRef={(ref) => (this.containerRef.current = ref)}
             onMouseUp={this.onMouseUp}
             // onMouseDown={this.onMouseDown}
-            loading={<CircularProgress size={'100px'} />}
+            // loading={<CircularProgress size={'100px'} />}
           >
             {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
               const isCurrentlyRendering = pagesRenderedPlusOne === index + 1;
@@ -375,6 +374,7 @@ class PDFViewer extends React.Component<
                   onRenderSuccess={
                     needsCallbackToRenderNextPage ? this.onRenderSuccess : null
                   }
+                  scale={scale}
                   pageNumber={index + 1}
                   onLoadSuccess={this.onPageLoad}
                   customTextRenderer={this.pdfRenderer(index + 1)}
