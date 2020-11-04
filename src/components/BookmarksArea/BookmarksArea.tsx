@@ -29,23 +29,25 @@ class BookmarksArea extends React.Component<
     return (
       <div className="bookmarks-area">
         Bookmarks area
+        <div className="bookmarks-list">
+          {projectFile.events[indexes.eventIndex]?.files[
+            indexes.fileIndex
+          ]?.bookmarks.map((bookmark, index) => {
+            return (
+              <BookmarkItem
+                bookmark={bookmark}
+                key={'bookmark-item-key' + index}
+              />
+            );
+          })}
+        </div>
         <button
           type="button"
-          className="add-bookmark-button"
+          className="create-new-button"
           onClick={this.onAddBookmark}
         >
           Add bookmark
         </button>
-        {projectFile.events[indexes.eventIndex]?.files[
-          indexes.fileIndex
-        ]?.bookmarks.map((bookmark, index) => {
-          return (
-            <BookmarkItem
-              bookmark={bookmark}
-              key={'bookmark-item-key' + index}
-            />
-          );
-        })}
       </div>
     );
   }
