@@ -79,9 +79,10 @@ export const projectFileSlice = createSlice({
       action: PayloadAction<IProjectFileWithPath>
     ) => {
       const { payload } = action;
-      const { path, content } = payload;
+      const { path } = payload;
       const index = state.openedProjectFiles.findIndex((item) => item.path === path);
-      if (index === -1) state.openedProjectFiles.push({ path, content });
+      if (index === -1) state.openedProjectFiles.push(payload);
+      else state.openedProjectFiles[index] = payload;
     },
     deleteFileFromOpened: (
       state: IProjectFileState,

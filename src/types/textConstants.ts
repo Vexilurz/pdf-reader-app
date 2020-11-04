@@ -1,6 +1,6 @@
 // app state:
 export const START_PAGE = 'start-page';
-export const NEW_FILE_FORM = 'new-file-form';
+export const PROJECT_EDIT_FORM = 'project-edit-form';
 export const PDF_VIEWER = 'pdf-viewer';
 export const EVENT_FORM = 'event-form';
 

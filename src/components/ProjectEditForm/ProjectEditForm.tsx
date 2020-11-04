@@ -2,6 +2,7 @@ import './project-edit-form.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { IProjectFileWithPath, getNewFile } from '../../types/projectFile';
@@ -22,12 +23,13 @@ class ProjectEditForm extends React.Component<
     super(props);
     this.projectNameRef = React.createRef();
     this.state = {
-      path: '',
+      path: props.currentProjectFile.path,
     };
   }
 
   componentDidMount(): void {
     this.initListeners();
+    this.projectNameRef.current.value = this.props.currentProjectFile.content.name;
   }
 
   initListeners = (): void => {
@@ -44,6 +46,7 @@ class ProjectEditForm extends React.Component<
         path,
         content: getNewFile(this.projectNameRef.current.value),
       };
+      newFile.content.events = this.props.currentProjectFile.content.events;
       setCurrentFile(newFile);
       addFileToOpened(newFile);
       setAppState(appConst.PDF_VIEWER);
@@ -90,7 +93,7 @@ class ProjectEditForm extends React.Component<
             className="create-new-file-button"
             onClick={this.onCreateNewFileClick}
           >
-            Create file!
+            Save
           </button>
         </div>
       </div>
@@ -105,7 +108,9 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IProjectEditFormProps) => {
-  return {};
+  return {
+    currentProjectFile: state.projectFile.currentProjectFile,
+  };
 };
 
 type StatePropsType = ReturnType<typeof mapStateToProps>;
