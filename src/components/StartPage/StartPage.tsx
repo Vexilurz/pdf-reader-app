@@ -46,7 +46,7 @@ class StartPage extends React.Component<
   };
 
   onOpenFileClick = (): void => {
-    ipcRenderer.send(appConst.SHOW_OPEN_FILE_DIALOG);
+    ipcRenderer.send(appConst.OPEN_FILE);
   };
 
   onNewFileClick = (): void => {
@@ -89,7 +89,7 @@ class StartPage extends React.Component<
                   className="recent-project-button"
                   key={'recent-project-key' + index}
                   onClick={() => {
-                    ipcRenderer.send(appConst.SHOW_OPEN_FILE_DIALOG, item.path);
+                    ipcRenderer.send(appConst.OPEN_FILE, item.path);
                   }}
                 >
                   {`${item.name} (${item.path})`}

@@ -5,7 +5,7 @@ export const PDF_VIEWER = 'pdf-viewer';
 export const EVENT_FORM = 'event-form';
 
 // main process listeners:
-export const SHOW_OPEN_FILE_DIALOG = 'show-open-file-dialog';
+export const OPEN_FILE = 'open-file';
 export const SHOW_NEW_FILE_DIALOG = 'show-new-file-dialog';
 export const LOAD_PDF_FILE = 'load-pdf-file';
 export const SAVE_CURRENT_PROJECT = 'save-current-project';

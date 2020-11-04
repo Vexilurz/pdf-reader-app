@@ -38,7 +38,7 @@ class ProjectEditForm extends React.Component<
     });
   };
 
-  onCreateNewFileClick = (): void => {
+  onSaveChangesClick = (): void => {
     const { setCurrentFile, setAppState, addFileToOpened } = this.props;
     const { path } = this.state;
     if (path !== '') {
@@ -87,11 +87,11 @@ class ProjectEditForm extends React.Component<
           </button>
           Path to save: {path}
         </div>
-        <div className="create-new-file">
+        <div className="save-changes">
           <button
             type="button"
-            className="create-new-file-button"
-            onClick={this.onCreateNewFileClick}
+            className="save-changes-button"
+            onClick={this.onSaveChangesClick}
           >
             Save
           </button>

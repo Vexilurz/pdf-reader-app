@@ -2,12 +2,6 @@ import { ipcMain } from 'electron';
 import { promises as fs } from 'fs';
 import * as appConst from '../types/textConstants';
 
-const saveCurrentProject = async (event, currentProject) => {
-  const res = await fs.writeFile(currentProject.path, currentProject.content);
-  // todo: listen to this event in renderer to display success message
-  event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
-};
-
 const checkForRecentFileExists = async () => {
   try {
     const exists = await fs.stat(appConst.RECENT_PROJECTS_FILENAME);
@@ -63,7 +57,6 @@ const getRecentProjects = async (event) => {
 
 export default (): void => {
   const listeners = [
-    { name: appConst.SAVE_CURRENT_PROJECT, callback: saveCurrentProject },
     { name: appConst.ADD_TO_RECENT_PROJECTS, callback: addToRecentProjects },
     { name: appConst.DELETE_FROM_RECENT_PROJECTS, callback: deleteFromRecentProjects },
     { name: appConst.GET_RECENT_PROJECTS, callback: getRecentProjects },
