@@ -204,7 +204,7 @@ class PDFViewer extends React.Component<
   };
 
   pdfRenderer = (pageNumber: number) => {
-    const { pdfSelection, currentIndexes, currentProjectFile } = this.props;
+    const { currentIndexes, currentProjectFile } = this.props;
 
     const bookmarks =
       currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
@@ -234,21 +234,21 @@ class PDFViewer extends React.Component<
         let pattern = '';
         if (textItem.str) {
           this.newPatternWorkResult = false;
-          if (
-            pdfSelection.start !== Infinity &&
-            pdfSelection.end !== Infinity
-          ) {
-            pattern = this.newPattern(
-              textItem.str,
-              createBookmark(
-                'selection',
-                pdfSelection.start,
-                pdfSelection.end,
-                'black'
-              ),
-              counter
-            );
-          }
+          // if (
+          //   pdfSelection.start !== Infinity &&
+          //   pdfSelection.end !== Infinity
+          // ) {
+          //   pattern = this.newPattern(
+          //     textItem.str,
+          //     createBookmark(
+          //       'selection',
+          //       pdfSelection.start,
+          //       pdfSelection.end,
+          //       'black'
+          //     ),
+          //     counter
+          //   );
+          // }
           // after executing newPattern() the newPatternWorkResult variable changed (or not) (yes, this is crunch)
           if (bookmarks.length > 0) {
             let index = 0;
@@ -315,7 +315,7 @@ class PDFViewer extends React.Component<
       startOffset,
     } = sel; //selection.getRangeAt(0);
 
-    selection?.empty(); // important!
+    // selection?.empty(); // important!
 
     // Selection partially outside PDF document
     if (!this.containerRef.current.contains(commonAncestorContainer)) {
@@ -338,7 +338,7 @@ class PDFViewer extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { currentPdf, pdfSelection } = this.props;
+    const { currentPdf } = this.props;
     const { pdfData, numPages, pagesRendered, scale } = this.state;
 
     /**
@@ -350,9 +350,9 @@ class PDFViewer extends React.Component<
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
         {currentPdf.path}
-        <div>
+        {/* <div>
           Start: {pdfSelection.start}, End: {pdfSelection.end}
-        </div>
+        </div> */}
         {pdfData ? (
           <Document
             file={pdfData}
@@ -432,7 +432,7 @@ const mapDispatchToProps = {
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
   return {
     currentPdf: state.projectFile.currentPdf,
-    pdfSelection: state.pdfViewer.pdfSelection,
+    // pdfSelection: state.pdfViewer.pdfSelection,
     parentRef: ownProps.parentRef,
     currentProjectFile: state.projectFile.currentProjectFile,
     currentIndexes: state.projectFile.currentIndexes,
