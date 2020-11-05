@@ -47,8 +47,8 @@ class EventEditForm extends React.Component<
 
   onCancelClick = (): void => {
     const { setAppState, setCurrentPdf } = this.props;
-    setCurrentPdf({ path: '', eventID: '' });
-    setAppState(appConst.PDF_VIEWER);
+    // setCurrentPdf({ path: '', eventID: '' });
+    setAppState(appConst.EMTPY_SCREEN);
   };
 
   // todo: find type of acceptedFiles of Dropzone.onDrop
