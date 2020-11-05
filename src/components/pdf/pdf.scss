@@ -8,20 +8,35 @@
 }
 
 .react-pdf__Page__textContent span {
-  // opacity: 0.2;
-  // color: red;
+  opacity: 0.2;
 }
 
-.react-pdf__Page__textContent span::selection {
-  //background-color: blue;
-}
+// .react-pdf__Page__textContent span::selection {
+//   opacity: 0.8;
+//   background-color: blue;
+// }
 
 .react-pdf__Document {
   line-height: initial;
 }
 
 .pdf-viewer {
-  overflow: scroll;
-  height: 95%;
+  overflow: auto;
+  height: 100%;
   //max-width: 67vw;
+  position: absolute;
+}
+
+.loading-container {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background-color: gray;
+  opacity: 0.8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

@@ -2,7 +2,7 @@ import './pdf.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
-import { CircularProgress } from '@material-ui/core';
+// import { CircularProgress } from '@material-ui/core';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 import { StoreType } from '../../reduxStore/store';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
@@ -60,7 +60,7 @@ class PDFViewer extends React.Component<
   calcScale = (page) => {
     const parent = this.props.parentRef.current;
     if (parent) {
-      const pageScale = parent.clientWidth / page.originalWidth;
+      const pageScale = (parent.clientWidth * 0.95) / page.originalWidth;
       if (this.state.scale !== pageScale) {
         this.setState({ scale: pageScale });
       }
@@ -108,6 +108,12 @@ class PDFViewer extends React.Component<
     }));
   };
 
+  onRenderFinished = (pageNumber: number) => {
+    const { numPages } = this.state;
+    const { setPdfLoading } = this.props;
+    if (pageNumber === numPages) setPdfLoading(false);
+  };
+
   getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
     const page = await this.documentRef.current.getPage(pageNumber);
     const textContent = await page.getTextContent();
@@ -153,7 +159,7 @@ class PDFViewer extends React.Component<
 
   getMarkedText = (text: string, color: string, key: any) => {
     return (
-      <mark key={key} style={{ backgroundColor: color }}>
+      <mark key={key} style={{ color, backgroundColor: color }}>
         {text}
       </mark>
     );
@@ -178,7 +184,8 @@ class PDFViewer extends React.Component<
       // mark left part
       dbg = 'mark left part:';
       result = splitDuo(bookmark.end - counter)(text);
-      result[0] = this.getMarkedText(result[0], bookmark.color, counter);
+      result[0] = this.getMarkedText(result[0], bookmark.color, '0k' + counter);
+      result[1] = this.getUnmarkedText(result[1], '1k' + counter);
       this.newPatternWorkResult = true;
     } else if (
       counter + length > bookmark.start &&
@@ -187,7 +194,8 @@ class PDFViewer extends React.Component<
       // mark right part
       dbg = 'mark right part:';
       result = splitDuo(bookmark.start - counter)(text);
-      result[1] = this.getMarkedText(result[1], bookmark.color, counter);
+      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
+      result[0] = this.getUnmarkedText(result[0], '0k' + counter);
       this.newPatternWorkResult = true;
     } else if (counter < bookmark.start && counter + length > bookmark.end) {
       // mark middle
@@ -196,7 +204,9 @@ class PDFViewer extends React.Component<
         bookmark.start - counter,
         bookmark.end - counter
       )(text);
-      result[1] = this.getMarkedText(result[1], bookmark.color, counter);
+      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
+      result[0] = this.getUnmarkedText(result[0], '0k' + counter);
+      result[2] = this.getUnmarkedText(result[2], '2k' + counter);
       this.newPatternWorkResult = true;
     }
     // console.log(dbg, result);
@@ -205,6 +215,7 @@ class PDFViewer extends React.Component<
 
   pdfRenderer = (pageNumber: number) => {
     const { currentIndexes, currentProjectFile } = this.props;
+    // const { numPages } = this.state;
 
     const bookmarks =
       currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
@@ -338,21 +349,24 @@ class PDFViewer extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { currentPdf } = this.props;
+    const { currentPdf, pdfLoading } = this.props;
     const { pdfData, numPages, pagesRendered, scale } = this.state;
 
     /**
      * The amount of pages we want to render now. Always 1 more than already rendered,
      * no more than total amount of pages in the document.
      */
-    const pagesRenderedPlusOne = Math.min(pagesRendered + 1, numPages);
+    // const pagesRenderedPlusOne = Math.min(pagesRendered + 1, numPages);
 
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
         {currentPdf.path}
-        {/* <div>
-          Start: {pdfSelection.start}, End: {pdfSelection.end}
-        </div> */}
+        {pdfLoading ? (
+          <div className="loading-container">
+            {/* <CircularProgress size={'200px'} /> */}
+            <img src="./public/loading.gif" alt="Loading..." />
+          </div>
+        ) : null}
         {pdfData ? (
           <Document
             file={pdfData}
@@ -360,24 +374,26 @@ class PDFViewer extends React.Component<
             inputRef={(ref) => (this.containerRef.current = ref)}
             onMouseUp={this.onMouseUp}
             // onMouseDown={this.onMouseDown}
-            // loading={<CircularProgress size={'100px'} />}
           >
-            {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
-              const isCurrentlyRendering = pagesRenderedPlusOne === index + 1;
-              const isLastPage = numPages === index + 1;
-              const needsCallbackToRenderNextPage =
-                isCurrentlyRendering && !isLastPage;
+            {Array.from(new Array(numPages), (el, index) => {
+              // const isCurrentlyRendering = pagesRenderedPlusOne === index + 1;
+              // const isLastPage = numPages === index + 1;
+              // const needsCallbackToRenderNextPage =
+              //   isCurrentlyRendering && !isLastPage;
 
               return (
                 <Page
                   key={`page_${index + 1}`}
-                  onRenderSuccess={
-                    needsCallbackToRenderNextPage ? this.onRenderSuccess : null
-                  }
+                  // onRenderSuccess={
+                  //   needsCallbackToRenderNextPage ? this.onRenderSuccess : null
+                  // }
                   scale={scale}
                   pageNumber={index + 1}
                   onLoadSuccess={this.onPageLoad}
                   customTextRenderer={this.pdfRenderer(index + 1)}
+                  onGetTextSuccess={() => {
+                    this.onRenderFinished(index + 1);
+                  }}
                 />
               );
             })}
@@ -427,6 +443,7 @@ class PDFViewer extends React.Component<
 const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
   setSelection: pdfViewerActions.setSelection,
+  setPdfLoading: appStateActions.setPdfLoading,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
@@ -436,6 +453,7 @@ const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
     parentRef: ownProps.parentRef,
     currentProjectFile: state.projectFile.currentProjectFile,
     currentIndexes: state.projectFile.currentIndexes,
+    pdfLoading: state.appState.pdfLoading,
   };
 };
 
