@@ -63,6 +63,7 @@ export const projectFileSlice = createSlice({
       const { payload } = action;
       const { path, content } = payload;
       state.currentProjectFile = { path, content };
+      state.currentPdf = { path: '', eventID: '' };
     },
     saveCurrentProject: (state: IProjectFileState, action) => {
       const { path } = state.currentProjectFile;
@@ -108,7 +109,9 @@ export const projectFileSlice = createSlice({
       const index = state.currentProjectFile.content.events.findIndex(
         (event) => event.id === payload.id
       );
-      if (index > -1) state.currentProjectFile.content.events.splice(index, 1);
+      if (index > -1) {
+        state.currentProjectFile.content.events.splice(index, 1);
+      }
     },
     addEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
       const { payload } = action;

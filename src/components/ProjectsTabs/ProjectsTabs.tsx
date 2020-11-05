@@ -35,7 +35,7 @@ class ProjectsTabs extends React.Component<
                 key={'project-button-key' + index}
                 onClick={() => {
                   setCurrentFile(project);
-                  setAppState(appConst.PDF_VIEWER);
+                  setAppState(appConst.EMTPY_SCREEN);
                 }}
               >
                 {project.content?.name} ({deletePathFromFilename(project.path)})

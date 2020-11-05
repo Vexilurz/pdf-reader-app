@@ -41,7 +41,18 @@ class EventItem extends React.Component<
   };
 
   onDeleteEventClick = () => {
-    const { deleteEvent, event } = this.props;
+    const {
+      currentPdf,
+      setCurrentPdf,
+      setAppState,
+      deleteEvent,
+      event,
+    } = this.props;
+    if (currentPdf.eventID === event.id) {
+      setAppState(appConst.EMTPY_SCREEN);
+      ipcRenderer.send(appConst.LOAD_PDF_FILE, '');
+      setCurrentPdf({ path: '', eventID: '' });
+    }
     deleteEvent(event);
   };
 
@@ -141,6 +152,7 @@ const mapDispatchToProps = {
 const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {
   return {
     event: ownProps.event,
+    currentPdf: state.projectFile.currentPdf,
   };
 };
 

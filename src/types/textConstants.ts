@@ -3,6 +3,7 @@ export const START_PAGE = 'start-page';
 export const PROJECT_EDIT_FORM = 'project-edit-form';
 export const PDF_VIEWER = 'pdf-viewer';
 export const EVENT_FORM = 'event-form';
+export const EMTPY_SCREEN = 'empty-screen';
 
 // main process listeners:
 export const OPEN_FILE = 'open-file';
