@@ -65,7 +65,7 @@ export const projectFileSlice = createSlice({
       state.currentProjectFile = { path, content };
       state.currentPdf = { path: '', eventID: '' };
     },
-    saveCurrentProject: (state: IProjectFileState, action) => {
+    saveCurrentProject: (state: IProjectFileState) => {
       const { path } = state.currentProjectFile;
       if (path !== '') {
         const stringed = JSON.stringify(state.currentProjectFile.content);
@@ -73,6 +73,17 @@ export const projectFileSlice = createSlice({
           path: state.currentProjectFile.path,
           content: stringed,
         });
+      }
+    },
+    saveCurrentProjectTemporary: (state: IProjectFileState) => {
+      const { path } = state.currentProjectFile;
+      if (path !== '') {
+        const index = state.openedProjectFiles.findIndex(
+          (item) => item.path === path
+        );
+        if (index > -1) {
+          state.openedProjectFiles[index] = state.currentProjectFile;
+        }
       }
     },
     addFileToOpened: (

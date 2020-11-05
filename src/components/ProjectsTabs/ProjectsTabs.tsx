@@ -22,6 +22,7 @@ class ProjectsTabs extends React.Component<
       currentProjectFile,
       setAppState,
       setCurrentFile,
+      saveCurrentProjectTemporary,
       deleteFileFromOpened,
     } = this.props;
     return (
@@ -34,6 +35,7 @@ class ProjectsTabs extends React.Component<
                 className="project-button"
                 key={'project-button-key' + index}
                 onClick={() => {
+                  saveCurrentProjectTemporary();
                   setCurrentFile(project);
                   setAppState(appConst.EMTPY_SCREEN);
                 }}
@@ -73,6 +75,7 @@ class ProjectsTabs extends React.Component<
 
 const mapDispatchToProps = {
   setCurrentFile: projectFileActions.setCurrentFile,
+  saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
   deleteFileFromOpened: projectFileActions.deleteFileFromOpened,
   setAppState: appStateActions.setAppState,
 };
