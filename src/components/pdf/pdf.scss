@@ -11,10 +11,11 @@
   opacity: 0.2;
 }
 
-// .react-pdf__Page__textContent span::selection {
-//   opacity: 0.8;
-//   background-color: blue;
-// }
+.react-pdf__Page__textContent span::selection {
+  opacity: 0.8 !important;
+  background-color: rgba(0, 0, 255, 0.8) !important;
+  z-index: 100;
+}
 
 .react-pdf__Document {
   line-height: initial;
@@ -22,8 +23,8 @@
 
 .pdf-viewer {
   overflow: auto;
-  height: 100%;
-  //max-width: 67vw;
+  height: 95%;
+  max-width: 70vw;
   position: absolute;
 }
 

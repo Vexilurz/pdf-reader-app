@@ -60,7 +60,7 @@ class PDFViewer extends React.Component<
   calcScale = (page) => {
     const parent = this.props.parentRef.current;
     if (parent) {
-      const pageScale = (parent.clientWidth * 0.95) / page.originalWidth;
+      const pageScale = (parent.clientWidth * 0.984) / page.originalWidth;
       if (this.state.scale !== pageScale) {
         this.setState({ scale: pageScale });
       }
@@ -171,7 +171,7 @@ class PDFViewer extends React.Component<
 
   newPattern = (text: string, bookmark: IBookmark, counter: number) => {
     // console.log(counter, bookmark.start, bookmark.end, text);
-    let result = this.getUnmarkedText(text, counter);
+    let result = this.getUnmarkedText(text, '0k' + counter);
     // let result = text;
     let dbg = 'unmarked:';
     const { length } = text;
@@ -194,8 +194,8 @@ class PDFViewer extends React.Component<
       // mark right part
       dbg = 'mark right part:';
       result = splitDuo(bookmark.start - counter)(text);
-      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
       result[0] = this.getUnmarkedText(result[0], '0k' + counter);
+      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
       this.newPatternWorkResult = true;
     } else if (counter < bookmark.start && counter + length > bookmark.end) {
       // mark middle
@@ -204,8 +204,8 @@ class PDFViewer extends React.Component<
         bookmark.start - counter,
         bookmark.end - counter
       )(text);
-      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
       result[0] = this.getUnmarkedText(result[0], '0k' + counter);
+      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
       result[2] = this.getUnmarkedText(result[2], '2k' + counter);
       this.newPatternWorkResult = true;
     }
@@ -228,39 +228,15 @@ class PDFViewer extends React.Component<
     let prevTextItem = null;
     // let prevPattern = null;
     console.log('%c%s', 'color: lime; font: 1.2rem/1 Tahoma;', 'PDF_RENDERER');
-    // console.log(new Error().stack);
     return (textItem) => {
-      // console.log(
-      //   // 'PDF renderer',
-      //   // pdfSelection.start,
-      //   // pdfSelection.end,
-      //   textItem
-      // );
       if (prevTextItem !== textItem) {
         //   console.log('prev');
-        //   return 'AAAA'; //prevPattern;
+        //   return prevPattern;
         // } else {
         prevTextItem = textItem;
-        // return textItem.str;
         let pattern = '';
         if (textItem.str) {
           this.newPatternWorkResult = false;
-          // if (
-          //   pdfSelection.start !== Infinity &&
-          //   pdfSelection.end !== Infinity
-          // ) {
-          //   pattern = this.newPattern(
-          //     textItem.str,
-          //     createBookmark(
-          //       'selection',
-          //       pdfSelection.start,
-          //       pdfSelection.end,
-          //       'black'
-          //     ),
-          //     counter
-          //   );
-          // }
-          // after executing newPattern() the newPatternWorkResult variable changed (or not) (yes, this is crunch)
           if (bookmarks.length > 0) {
             let index = 0;
             while (!this.newPatternWorkResult && index < bookmarks.length) {
@@ -271,8 +247,9 @@ class PDFViewer extends React.Component<
               );
               index += 1;
             }
+          } else {
+            pattern = this.getUnmarkedText(textItem.str, '0k' + counter);
           }
-
           counter += textItem.str.length;
         }
         // prevPattern = pattern;
@@ -280,19 +257,6 @@ class PDFViewer extends React.Component<
       }
     };
   };
-
-  // changePage = (offset) => {
-  //   const { pageNumber } = this.state;
-  //   this.setState({ pageNumber: pageNumber + offset });
-  // };
-
-  // previousPage = () => {
-  //   this.changePage(-1);
-  // };
-
-  // nextPage = () => {
-  //   this.changePage(1);
-  // };
 
   clearSelection = () => {
     const { setSelection } = this.props;
@@ -399,42 +363,6 @@ class PDFViewer extends React.Component<
             })}
           </Document>
         ) : null}
-
-        {/* <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-around',
-            alignItems: 'center',
-            width: '100%',
-            padding: '10px',
-          }}
-        >
-          Page {pageNumber || (numPages ? 1 : '--')} of {numPages || '--'}
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-around',
-            alignItems: 'center',
-            width: '100%',
-            padding: '10px',
-          }}
-        >
-          <button
-            type="button"
-            disabled={pageNumber <= 1}
-            onClick={this.previousPage}
-          >
-            Previous
-          </button>
-          <button
-            type="button"
-            disabled={pageNumber >= numPages}
-            onClick={this.nextPage}
-          >
-            Next
-          </button>
-        </div> */}
       </div>
     );
   }
