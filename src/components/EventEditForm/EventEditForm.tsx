@@ -42,7 +42,7 @@ class EventEditForm extends React.Component<
     if (isNew) addEvent(editingEvent);
     else updateEvent(editingEvent);
     setCurrentPdf({ path: '', eventID: '' });
-    setAppState(appConst.PDF_VIEWER);
+    setAppState(appConst.EMTPY_SCREEN);
   };
 
   onCancelClick = (): void => {
