@@ -35,9 +35,11 @@ class ProjectsTabs extends React.Component<
                 className="project-button"
                 key={'project-button-key' + index}
                 onClick={() => {
-                  saveCurrentProjectTemporary();
-                  setCurrentFile(project);
-                  setAppState(appConst.EMTPY_SCREEN);
+                  if (currentProjectFile.path !== project.path) {
+                    saveCurrentProjectTemporary();
+                    setCurrentFile(project);
+                    setAppState(appConst.EMTPY_SCREEN);
+                  }
                 }}
               >
                 {project.content?.name} ({deletePathFromFilename(project.path)})
