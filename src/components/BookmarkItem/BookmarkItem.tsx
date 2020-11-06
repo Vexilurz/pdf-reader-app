@@ -11,6 +11,7 @@ export interface IBookmarkItemProps {
   bookmark: IBookmark;
 }
 export interface IBookmarkItemState {
+  needToEdit: boolean;
   comment: string;
   color: string;
 }
@@ -22,6 +23,7 @@ class BookmarkItem extends React.Component<
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     this.state = {
+      needToEdit: false,
       comment: '',
       color: '',
     };
@@ -39,17 +41,19 @@ class BookmarkItem extends React.Component<
     const newBookmark = { ...bookmark };
     newBookmark.comment = comment;
     newBookmark.color = color;
-    newBookmark.needToEdit = false;
-    this.setState({ comment: bookmark.comment, color: bookmark.color });
+    this.setState({
+      needToEdit: false,
+    });
     updateBookmark(newBookmark);
   };
 
   onEdit = () => {
-    const { bookmark, updateBookmark } = this.props;
-    const newBookmark = { ...bookmark };
-    newBookmark.needToEdit = true;
-    this.setState({ comment: bookmark.comment, color: bookmark.color });
-    updateBookmark(newBookmark);
+    const { bookmark } = this.props;
+    this.setState({
+      needToEdit: true,
+      comment: bookmark.comment,
+      color: bookmark.color,
+    });
   };
 
   onDelete = () => {
@@ -59,13 +63,13 @@ class BookmarkItem extends React.Component<
 
   render(): React.ReactElement {
     const { bookmark } = this.props;
-    const { comment, color } = this.state;
+    const { comment, color, needToEdit } = this.state;
     return (
       <div
         className="bookmark-item"
         style={{ backgroundColor: bookmark.color }}
       >
-        {bookmark.needToEdit ? (
+        {needToEdit ? (
           <div className="bookmark-item-edit">
             <div className="bookmark-comment">
               <input

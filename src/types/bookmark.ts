@@ -6,7 +6,6 @@ export interface IBookmark {
   start: number;
   end: number;
   color: string;
-  needToEdit: boolean;
 }
 
 // bookmark factory
@@ -16,5 +15,5 @@ export const createBookmark = (
   end: number,
   color: string
 ): IBookmark => {
-  return { id: uuidv4(), comment, start, end, color, needToEdit: true };
+  return { id: uuidv4(), comment, start, end, color };
 };
