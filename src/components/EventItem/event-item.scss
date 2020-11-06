@@ -9,6 +9,10 @@
   flex-direction: column;
 }
 
+.event-pdf-files {
+  display: block;
+}
+
 .event-pdf-file {
   background-color: #bbbbbb;
   color: blue;
@@ -19,4 +23,15 @@
   border-color: black;
   border-style: dashed;
   border-width: 2px;
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.event-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
 }

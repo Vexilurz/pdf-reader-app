@@ -29,11 +29,11 @@ class EventsArea extends React.Component<
     return (
       <div className="events-area">
         Events area
-        <div className="events-list">
+        <ul className="events-list">
           {currentProjectFile?.content?.events?.map((event, index) => {
             return <EventItem event={event} key={'event-item-key' + index} />;
           })}
-        </div>
+        </ul>
         <button
           type="button"
           className="create-new-event-button"

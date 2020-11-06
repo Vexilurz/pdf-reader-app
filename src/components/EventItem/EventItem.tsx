@@ -16,7 +16,9 @@ import { IPdfFileWithBookmarks } from '../../types/pdf';
 export interface IEventItemProps {
   event: IEvent;
 }
-export interface IEventItemState {}
+export interface IEventItemState {
+  dropAreaVisible: boolean;
+}
 
 class EventItem extends React.Component<
   StatePropsType & DispatchPropsType,
@@ -24,7 +26,9 @@ class EventItem extends React.Component<
 > {
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
-    this.state = {};
+    this.state = {
+      dropAreaVisible: false,
+    };
   }
 
   componentDidMount(): void {
@@ -88,52 +92,72 @@ class EventItem extends React.Component<
 
   render(): React.ReactElement {
     const { event } = this.props;
+    const { dropAreaVisible } = this.state;
     return (
-      <div className="event-item">
-        <button
-          type="button"
-          className="event-delete-button"
-          onClick={this.onDeleteEventClick}
-        >
-          Delete
-        </button>
-        <button
-          type="button"
-          className="event-edit-button"
-          onClick={this.onEditEventClick}
-        >
-          Edit
-        </button>
-        <div className="event-title">{event.title}</div>
+      <li className="event-item">
+        <div className="event-header">
+          <div className="event-title">{event.title}</div>
+          <div className="event-date float-right">
+            {new Date(event?.date).toLocaleDateString()}
+          </div>
+        </div>
         <div className="event-description">{event.description}</div>
-        <div className="event-date">{event?.date?.toString()}</div>
         <div className="event-pdf-files">
           {event.files.map((file, index) => {
             return (
-              <button
-                type="button"
+              <p
+                // type="button"
                 className="event-pdf-file"
                 key={'event-key' + index}
                 onClick={this.onPdfFileClick(file)}
               >
                 {deletePathFromFilename(file.path)}
-              </button>
+              </p>
             );
           })}
         </div>
-        <div className="event-dropzone">
-          <Dropzone onDrop={this.onFilesDrop}>
-            {({ getRootProps, getInputProps }) => (
-              <section>
-                <div {...getRootProps()}>
-                  <input {...getInputProps()} />
-                  <p>Drag 'n' drop some files here, or click to select files</p>
-                </div>
-              </section>
-            )}
-          </Dropzone>
+        {dropAreaVisible ? (
+          <div className="event-dropzone">
+            <Dropzone onDrop={this.onFilesDrop}>
+              {({ getRootProps, getInputProps }) => (
+                <section>
+                  <div {...getRootProps()}>
+                    <input {...getInputProps()} />
+                    <p>
+                      Drag 'n' drop some files here, or click to select files
+                    </p>
+                  </div>
+                </section>
+              )}
+            </Dropzone>
+          </div>
+        ) : null}
+        <div className="event-controls">
+          <button
+            type="button"
+            className="event-delete-button"
+            onClick={this.onDeleteEventClick}
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            className="event-upload-button"
+            onClick={() => {
+              this.setState({ dropAreaVisible: !dropAreaVisible });
+            }}
+          >
+            Upload
+          </button>
+          <button
+            type="button"
+            className="event-edit-button"
+            onClick={this.onEditEventClick}
+          >
+            Edit
+          </button>
         </div>
-      </div>
+      </li>
     );
   }
 }
