@@ -50,7 +50,13 @@ const getBookmarkIndex = (state: IProjectFileState, bookmark: IBookmark): number
       state.currentIndexes.fileIndex
     ].bookmarks.findIndex((b) => b.id === bookmark.id);
   } else return -1;
-}
+};
+
+const sortEventsByDate = (events: IEvent[]) => {
+  events.sort((a, b) => {
+    return new Date(a.date) - new Date(b.date);
+  });
+};
 
 export const projectFileSlice = createSlice({
   name: 'projectFile',
@@ -106,6 +112,11 @@ export const projectFileSlice = createSlice({
         state.openedProjectFiles.splice(index, 1);
       }
     },
+    addEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
+      const { payload } = action;
+      state.currentProjectFile.content.events.push(payload);
+      sortEventsByDate(state.currentProjectFile.content.events);
+    },
     updateEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
       const { payload } = action;
       state.currentProjectFile.content.events = state.currentProjectFile.content.events.map(
@@ -114,6 +125,7 @@ export const projectFileSlice = createSlice({
           return event;
         }
       );
+      sortEventsByDate(state.currentProjectFile.content.events);
     },
     deleteEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
       const { payload } = action;
@@ -122,11 +134,8 @@ export const projectFileSlice = createSlice({
       );
       if (index > -1) {
         state.currentProjectFile.content.events.splice(index, 1);
+        state.currentIndexes = getCurrentIndexes(state);
       }
-    },
-    addEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
-      const { payload } = action;
-      state.currentProjectFile.content.events.push(payload);
     },
     setCurrentPdf: (
       state: IProjectFileState,
@@ -134,9 +143,6 @@ export const projectFileSlice = createSlice({
     ) => {
       const { payload } = action;
       state.currentPdf = payload;
-      state.currentIndexes = getCurrentIndexes(state);
-    },
-    calcCurrentIndexes: (state: IProjectFileState) => {
       state.currentIndexes = getCurrentIndexes(state);
     },
     addBookmark: (
