@@ -17,10 +17,7 @@ class RightBar extends React.Component<
   render(): React.ReactElement {
     const { currentAppState } = this.props;
     const isVisible =
-      currentAppState === appConst.PDF_VIEWER ||
-      currentAppState === appConst.EMTPY_SCREEN
-        ? 'visible'
-        : 'hidden';
+      currentAppState === appConst.PDF_VIEWER ? 'visible' : 'hidden';
 
     return (
       <div className="right-bar" style={{ visibility: isVisible }}>

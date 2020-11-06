@@ -36,7 +36,7 @@ class StartPage extends React.Component<
         const { setCurrentFile, setAppState, addFileToOpened } = this.props;
         setCurrentFile(response);
         addFileToOpened(response);
-        setAppState(appConst.PDF_VIEWER);
+        setAppState(appConst.EMTPY_SCREEN);
         ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, response);
       }
     );
@@ -61,6 +61,7 @@ class StartPage extends React.Component<
 
   render(): React.ReactElement {
     const { recent } = this.state;
+    const { setAppState } = this.props;
     return (
       <div className="start-page">
         <div className="start-page-sidebar">
@@ -90,6 +91,7 @@ class StartPage extends React.Component<
                   key={'recent-project-key' + index}
                   onClick={() => {
                     ipcRenderer.send(appConst.OPEN_FILE, item.path);
+                    setAppState(appConst.EMTPY_SCREEN);
                   }}
                 >
                   {`${item.name} (${item.path})`}

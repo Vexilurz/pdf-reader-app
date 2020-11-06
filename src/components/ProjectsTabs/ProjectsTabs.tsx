@@ -5,6 +5,7 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
+import { getNewFile } from '../../types/projectFile';
 import { deletePathFromFilename } from '../../utils/commonUtils';
 
 export interface IProjectsTabsProps {}
