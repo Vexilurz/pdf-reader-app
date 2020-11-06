@@ -1,3 +1,4 @@
+/* eslint-disable */
 import './pdf.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
@@ -21,6 +22,7 @@ export interface IPDFViewerState {
   numPages: number;
   scale: number;
   pagesRendered: any;
+  renderTextLayer: boolean;
 }
 
 class PDFViewer extends React.Component<
@@ -31,6 +33,7 @@ class PDFViewer extends React.Component<
   private documentRef: React.RefObject<any>;
   private newPatternWorkResult: boolean;
   private pagesOffsets: number[];
+  private loadedPagesCounter: number;
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
@@ -39,18 +42,21 @@ class PDFViewer extends React.Component<
       numPages: 0,
       scale: 1.0,
       pagesRendered: null,
+      renderTextLayer: false,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
     this.newPatternWorkResult = false;
     this.pagesOffsets = [];
+    this.loadedPagesCounter = 0;
   }
 
   componentDidMount(): void {
     ipcRenderer.on(
       appConst.PDF_FILE_CONTENT_RESPONSE,
       (event, data: Uint8Array) => {
-        this.setState({ pdfData: { data } });
+        this.loadedPagesCounter = 0;
+        this.setState({ renderTextLayer: false, pdfData: { data } });
       }
     );
   }
@@ -68,9 +74,13 @@ class PDFViewer extends React.Component<
   };
 
   onPageLoad = async (page) => {
-    console.log('page loaded');
     this.removeTextLayerOffset();
     this.calcScale(page);
+    const { numPages } = this.state;
+    this.loadedPagesCounter += 1;
+    if (this.loadedPagesCounter >= numPages) {
+      this.setState({ renderTextLayer: true });
+    }
   };
 
   removeTextLayerOffset = () => {
@@ -102,7 +112,6 @@ class PDFViewer extends React.Component<
   };
 
   onRenderSuccess = () => {
-    console.log('onRenderSuccess');
     this.setState((prevState) => ({
       pagesRendered: prevState.pagesRendered + 1,
     }));
@@ -111,7 +120,9 @@ class PDFViewer extends React.Component<
   onRenderFinished = (pageNumber: number) => {
     const { numPages } = this.state;
     const { setPdfLoading } = this.props;
-    if (pageNumber === numPages) setPdfLoading(false);
+    if (pageNumber === numPages) {
+      setPdfLoading(false);
+    }
   };
 
   getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
@@ -230,6 +241,7 @@ class PDFViewer extends React.Component<
     console.log('%c%s', 'color: lime; font: 1.2rem/1 Tahoma;', 'PDF_RENDERER');
     return (textItem) => {
       if (prevTextItem !== textItem) {
+        console.log(pageNumber);
         //   console.log('prev');
         //   return prevPattern;
         // } else {
@@ -314,13 +326,19 @@ class PDFViewer extends React.Component<
 
   render(): React.ReactElement {
     const { currentPdf, pdfLoading } = this.props;
-    const { pdfData, numPages, pagesRendered, scale } = this.state;
+    const {
+      pdfData,
+      numPages,
+      pagesRendered,
+      scale,
+      renderTextLayer,
+    } = this.state;
 
     /**
      * The amount of pages we want to render now. Always 1 more than already rendered,
      * no more than total amount of pages in the document.
      */
-    // const pagesRenderedPlusOne = Math.min(pagesRendered + 1, numPages);
+    const pagesRenderedPlusOne = Math.min(pagesRendered + 1, numPages);
 
     return (
       <div className="pdf-viewer" ref={this.containerRef}>
@@ -339,22 +357,23 @@ class PDFViewer extends React.Component<
             onMouseUp={this.onMouseUp}
             // onMouseDown={this.onMouseDown}
           >
-            {Array.from(new Array(numPages), (el, index) => {
-              // const isCurrentlyRendering = pagesRenderedPlusOne === index + 1;
-              // const isLastPage = numPages === index + 1;
-              // const needsCallbackToRenderNextPage =
-              //   isCurrentlyRendering && !isLastPage;
+            {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
+              const isCurrentlyRendering = pagesRenderedPlusOne === index + 1;
+              const isLastPage = numPages === index + 1;
+              const needsCallbackToRenderNextPage =
+                isCurrentlyRendering && !isLastPage;
 
               return (
                 <Page
                   key={`page_${index + 1}`}
-                  // onRenderSuccess={
-                  //   needsCallbackToRenderNextPage ? this.onRenderSuccess : null
-                  // }
+                  onRenderSuccess={
+                    needsCallbackToRenderNextPage ? this.onRenderSuccess : null
+                  }
                   scale={scale}
                   pageNumber={index + 1}
                   onLoadSuccess={this.onPageLoad}
                   customTextRenderer={this.pdfRenderer(index + 1)}
+                  renderTextLayer={renderTextLayer}
                   onGetTextSuccess={() => {
                     this.onRenderFinished(index + 1);
                   }}

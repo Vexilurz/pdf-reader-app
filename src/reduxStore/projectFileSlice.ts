@@ -71,6 +71,14 @@ export const projectFileSlice = createSlice({
       state.currentProjectFile = { path, content };
       state.currentPdf = { path: '', eventID: '' };
     },
+    setCurrentPdf: (
+      state: IProjectFileState,
+      action: PayloadAction<IPdfFilePathWithEventID>
+    ) => {
+      const { payload } = action;
+      state.currentPdf = payload;
+      state.currentIndexes = getCurrentIndexes(state);
+    },
     saveCurrentProject: (state: IProjectFileState) => {
       const { path } = state.currentProjectFile;
       if (path !== '') {
@@ -136,14 +144,6 @@ export const projectFileSlice = createSlice({
         state.currentProjectFile.content.events.splice(index, 1);
         state.currentIndexes = getCurrentIndexes(state);
       }
-    },
-    setCurrentPdf: (
-      state: IProjectFileState,
-      action: PayloadAction<IPdfFilePathWithEventID>
-    ) => {
-      const { payload } = action;
-      state.currentPdf = payload;
-      state.currentIndexes = getCurrentIndexes(state);
     },
     addBookmark: (
       state: IProjectFileState,
