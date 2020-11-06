@@ -119,9 +119,9 @@ class PDFViewer extends React.Component<
 
   onRenderFinished = (pageNumber: number) => {
     const { numPages } = this.state;
-    const { setPdfLoading } = this.props;
+    const { setShowLoading } = this.props;
     if (pageNumber === numPages) {
-      setPdfLoading(false);
+      setShowLoading(false);
     }
   };
 
@@ -390,7 +390,7 @@ class PDFViewer extends React.Component<
 const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
   setSelection: pdfViewerActions.setSelection,
-  setPdfLoading: appStateActions.setPdfLoading,
+  setShowLoading: appStateActions.setShowLoading,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
@@ -400,7 +400,7 @@ const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
     parentRef: ownProps.parentRef,
     currentProjectFile: state.projectFile.currentProjectFile,
     currentIndexes: state.projectFile.currentIndexes,
-    pdfLoading: state.appState.pdfLoading,
+    pdfLoading: state.appState.showLoading,
   };
 };
 

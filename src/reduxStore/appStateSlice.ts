@@ -3,12 +3,12 @@ import * as appConst from '../types/textConstants';
 
 export interface IAppState {
   current: string;
-  pdfLoading: boolean;
+  showLoading: boolean;
 }
 
 const initialState: IAppState = {
   current: appConst.START_PAGE,
-  pdfLoading: false,
+  showLoading: false,
 };
 
 export const appStateSlice = createSlice({
@@ -19,9 +19,9 @@ export const appStateSlice = createSlice({
       const { payload } = action;
       state.current = payload;
     },
-    setPdfLoading: (state: IAppState, action: PayloadAction<boolean>) => {
+    setShowLoading: (state: IAppState, action: PayloadAction<boolean>) => {
       const { payload } = action;
-      state.pdfLoading = payload;
+      state.showLoading = payload;
     },
   },
 });

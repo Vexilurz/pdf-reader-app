@@ -65,22 +65,8 @@ class BookmarkItem extends React.Component<
         className="bookmark-item"
         style={{ backgroundColor: bookmark.color }}
       >
-        <button
-          type="button"
-          className="delete-bookmark-button"
-          onClick={this.onDelete}
-        >
-          Delete
-        </button>
         {bookmark.needToEdit ? (
           <div className="bookmark-item-edit">
-            <button
-              type="button"
-              className="save-bookmark-button"
-              onClick={this.onSave}
-            >
-              Save
-            </button>
             <div className="bookmark-comment">
               <input
                 className="bookmark-comment-input"
@@ -105,19 +91,44 @@ class BookmarkItem extends React.Component<
                 }}
               />
             </div>
+            <div className="bookmark-controls">
+              <button
+                type="button"
+                className="save-bookmark-button"
+                onClick={this.onSave}
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                className="delete-bookmark-button"
+                onClick={this.onDelete}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         ) : (
           <div className="bookmark-item-view">
-            <button
-              type="button"
-              className="edit-bookmark-button"
-              onClick={this.onEdit}
-            >
-              Edit
-            </button>
             <div className="bookmark-comment">{bookmark.comment}</div>
             <div className="bookmark-position">
               {bookmark.start} .. {bookmark.end}
+            </div>
+            <div className="bookmark-controls">
+              <button
+                type="button"
+                className="edit-bookmark-button"
+                onClick={this.onEdit}
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                className="delete-bookmark-button"
+                onClick={this.onDelete}
+              >
+                Delete
+              </button>
             </div>
           </div>
         )}
