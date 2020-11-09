@@ -4,6 +4,7 @@ import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
+import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { createBookmark } from '../../types/bookmark';
 import BookmarkItem from '../BookmarkItem/BookmarkItem';
 
@@ -17,17 +18,28 @@ class BookmarksArea extends React.Component<
   componentDidMount() {}
 
   onAddBookmark = () => {
-    const { addBookmark, selection } = this.props;
-    if (selection.start !== Infinity && selection.end !== Infinity)
-      addBookmark(
-        createBookmark('new bookmark', selection.start, selection.end, 'lime')
+    const { addBookmark, selection, setEditingBookmarkID } = this.props;
+    if (selection.start !== Infinity && selection.end !== Infinity) {
+      const newBookmark = createBookmark(
+        'bookmark comment here',
+        selection.start,
+        selection.end,
+        '#cce5ff'
       );
+      addBookmark(newBookmark);
+      setEditingBookmarkID(newBookmark.id);
+    }
   };
 
   render(): React.ReactElement {
-    const { projectFile, indexes } = this.props;
+    const { projectFile, indexes, setEditingBookmarkID } = this.props;
     return (
-      <div className="bookmarks-area">
+      <div
+        className="bookmarks-area"
+        onClick={() => {
+          setEditingBookmarkID('');
+        }}
+      >
         Bookmarks area
         <div className="bookmarks-list">
           {projectFile.events[indexes.eventIndex]?.files[
@@ -44,7 +56,10 @@ class BookmarksArea extends React.Component<
         <button
           type="button"
           className="create-new-button"
-          onClick={this.onAddBookmark}
+          onClick={(e) => {
+            e.stopPropagation();
+            this.onAddBookmark();
+          }}
         >
           Add bookmark
         </button>
@@ -55,6 +70,7 @@ class BookmarksArea extends React.Component<
 
 const mapDispatchToProps = {
   addBookmark: projectFileActions.addBookmark,
+  setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarksAreaProps) => {

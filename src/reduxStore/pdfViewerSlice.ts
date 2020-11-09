@@ -7,6 +7,7 @@ interface IPdfSelection {
 
 export interface IPDFViewerState {
   pdfSelection: IPdfSelection;
+  editingBookmarkID: string;
 }
 
 const initialState: IPDFViewerState = {
@@ -14,6 +15,7 @@ const initialState: IPDFViewerState = {
     start: Infinity,
     end: Infinity,
   },
+  editingBookmarkID: '',
 };
 
 export const pdfViewerSlice = createSlice({
@@ -23,6 +25,10 @@ export const pdfViewerSlice = createSlice({
     setSelection: (state: IPDFViewerState, action: PayloadAction<IPdfSelection>) => {
       const { payload } = action;
       state.pdfSelection = payload;
+    },
+    setEditingBookmarkID: (state: IPDFViewerState, action: PayloadAction<string>) => {
+      const { payload } = action;
+      state.editingBookmarkID = payload;
     },
   },
 });

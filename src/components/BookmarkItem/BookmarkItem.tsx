@@ -5,13 +5,13 @@ import { CirclePicker } from 'react-color';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { IBookmark } from '../../types/bookmark';
 
 export interface IBookmarkItemProps {
   bookmark: IBookmark;
 }
 export interface IBookmarkItemState {
-  needToEdit: boolean;
   comment: string;
   color: string;
 }
@@ -23,9 +23,8 @@ class BookmarkItem extends React.Component<
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     this.state = {
-      needToEdit: false,
-      comment: '',
-      color: '',
+      comment: props.bookmark.comment,
+      color: props.bookmark.color,
     };
   }
 
@@ -35,42 +34,49 @@ class BookmarkItem extends React.Component<
 
   initListeners = (): void => {};
 
-  onSave = () => {
-    const { bookmark, updateBookmark } = this.props;
+  onSave = (e) => {
+    e.stopPropagation();
+    const { bookmark, updateBookmark, setEditingBookmarkID } = this.props;
     const { comment, color } = this.state;
     const newBookmark = { ...bookmark };
     newBookmark.comment = comment;
     newBookmark.color = color;
-    this.setState({
-      needToEdit: false,
-    });
+    setEditingBookmarkID('');
     updateBookmark(newBookmark);
   };
 
-  onEdit = () => {
-    const { bookmark } = this.props;
-    this.setState({
-      needToEdit: true,
-      comment: bookmark.comment,
-      color: bookmark.color,
-    });
+  onEdit = (e) => {
+    e.stopPropagation();
+    const { bookmark, setEditingBookmarkID } = this.props;
+    setEditingBookmarkID(bookmark.id);
+    // this.setState({
+    //   comment: bookmark.comment,
+    //   color: bookmark.color,
+    // });
   };
 
-  onDelete = () => {
+  onDelete = (e) => {
+    e.stopPropagation();
     const { bookmark, deleteBookmark } = this.props;
     deleteBookmark(bookmark);
   };
 
   render(): React.ReactElement {
-    const { bookmark } = this.props;
-    const { comment, color, needToEdit } = this.state;
+    const { bookmark, editingBookmarkID } = this.props;
+    const { comment, color } = this.state;
+    const needToEdit = editingBookmarkID === bookmark.id;
     return (
       <div
         className="bookmark-item"
         style={{ backgroundColor: bookmark.color }}
       >
         {needToEdit ? (
-          <div className="bookmark-item-edit">
+          <div
+            className="bookmark-item-edit"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <div className="bookmark-comment">
               <input
                 className="bookmark-comment-input"
@@ -78,6 +84,7 @@ class BookmarkItem extends React.Component<
                 style={{
                   width: '150px',
                 }}
+                autoFocus
                 value={comment}
                 onChange={(e) => {
                   this.setState({ comment: e.target.value });
@@ -114,7 +121,12 @@ class BookmarkItem extends React.Component<
             </div>
           </div>
         ) : (
-          <div className="bookmark-item-view">
+          <div
+            className="bookmark-item-view"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <div className="bookmark-comment">{bookmark.comment}</div>
             <div className="bookmark-position">
               {bookmark.start} .. {bookmark.end}
@@ -145,11 +157,13 @@ class BookmarkItem extends React.Component<
 const mapDispatchToProps = {
   updateBookmark: projectFileActions.updateBookmark,
   deleteBookmark: projectFileActions.deleteBookmark,
+  setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {
   return {
     bookmark: ownProps.bookmark,
+    editingBookmarkID: state.pdfViewer.editingBookmarkID,
   };
 };
 
