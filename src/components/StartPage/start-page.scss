@@ -1,7 +1,7 @@
 .start-page {
   height: 100%;
   width: 100%;
-  background-color: #dddddd;
+  background-color: #eeeeee;
   display: grid;
   grid-template-columns: 200px auto;
   grid-template-rows: auto;
@@ -11,7 +11,7 @@
 
 .start-page-sidebar {
   grid-area: start-page-sidebar;
-  background-color: #dddddd;
+  background-color: #eeeeee;
   // border: 1px solid red;
   display: flex;
   flex-direction: column;
@@ -21,7 +21,7 @@
 
 .start-page-recent {
   grid-area: start-page-recent;
-  background-color: #dddddd;
+  background-color: #eeeeee;
   // border: 1px solid lime;
   display: flex;
   flex-direction: column;
