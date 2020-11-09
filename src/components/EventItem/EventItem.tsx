@@ -75,7 +75,8 @@ class EventItem extends React.Component<
     updateEvent(updatedEvent);
   };
 
-  onPdfFileClick = (file: IPdfFileWithBookmarks) => () => {
+  onPdfFileClick = (file: IPdfFileWithBookmarks) => (e) => {
+    e.stopPropagation();
     const {
       setCurrentPdf,
       setAppState,
@@ -93,10 +94,13 @@ class EventItem extends React.Component<
   render(): React.ReactElement {
     const { event } = this.props;
     const { dropAreaVisible } = this.state;
+
     return (
-      <li className="event-item">
+      <li className="event-item" onClick={this.onEditEventClick}>
         <div className="event-header">
-          <div className="event-title">{event.title}</div>
+          <div className="event-title">
+            <b>{event.title}</b>
+          </div>
           <div className="event-date float-right">
             {new Date(event?.date).toLocaleDateString()}
           </div>
@@ -106,7 +110,6 @@ class EventItem extends React.Component<
           {event.files.map((file, index) => {
             return (
               <p
-                // type="button"
                 className="event-pdf-file"
                 key={'event-key' + index}
                 onClick={this.onPdfFileClick(file)}
@@ -132,7 +135,7 @@ class EventItem extends React.Component<
             </Dropzone>
           </div>
         ) : null}
-        <div className="event-controls">
+        {/* <div className="event-controls">
           <button
             type="button"
             className="event-delete-button"
@@ -156,7 +159,7 @@ class EventItem extends React.Component<
           >
             Edit
           </button>
-        </div>
+        </div> */}
       </li>
     );
   }

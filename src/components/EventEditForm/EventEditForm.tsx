@@ -1,5 +1,6 @@
 import './event-edit-form.scss';
 import 'react-datepicker/dist/react-datepicker.css';
+import { ipcRenderer } from 'electron';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
@@ -48,6 +49,12 @@ class EventEditForm extends React.Component<
   onCancelClick = (): void => {
     const { setAppState, setCurrentPdf } = this.props;
     // setCurrentPdf({ path: '', eventID: '' });
+    setAppState(appConst.EMTPY_SCREEN);
+  };
+
+  onDeleteEventClick = () => {
+    const { setAppState, deleteEvent, editingEvent } = this.props;
+    deleteEvent(editingEvent);
     setAppState(appConst.EMTPY_SCREEN);
   };
 
@@ -169,6 +176,13 @@ class EventEditForm extends React.Component<
           >
             Cancel
           </button>
+          <button
+            type="button"
+            className="event-delete-button"
+            onClick={this.onDeleteEventClick}
+          >
+            Delete
+          </button>
         </div>
       </div>
     );
@@ -181,6 +195,7 @@ const mapDispatchToProps = {
   setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
+  deleteEvent: projectFileActions.deleteEvent,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {

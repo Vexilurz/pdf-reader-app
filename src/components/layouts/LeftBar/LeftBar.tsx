@@ -18,7 +18,8 @@ class LeftBar extends React.Component<
     const { currentAppState } = this.props;
     const isVisible =
       currentAppState === appConst.PDF_VIEWER ||
-      currentAppState === appConst.EMTPY_SCREEN
+      currentAppState === appConst.EMTPY_SCREEN ||
+      currentAppState === appConst.EVENT_FORM
         ? 'visible'
         : 'hidden';
 

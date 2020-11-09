@@ -46,7 +46,8 @@ class ProjectsTabs extends React.Component<
               {project.content?.name} ({deletePathFromFilename(project.path)}){' '}
               <Alert.Link
                 href="#"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (currentProjectFile.path === project.path) {
                     setAppState(appConst.START_PAGE);
                   }
