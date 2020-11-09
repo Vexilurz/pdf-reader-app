@@ -1,6 +1,7 @@
 import './projects-tabs.scss';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import Alert from 'react-bootstrap/Alert';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
@@ -30,25 +31,21 @@ class ProjectsTabs extends React.Component<
       <div className="projects-tabs">
         {openedProjectFiles.map((project, index) => {
           return (
-            <div className="project-tab" key={'project-tab-key' + index}>
-              <button
-                type="button"
-                className="project-button"
-                key={'project-button-key' + index}
-                onClick={() => {
-                  if (currentProjectFile.path !== project.path) {
-                    saveCurrentProjectTemporary();
-                    setCurrentFile(project);
-                    setAppState(appConst.EMTPY_SCREEN);
-                  }
-                }}
-              >
-                {project.content?.name} ({deletePathFromFilename(project.path)})
-              </button>
-              <button
-                type="button"
-                className="close-button"
-                key={'close-button-key' + index}
+            <Alert
+              variant="primary"
+              className="project-tab"
+              key={'project-tab-key' + index}
+              onClick={() => {
+                if (currentProjectFile.path !== project.path) {
+                  saveCurrentProjectTemporary();
+                  setCurrentFile(project);
+                  setAppState(appConst.EMTPY_SCREEN);
+                }
+              }}
+            >
+              {project.content?.name} ({deletePathFromFilename(project.path)}){' '}
+              <Alert.Link
+                href="#"
                 onClick={() => {
                   if (currentProjectFile.path === project.path) {
                     setAppState(appConst.START_PAGE);
@@ -57,20 +54,21 @@ class ProjectsTabs extends React.Component<
                 }}
               >
                 x
-              </button>
-            </div>
+              </Alert.Link>
+            </Alert>
           );
         })}
-        <button
-          type="button"
+        <Alert
           className="project-tab"
           key="project-tab-add"
+          variant="primary"
           onClick={() => {
+            setCurrentFile({ path: '', content: getNewFile('') });
             setAppState(appConst.START_PAGE);
           }}
         >
           +
-        </button>
+        </Alert>
       </div>
     );
   }

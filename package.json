@@ -31,7 +31,9 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@reduxjs/toolkit": "^1.4.0",
+    "bootstrap": "^4.5.3",
     "react": "^16.13.1",
+    "react-bootstrap": "^1.4.0",
     "react-color": "^2.19.3",
     "react-datepicker": "^3.3.0",
     "react-dom": "^16.13.1",
