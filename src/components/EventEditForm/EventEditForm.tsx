@@ -37,10 +37,18 @@ class EventEditForm extends React.Component<
       editingEvent,
       isNew,
       setAppState,
+      setCurrentPdf,
     } = this.props;
     if (isNew) addEvent(editingEvent);
     else updateEvent(editingEvent);
-    setAppState(appConst.PDF_VIEWER);
+    setCurrentPdf({ path: '', eventID: '' });
+    setAppState(appConst.EMTPY_SCREEN);
+  };
+
+  onCancelClick = (): void => {
+    const { setAppState, setCurrentPdf } = this.props;
+    // setCurrentPdf({ path: '', eventID: '' });
+    setAppState(appConst.EMTPY_SCREEN);
   };
 
   // todo: find type of acceptedFiles of Dropzone.onDrop
@@ -51,17 +59,18 @@ class EventEditForm extends React.Component<
     acceptedFiles.forEach((file) => {
       // todo: use toLowerCase when compare?
       const { path } = file;
-      if (files.indexOf(path) === -1) files.push(path);
+      const index = files.findIndex((f) => f.path === path);
+      if (index === -1) files.push({ path, bookmarks: [] });
     });
     updatedEvent.files = files;
     setEditingEvent(updatedEvent);
   };
 
-  onDeleteEventFile = (file: string) => () => {
+  onDeleteEventFile = (path: string) => () => {
     const { editingEvent, setEditingEvent } = this.props;
     const updatedEvent = { ...editingEvent };
     const files = Object.assign([], updatedEvent.files);
-    const index = files.indexOf(file);
+    const index = files.findIndex((f) => f.path === path);
     if (index > -1) files.splice(index, 1);
     updatedEvent.files = files;
     setEditingEvent(updatedEvent);
@@ -94,7 +103,7 @@ class EventEditForm extends React.Component<
             selected={new Date(editingEvent.date)}
             onChange={(date: Date) => {
               const updatedEvent = { ...editingEvent };
-              updatedEvent.date = date.toString();
+              updatedEvent.date = date.toUTCString();
               setEditingEvent(updatedEvent);
             }}
           />
@@ -118,16 +127,17 @@ class EventEditForm extends React.Component<
         </div>
         <div className="event-files">
           {editingEvent.files.map((file, index) => {
+            const { path } = file;
             return (
               <div className="event-file" key={'event-file-key' + index}>
                 <button
                   type="button"
                   className="delete-event-file-button"
-                  onClick={this.onDeleteEventFile(file)}
+                  onClick={this.onDeleteEventFile(path)}
                 >
                   X
                 </button>
-                {file}
+                {path}
               </div>
             );
           })}
@@ -152,6 +162,13 @@ class EventEditForm extends React.Component<
           >
             {isNew ? 'Add event' : 'Update event'}
           </button>
+          <button
+            type="button"
+            className="cancel-button"
+            onClick={this.onCancelClick}
+          >
+            Cancel
+          </button>
         </div>
       </div>
     );
@@ -161,6 +178,7 @@ class EventEditForm extends React.Component<
 const mapDispatchToProps = {
   addEvent: projectFileActions.addEvent,
   updateEvent: projectFileActions.updateEvent,
+  setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
 };

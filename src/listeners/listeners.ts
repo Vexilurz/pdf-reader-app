@@ -1,7 +1,9 @@
-import initFileDialogListeners from './fileDialogListeners';
-import initpdfViewerListeners from './pdfViewerListeners';
+import initFileOperationListeners from './fileOperationListeners';
+import initPdfViewerListeners from './pdfViewerListeners';
+import initProjectFileListeners from './projectFileListeners';
 
 export default (): void => {
-  initFileDialogListeners();
-  initpdfViewerListeners();
+  initFileOperationListeners();
+  initPdfViewerListeners();
+  initProjectFileListeners();
 };

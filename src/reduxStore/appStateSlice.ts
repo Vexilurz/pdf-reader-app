@@ -3,10 +3,12 @@ import * as appConst from '../types/textConstants';
 
 export interface IAppState {
   current: string;
+  showLoading: boolean;
 }
 
 const initialState: IAppState = {
   current: appConst.START_PAGE,
+  showLoading: false,
 };
 
 export const appStateSlice = createSlice({
@@ -16,6 +18,10 @@ export const appStateSlice = createSlice({
     setAppState: (state: IAppState, action: PayloadAction<string>) => {
       const { payload } = action;
       state.current = payload;
+    },
+    setShowLoading: (state: IAppState, action: PayloadAction<boolean>) => {
+      const { payload } = action;
+      state.showLoading = payload;
     },
   },
 });

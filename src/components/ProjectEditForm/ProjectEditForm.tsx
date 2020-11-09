@@ -1,33 +1,35 @@
-import './new-file-form.scss';
+import './project-edit-form.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { IProjectFileWithPath, getNewFile } from '../../types/projectFile';
 import * as appConst from '../../types/textConstants';
 
-export interface INewFileFormProps {}
-export interface INewFileFormState {
+export interface IProjectEditFormProps {}
+export interface IProjectEditFormState {
   path: string;
 }
 
-class NewFileForm extends React.Component<
-  INewFileFormProps & DispatchPropsType,
-  INewFileFormState
+class ProjectEditForm extends React.Component<
+  StatePropsType & DispatchPropsType,
+  IProjectEditFormState
 > {
   private projectNameRef: React.RefObject<any>;
 
-  constructor(props: INewFileFormProps & DispatchPropsType) {
+  constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     this.projectNameRef = React.createRef();
     this.state = {
-      path: '',
+      path: props.currentProjectFile.path,
     };
   }
 
   componentDidMount(): void {
     this.initListeners();
+    this.projectNameRef.current.value = this.props.currentProjectFile.content.name;
   }
 
   initListeners = (): void => {
@@ -36,7 +38,7 @@ class NewFileForm extends React.Component<
     });
   };
 
-  onCreateNewFileClick = (): void => {
+  onSaveChangesClick = (): void => {
     const { setCurrentFile, setAppState, addFileToOpened } = this.props;
     const { path } = this.state;
     if (path !== '') {
@@ -44,9 +46,11 @@ class NewFileForm extends React.Component<
         path,
         content: getNewFile(this.projectNameRef.current.value),
       };
+      newFile.content.events = this.props.currentProjectFile.content.events;
       setCurrentFile(newFile);
       addFileToOpened(newFile);
       setAppState(appConst.PDF_VIEWER);
+      ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, newFile);
       // todo: save file?
     } else {
       // todo: show message "please set save path to new file"
@@ -61,7 +65,7 @@ class NewFileForm extends React.Component<
   render(): React.ReactElement {
     const { path } = this.state;
     return (
-      <div className="new-file-form">
+      <div className="project-edit-form">
         <div className="project-name">
           Name:
           <input
@@ -83,13 +87,13 @@ class NewFileForm extends React.Component<
           </button>
           Path to save: {path}
         </div>
-        <div className="create-new-file">
+        <div className="save-changes">
           <button
             type="button"
-            className="create-new-file-button"
-            onClick={this.onCreateNewFileClick}
+            className="save-changes-button"
+            onClick={this.onSaveChangesClick}
           >
-            Create file!
+            Save
           </button>
         </div>
       </div>
@@ -103,6 +107,13 @@ const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
 };
 
+const mapStateToProps = (state: StoreType, ownProps: IProjectEditFormProps) => {
+  return {
+    currentProjectFile: state.projectFile.currentProjectFile,
+  };
+};
+
+type StatePropsType = ReturnType<typeof mapStateToProps>;
 type DispatchPropsType = typeof mapDispatchToProps;
 
-export default connect(null, mapDispatchToProps)(NewFileForm);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectEditForm);

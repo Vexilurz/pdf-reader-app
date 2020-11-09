@@ -11,11 +11,14 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
+import { IPdfFileWithBookmarks } from '../../types/pdf';
 
 export interface IEventItemProps {
   event: IEvent;
 }
-export interface IEventItemState {}
+export interface IEventItemState {
+  dropAreaVisible: boolean;
+}
 
 class EventItem extends React.Component<
   StatePropsType & DispatchPropsType,
@@ -23,7 +26,9 @@ class EventItem extends React.Component<
 > {
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
-    this.state = {};
+    this.state = {
+      dropAreaVisible: false,
+    };
   }
 
   componentDidMount(): void {
@@ -39,6 +44,22 @@ class EventItem extends React.Component<
     setAppState(appConst.EVENT_FORM);
   };
 
+  onDeleteEventClick = () => {
+    const {
+      currentPdf,
+      setCurrentPdf,
+      setAppState,
+      deleteEvent,
+      event,
+    } = this.props;
+    if (currentPdf.eventID === event.id) {
+      setAppState(appConst.EMTPY_SCREEN);
+      ipcRenderer.send(appConst.LOAD_PDF_FILE, '');
+      setCurrentPdf({ path: '', eventID: '' });
+    }
+    deleteEvent(event);
+  };
+
   // todo: refactor? almost the same in the EventEditForm
   onFilesDrop = (acceptedFiles) => {
     const { event, updateEvent } = this.props;
@@ -47,71 +68,115 @@ class EventItem extends React.Component<
     acceptedFiles.forEach((file) => {
       // todo: use toLowerCase when compare?
       const { path } = file;
-      if (files.indexOf(path) === -1) files.push(path);
+      const index = files.findIndex((f) => f.path === path);
+      if (index === -1) files.push({ path, bookmarks: [] });
     });
     updatedEvent.files = files;
     updateEvent(updatedEvent);
   };
 
+  onPdfFileClick = (file: IPdfFileWithBookmarks) => () => {
+    const {
+      setCurrentPdf,
+      setAppState,
+      setSelection,
+      setShowLoading,
+      event,
+    } = this.props;
+    setShowLoading(true);
+    setSelection({ start: Infinity, end: Infinity });
+    ipcRenderer.send(appConst.LOAD_PDF_FILE, file.path);
+    setCurrentPdf({ path: file.path, eventID: event.id });
+    setAppState(appConst.PDF_VIEWER);
+  };
+
   render(): React.ReactElement {
-    const { event, setPdfPath } = this.props;
+    const { event } = this.props;
+    const { dropAreaVisible } = this.state;
     return (
-      <div className="event-item">
-        <button
-          type="button"
-          className="event-edit-button"
-          onClick={this.onEditEventClick}
-        >
-          Edit
-        </button>
-        <div className="event-title">{event.title}</div>
+      <li className="event-item">
+        <div className="event-header">
+          <div className="event-title">{event.title}</div>
+          <div className="event-date float-right">
+            {new Date(event?.date).toLocaleDateString()}
+          </div>
+        </div>
         <div className="event-description">{event.description}</div>
-        <div className="event-date">{event?.date?.toString()}</div>
         <div className="event-pdf-files">
-          {event.files.map((path, index) => {
+          {event.files.map((file, index) => {
             return (
-              <button
-                type="button"
+              <p
+                // type="button"
                 className="event-pdf-file"
                 key={'event-key' + index}
-                onClick={() => {
-                  ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
-                  setPdfPath(path);
-                }}
+                onClick={this.onPdfFileClick(file)}
               >
-                {deletePathFromFilename(path)}
-              </button>
+                {deletePathFromFilename(file.path)}
+              </p>
             );
           })}
         </div>
-        <div className="event-dropzone">
-          <Dropzone onDrop={this.onFilesDrop}>
-            {({ getRootProps, getInputProps }) => (
-              <section>
-                <div {...getRootProps()}>
-                  <input {...getInputProps()} />
-                  <p>Drag 'n' drop some files here, or click to select files</p>
-                </div>
-              </section>
-            )}
-          </Dropzone>
+        {dropAreaVisible ? (
+          <div className="event-dropzone">
+            <Dropzone onDrop={this.onFilesDrop}>
+              {({ getRootProps, getInputProps }) => (
+                <section>
+                  <div {...getRootProps()}>
+                    <input {...getInputProps()} />
+                    <p>
+                      Drag 'n' drop some files here, or click to select files
+                    </p>
+                  </div>
+                </section>
+              )}
+            </Dropzone>
+          </div>
+        ) : null}
+        <div className="event-controls">
+          <button
+            type="button"
+            className="event-delete-button"
+            onClick={this.onDeleteEventClick}
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            className="event-upload-button"
+            onClick={() => {
+              this.setState({ dropAreaVisible: !dropAreaVisible });
+            }}
+          >
+            Upload
+          </button>
+          <button
+            type="button"
+            className="event-edit-button"
+            onClick={this.onEditEventClick}
+          >
+            Edit
+          </button>
         </div>
-      </div>
+      </li>
     );
   }
 }
 
 const mapDispatchToProps = {
-  setPdfPath: pdfViewerActions.setPdfPath,
+  setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
   setIsNew: editingEventActions.setIsNew,
   updateEvent: projectFileActions.updateEvent,
+  deleteEvent: projectFileActions.deleteEvent,
+  setSelection: pdfViewerActions.setSelection,
+  setShowLoading: appStateActions.setShowLoading,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {
   return {
     event: ownProps.event,
+    currentPdf: state.projectFile.currentPdf,
   };
 };
 

@@ -4,9 +4,7 @@ import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
-import { actions as appStateActions } from '../../reduxStore/appStateSlice';
-import * as appConst from '../../types/textConstants';
-import { IBookmark } from '../../types/bookmark';
+import { createBookmark } from '../../types/bookmark';
 import BookmarkItem from '../BookmarkItem/BookmarkItem';
 
 export interface IBookmarksAreaProps {}
@@ -18,29 +16,52 @@ class BookmarksArea extends React.Component<
 > {
   componentDidMount() {}
 
+  onAddBookmark = () => {
+    const { addBookmark, selection } = this.props;
+    if (selection.start !== Infinity && selection.end !== Infinity)
+      addBookmark(
+        createBookmark('new bookmark', selection.start, selection.end, 'lime')
+      );
+  };
+
   render(): React.ReactElement {
-    const { currentProjectFile } = this.props;
+    const { projectFile, indexes } = this.props;
     return (
       <div className="bookmarks-area">
         Bookmarks area
-        {currentProjectFile?.content?.bookmarks?.map((bookmark, index) => {
-          return (
-            <BookmarkItem
-              bookmark={bookmark}
-              key={'bookmark-item-key' + index}
-            />
-          );
-        })}
+        <div className="bookmarks-list">
+          {projectFile.events[indexes.eventIndex]?.files[
+            indexes.fileIndex
+          ]?.bookmarks.map((bookmark, index) => {
+            return (
+              <BookmarkItem
+                bookmark={bookmark}
+                key={'bookmark-item-key' + index}
+              />
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          className="create-new-button"
+          onClick={this.onAddBookmark}
+        >
+          Add bookmark
+        </button>
       </div>
     );
   }
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  addBookmark: projectFileActions.addBookmark,
+};
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarksAreaProps) => {
   return {
-    currentProjectFile: state.projectFile.current,
+    projectFile: state.projectFile.currentProjectFile.content,
+    indexes: state.projectFile.currentIndexes,
+    selection: state.pdfViewer.pdfSelection,
   };
 };
 

@@ -1,24 +1,28 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+interface IPdfSelection {
+  start: number;
+  end: number;
+}
+
 export interface IPDFViewerState {
-  pdfPath: string;
+  pdfSelection: IPdfSelection;
 }
 
 const initialState: IPDFViewerState = {
-  pdfPath: '',
+  pdfSelection: {
+    start: Infinity,
+    end: Infinity,
+  },
 };
 
 export const pdfViewerSlice = createSlice({
   name: 'pdfViewer',
   initialState,
   reducers: {
-    setPdfPath: (state: IPDFViewerState, action: PayloadAction<string>) => {
+    setSelection: (state: IPDFViewerState, action: PayloadAction<IPdfSelection>) => {
       const { payload } = action;
-      if (payload) {
-        state.pdfPath = payload;
-      } else {
-        state.pdfPath = '';
-      }
+      state.pdfSelection = payload;
     },
   },
 });

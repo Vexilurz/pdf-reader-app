@@ -1,21 +1,26 @@
 import './left-bar.scss';
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { StoreType } from '../../../reduxStore/store';
+import * as appConst from '../../../types/textConstants';
 import EventsArea from '../../EventsArea/EventsArea';
 
-export interface ILeftBarProps {
-  visible: boolean;
-}
+export interface ILeftBarProps {}
 export interface ILeftBarState {}
 
-export default class LeftBar extends React.Component<
-  ILeftBarProps,
+class LeftBar extends React.Component<
+  StatePropsType & DispatchPropsType,
   ILeftBarState
 > {
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { visible } = this.props;
-    const isVisible = visible ? 'visible' : 'hidden';
+    const { currentAppState } = this.props;
+    const isVisible =
+      currentAppState === appConst.PDF_VIEWER ||
+      currentAppState === appConst.EMTPY_SCREEN
+        ? 'visible'
+        : 'hidden';
 
     return (
       <div className="left-bar" style={{ visibility: isVisible }}>
@@ -24,3 +29,16 @@ export default class LeftBar extends React.Component<
     );
   }
 }
+
+const mapDispatchToProps = {};
+
+const mapStateToProps = (state: StoreType, ownProps: ILeftBarProps) => {
+  return {
+    currentAppState: state.appState.current,
+  };
+};
+
+type StatePropsType = ReturnType<typeof mapStateToProps>;
+type DispatchPropsType = typeof mapDispatchToProps;
+
+export default connect(mapStateToProps, mapDispatchToProps)(LeftBar);
