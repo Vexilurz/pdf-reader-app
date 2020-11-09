@@ -364,20 +364,25 @@ class PDFViewer extends React.Component<
                 isCurrentlyRendering && !isLastPage;
 
               return (
-                <Page
-                  key={`page_${index + 1}`}
-                  onRenderSuccess={
-                    needsCallbackToRenderNextPage ? this.onRenderSuccess : null
-                  }
-                  scale={scale}
-                  pageNumber={index + 1}
-                  onLoadSuccess={this.onPageLoad}
-                  customTextRenderer={this.pdfRenderer(index + 1)}
-                  renderTextLayer={renderTextLayer}
-                  onGetTextSuccess={() => {
-                    this.onRenderFinished(index + 1);
-                  }}
-                />
+                <div className="pdf-page">
+                  <Page
+                    key={`page_${index + 1}`}
+                    onRenderSuccess={
+                      needsCallbackToRenderNextPage
+                        ? this.onRenderSuccess
+                        : null
+                    }
+                    scale={scale}
+                    pageNumber={index + 1}
+                    onLoadSuccess={this.onPageLoad}
+                    customTextRenderer={this.pdfRenderer(index + 1)}
+                    renderTextLayer={renderTextLayer}
+                    onGetTextSuccess={() => {
+                      this.onRenderFinished(index + 1);
+                    }}
+                  />
+                  <hr />
+                </div>
               );
             })}
           </Document>
