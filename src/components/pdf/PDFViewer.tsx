@@ -11,7 +11,7 @@ import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IPDFdata } from '../../types/pdf';
 import * as DOM from 'react-dom';
-import { IBookmark, createBookmark } from '../../types/bookmark';
+import { IBookmark, getInfSelection } from '../../types/bookmark';
 import { splitTriple, splitDuo } from '../../utils/splitUtils';
 
 export interface IPDFViewerProps {
@@ -170,50 +170,63 @@ class PDFViewer extends React.Component<
 
   getMarkedText = (text: string, color: string, key: any) => {
     return (
-      <mark key={key} style={{ color, backgroundColor: color }}>
+      <mark id={key} key={key} style={{ color, backgroundColor: color }}>
         {text}
       </mark>
     );
   };
 
   getUnmarkedText = (text: string, key: any) => {
-    return <span key={key}>{text}</span>;
+    return (
+      <span id={key} key={key}>
+        {text}
+      </span>
+    );
   };
 
   newPattern = (text: string, bookmark: IBookmark, counter: number) => {
-    // console.log(counter, bookmark.start, bookmark.end, text);
+    // console.log(counter, bookmark.selection.start, bookmark.selection.end, text);
     let result = this.getUnmarkedText(text, '0k' + counter);
     // let result = text;
     let dbg = 'unmarked:';
     const { length } = text;
-    if (counter >= bookmark.start && counter + length <= bookmark.end) {
+    if (
+      counter >= bookmark.selection.start &&
+      counter + length <= bookmark.selection.end
+    ) {
       // mark all text
       dbg = 'mark all text:';
-      result = this.getMarkedText(text, bookmark.color, counter);
+      result = this.getMarkedText(text, bookmark.color, '0k' + counter);
       this.newPatternWorkResult = true;
-    } else if (counter >= bookmark.start && counter < bookmark.end) {
+    } else if (
+      counter >= bookmark.selection.start &&
+      counter < bookmark.selection.end
+    ) {
       // mark left part
       dbg = 'mark left part:';
-      result = splitDuo(bookmark.end - counter)(text);
+      result = splitDuo(bookmark.selection.end - counter)(text);
       result[0] = this.getMarkedText(result[0], bookmark.color, '0k' + counter);
       result[1] = this.getUnmarkedText(result[1], '1k' + counter);
       this.newPatternWorkResult = true;
     } else if (
-      counter + length > bookmark.start &&
-      counter + length <= bookmark.end
+      counter + length > bookmark.selection.start &&
+      counter + length <= bookmark.selection.end
     ) {
       // mark right part
       dbg = 'mark right part:';
-      result = splitDuo(bookmark.start - counter)(text);
+      result = splitDuo(bookmark.selection.start - counter)(text);
       result[0] = this.getUnmarkedText(result[0], '0k' + counter);
       result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
       this.newPatternWorkResult = true;
-    } else if (counter < bookmark.start && counter + length > bookmark.end) {
+    } else if (
+      counter < bookmark.selection.start &&
+      counter + length > bookmark.selection.end
+    ) {
       // mark middle
       dbg = 'mark middle:';
       result = splitTriple(
-        bookmark.start - counter,
-        bookmark.end - counter
+        bookmark.selection.start - counter,
+        bookmark.selection.end - counter
       )(text);
       result[0] = this.getUnmarkedText(result[0], '0k' + counter);
       result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
@@ -272,7 +285,7 @@ class PDFViewer extends React.Component<
 
   clearSelection = () => {
     const { setSelection } = this.props;
-    setSelection({ start: Infinity, end: Infinity });
+    setSelection(getInfSelection());
   };
 
   onMouseUp = async () => {
@@ -292,7 +305,6 @@ class PDFViewer extends React.Component<
     }
 
     const sel = selection.getRangeAt(0);
-    // console.log(sel);
 
     const {
       commonAncestorContainer,
@@ -300,7 +312,9 @@ class PDFViewer extends React.Component<
       endOffset,
       startContainer,
       startOffset,
-    } = sel; //selection.getRangeAt(0);
+    } = sel;
+
+    // console.log(startContainer.parentNode.id);
 
     // selection?.empty(); // important!
 
@@ -317,6 +331,7 @@ class PDFViewer extends React.Component<
     setSelection({
       start: startTotalOffset,
       end: endTotalOffset,
+      startContainerID: startContainer?.parentNode?.id,
     });
   };
 
@@ -365,6 +380,7 @@ class PDFViewer extends React.Component<
 
               return (
                 <div className="pdf-page">
+                  <hr />
                   <Page
                     key={`page_${index + 1}`}
                     onRenderSuccess={
@@ -381,7 +397,6 @@ class PDFViewer extends React.Component<
                       this.onRenderFinished(index + 1);
                     }}
                   />
-                  <hr />
                 </div>
               );
             })}

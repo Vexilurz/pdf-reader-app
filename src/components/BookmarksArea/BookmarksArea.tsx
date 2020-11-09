@@ -22,8 +22,7 @@ class BookmarksArea extends React.Component<
     if (selection.start !== Infinity && selection.end !== Infinity) {
       const newBookmark = createBookmark(
         'bookmark comment here',
-        selection.start,
-        selection.end,
+        selection,
         '#cce5ff'
       );
       addBookmark(newBookmark);

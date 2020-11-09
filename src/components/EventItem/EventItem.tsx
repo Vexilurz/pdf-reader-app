@@ -12,6 +12,7 @@ import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
 import { IPdfFileWithBookmarks } from '../../types/pdf';
+import { getInfSelection } from '../../types/bookmark';
 
 export interface IEventItemProps {
   event: IEvent;
@@ -85,7 +86,7 @@ class EventItem extends React.Component<
       event,
     } = this.props;
     setShowLoading(true);
-    setSelection({ start: Infinity, end: Infinity });
+    setSelection(getInfSelection());
     ipcRenderer.send(appConst.LOAD_PDF_FILE, file.path);
     setCurrentPdf({ path: file.path, eventID: event.id });
     setAppState(appConst.PDF_VIEWER);

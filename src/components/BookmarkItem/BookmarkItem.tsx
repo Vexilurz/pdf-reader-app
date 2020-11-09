@@ -92,7 +92,8 @@ class BookmarkItem extends React.Component<
               />
             </div>
             <div className="bookmark-position">
-              {bookmark.start} .. {bookmark.end}
+              {bookmark.selection.start} .. {bookmark.selection.end} [
+              {bookmark.selection.startContainerID}]
             </div>
             <div className="bookmark-color">
               <CirclePicker
@@ -125,11 +126,15 @@ class BookmarkItem extends React.Component<
             className="bookmark-item-view"
             onClick={(e) => {
               e.stopPropagation();
+              document
+                .getElementById(bookmark.selection.startContainerID)
+                .scrollIntoView();
             }}
           >
             <div className="bookmark-comment">{bookmark.comment}</div>
             <div className="bookmark-position">
-              {bookmark.start} .. {bookmark.end}
+              {bookmark.selection.start} .. {bookmark.selection.end} [
+              {bookmark.selection.startContainerID}]
             </div>
             <div className="bookmark-controls">
               <button

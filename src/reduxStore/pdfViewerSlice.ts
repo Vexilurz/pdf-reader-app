@@ -1,9 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface IPdfSelection {
-  start: number;
-  end: number;
-}
+import { IPdfSelection, getInfSelection } from '../types/bookmark';
 
 export interface IPDFViewerState {
   pdfSelection: IPdfSelection;
@@ -11,10 +7,7 @@ export interface IPDFViewerState {
 }
 
 const initialState: IPDFViewerState = {
-  pdfSelection: {
-    start: Infinity,
-    end: Infinity,
-  },
+  pdfSelection: getInfSelection(),
   editingBookmarkID: '',
 };
 
