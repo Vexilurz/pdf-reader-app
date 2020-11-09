@@ -1,11 +1,11 @@
 import './bookmark-item.scss';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { CirclePicker } from 'react-color';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { IBookmark } from '../../types/bookmark';
-import { SketchPicker } from 'react-color';
 
 export interface IBookmarkItemProps {
   bookmark: IBookmark;
@@ -88,8 +88,9 @@ class BookmarkItem extends React.Component<
               {bookmark.start} .. {bookmark.end}
             </div>
             <div className="bookmark-color">
-              <SketchPicker
+              <CirclePicker
                 color={color}
+                colors={['#cce5ff', '#d4edda', '#f8d7da', '#fff3cd', '#d1ecf1']}
                 onChange={(color) => {
                   this.setState({ color: color.hex });
                 }}
