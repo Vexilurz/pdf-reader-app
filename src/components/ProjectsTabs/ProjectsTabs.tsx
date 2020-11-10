@@ -1,7 +1,6 @@
 import './projects-tabs.scss';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Alert from 'react-bootstrap/Alert';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
@@ -26,51 +25,64 @@ class ProjectsTabs extends React.Component<
       setCurrentFile,
       saveCurrentProjectTemporary,
       deleteFileFromOpened,
+      currentAppState,
     } = this.props;
+    const ACTIVE = ' active';
+    const startPageActive =
+      currentAppState === appConst.START_PAGE ? ACTIVE : '';
     return (
-      <div className="projects-tabs">
+      <ul className="nav nav-tabs projects-tabs">
         {openedProjectFiles.map((project, index) => {
+          const active = currentProjectFile.path === project.path ? ACTIVE : '';
           return (
-            <Alert
-              variant="primary"
-              className="project-tab"
+            <li
+              className="nav-item project-tab"
               key={'project-tab-key' + index}
-              onClick={() => {
-                if (currentProjectFile.path !== project.path) {
-                  saveCurrentProjectTemporary();
-                  setCurrentFile(project);
-                  setAppState(appConst.EMTPY_SCREEN);
-                }
-              }}
             >
-              {project.content?.name} ({deletePathFromFilename(project.path)}){' '}
-              <Alert.Link
+              <a
+                class={'nav-link' + active}
                 href="#"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (currentProjectFile.path === project.path) {
-                    setAppState(appConst.START_PAGE);
+                  if (currentProjectFile.path !== project.path) {
+                    saveCurrentProjectTemporary();
+                    setCurrentFile(project);
+                    setAppState(appConst.EMTPY_SCREEN);
                   }
-                  deleteFileFromOpened(project.path);
                 }}
               >
-                x
-              </Alert.Link>
-            </Alert>
+                {project.content?.name} ({deletePathFromFilename(project.path)}){' '}
+                <a
+                  // class="nav-link"
+                  href="#"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (currentProjectFile.path === project.path) {
+                      setAppState(appConst.START_PAGE);
+                    }
+                    deleteFileFromOpened(project.path);
+                  }}
+                >
+                  x
+                </a>
+              </a>
+            </li>
           );
         })}
-        <Alert
-          className="project-tab"
-          key="project-tab-add"
-          variant="primary"
-          onClick={() => {
-            setCurrentFile({ path: '', content: getNewFile('') });
-            setAppState(appConst.START_PAGE);
-          }}
-        >
-          +
-        </Alert>
-      </div>
+        <li className="nav-item project-tab" key="project-tab-add">
+          <a
+            class={'nav-link' + startPageActive}
+            href="#"
+            onClick={(e) => {
+              e.stopPropagation();
+              setCurrentFile({ path: '', content: getNewFile('') });
+              setAppState(appConst.START_PAGE);
+            }}
+          >
+            +
+          </a>
+        </li>
+      </ul>
     );
   }
 }
@@ -86,6 +98,7 @@ const mapStateToProps = (state: StoreType, ownProps: IProjectsTabsProps) => {
   return {
     currentProjectFile: state.projectFile.currentProjectFile,
     openedProjectFiles: state.projectFile.openedProjectFiles,
+    currentAppState: state.appState.current,
   };
 };
 
