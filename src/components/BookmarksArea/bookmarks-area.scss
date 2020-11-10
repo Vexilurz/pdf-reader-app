@@ -1,6 +1,8 @@
 .bookmarks-area {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .bookmarks-list {
@@ -8,7 +10,7 @@
   height: 93%;
 }
 
-.create-new-button {
+.add-bookmark-button {
   width: 100%;
   margin-top: auto;
 }

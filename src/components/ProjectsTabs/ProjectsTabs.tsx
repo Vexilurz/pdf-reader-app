@@ -40,7 +40,7 @@ class ProjectsTabs extends React.Component<
               key={'project-tab-key' + index}
             >
               <a
-                class={'nav-link' + active}
+                className={'nav-link' + active}
                 href="#"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -71,7 +71,7 @@ class ProjectsTabs extends React.Component<
         })}
         <li className="nav-item project-tab" key="project-tab-add">
           <a
-            class={'nav-link' + startPageActive}
+            className={'nav-link' + startPageActive}
             href="#"
             onClick={(e) => {
               e.stopPropagation();

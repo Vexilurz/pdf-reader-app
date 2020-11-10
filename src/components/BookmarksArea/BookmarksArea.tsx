@@ -54,7 +54,7 @@ class BookmarksArea extends React.Component<
         </div>
         <button
           type="button"
-          className="create-new-button"
+          className="add-bookmark-button"
           onClick={(e) => {
             e.stopPropagation();
             this.onAddBookmark();
