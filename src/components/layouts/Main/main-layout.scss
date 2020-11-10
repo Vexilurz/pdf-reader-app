@@ -2,11 +2,10 @@
   height: 100%;
   width: 100%;
   background-color: #eeeeee;
-  display: grid;
-  grid-template-columns: 18% 64% 18%;
-  grid-template-rows: 8% 92%;
-  gap: 0px 0px;
-  grid-template-areas:
-    'top-bar top-bar top-bar'
-    'left-bar middle-space right-bar';
+}
+
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  max-height: calc(100% - 42px);
 }

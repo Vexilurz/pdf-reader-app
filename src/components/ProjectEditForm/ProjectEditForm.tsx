@@ -80,7 +80,7 @@ class ProjectEditForm extends React.Component<
         <div className="set-file-path">
           <button
             type="button"
-            className="set-file-path-button"
+            className="set-file-path-button btn btn-primary"
             onClick={this.onSetCurrentFilePathClick}
           >
             Set file path
@@ -90,7 +90,7 @@ class ProjectEditForm extends React.Component<
         <div className="save-changes">
           <button
             type="button"
-            className="save-changes-button"
+            className="save-changes-button btn btn-primary"
             onClick={this.onSaveChangesClick}
           >
             Save

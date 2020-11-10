@@ -18,15 +18,20 @@
   z-index: 100;
 }
 
+.react-pdf__Page__canvas {
+  max-width: 100%;
+}
+
 .react-pdf__Document {
   line-height: initial;
 }
 
 .pdf-viewer {
   overflow: auto;
-  height: 95%;
-  max-width: 70vw;
+  height: 100%;
+  // max-width: 70vw;
   position: absolute;
+  max-width: 100%;
 }
 
 .loading-container {
@@ -41,6 +46,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.pdf-page {
+  margin-top: 15px;
 }
 
 // mark {

@@ -380,7 +380,7 @@ class PDFViewer extends React.Component<
 
               return (
                 <div className="pdf-page">
-                  <hr />
+                  {/* <hr /> */}
                   <Page
                     key={`page_${index + 1}`}
                     onRenderSuccess={

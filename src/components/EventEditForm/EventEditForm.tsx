@@ -139,7 +139,7 @@ class EventEditForm extends React.Component<
               <div className="event-file" key={'event-file-key' + index}>
                 <button
                   type="button"
-                  className="delete-event-file-button"
+                  className="delete-event-file-button control-button btn btn-danger"
                   onClick={this.onDeleteEventFile(path)}
                 >
                   X
@@ -164,21 +164,21 @@ class EventEditForm extends React.Component<
         <div className="set-event">
           <button
             type="button"
-            className="set-event-button"
+            className="set-event-button control-button btn btn-primary"
             onClick={this.onSetEventClick}
           >
             {isNew ? 'Add event' : 'Update event'}
           </button>
           <button
             type="button"
-            className="cancel-button"
+            className="cancel-button control-button btn btn-primary"
             onClick={this.onCancelClick}
           >
             Cancel
           </button>
           <button
             type="button"
-            className="event-delete-button"
+            className="event-delete-button control-button btn btn-danger"
             onClick={this.onDeleteEventClick}
           >
             Delete

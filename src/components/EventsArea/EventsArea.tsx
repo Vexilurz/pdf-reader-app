@@ -36,7 +36,7 @@ class EventsArea extends React.Component<
         </ul>
         <button
           type="button"
-          className="create-new-event-button"
+          className="create-new-event-button btn btn-primary"
           onClick={this.onCreateNewEventClick}
         >
           Create new event
