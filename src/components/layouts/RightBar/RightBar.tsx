@@ -16,14 +16,13 @@ class RightBar extends React.Component<
 
   render(): React.ReactElement {
     const { currentAppState } = this.props;
-    const isVisible =
-      currentAppState === appConst.PDF_VIEWER ? 'visible' : 'hidden';
+    const isVisible = currentAppState === appConst.PDF_VIEWER;
 
-    return (
-      <div className="right-bar" style={{ visibility: isVisible }}>
+    return isVisible ? (
+      <div className="right-bar">
         <BookmarksArea />
       </div>
-    );
+    ) : null;
   }
 }
 

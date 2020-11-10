@@ -1,12 +1,16 @@
 .event-item {
-  background-color: #bbbbbb;
-  color: black;
-  padding: 10px;
-  margin: 10px;
+  // background-color: #bbbbbb;
+  // color: black;
+  // padding: 10px;
+  // margin: 10px;
   font-size: 10pt;
-  border-radius: 10px;
+  // border-radius: 10px;
   display: flex;
   flex-direction: column;
+}
+
+.event-alert {
+  left: -18px;
 }
 
 .event-pdf-files {
@@ -14,7 +18,7 @@
 }
 
 .event-pdf-file {
-  background-color: #bbbbbb;
+  // background-color: #bbbbbb;
   color: blue;
   cursor: pointer;
 }
@@ -34,4 +38,9 @@
   display: flex;
   justify-content: space-between;
   margin-top: 8px;
+}
+
+p {
+  padding: 0px;
+  margin: 0px;
 }

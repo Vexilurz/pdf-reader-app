@@ -1,5 +1,6 @@
 import './event-edit-form.scss';
 import 'react-datepicker/dist/react-datepicker.css';
+import { ipcRenderer } from 'electron';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
@@ -48,6 +49,12 @@ class EventEditForm extends React.Component<
   onCancelClick = (): void => {
     const { setAppState, setCurrentPdf } = this.props;
     // setCurrentPdf({ path: '', eventID: '' });
+    setAppState(appConst.EMTPY_SCREEN);
+  };
+
+  onDeleteEventClick = () => {
+    const { setAppState, deleteEvent, editingEvent } = this.props;
+    deleteEvent(editingEvent);
     setAppState(appConst.EMTPY_SCREEN);
   };
 
@@ -132,7 +139,7 @@ class EventEditForm extends React.Component<
               <div className="event-file" key={'event-file-key' + index}>
                 <button
                   type="button"
-                  className="delete-event-file-button"
+                  className="delete-event-file-button edit-event-control-button btn btn-danger"
                   onClick={this.onDeleteEventFile(path)}
                 >
                   X
@@ -157,17 +164,24 @@ class EventEditForm extends React.Component<
         <div className="set-event">
           <button
             type="button"
-            className="set-event-button"
+            className="set-event-button edit-event-control-button btn btn-primary"
             onClick={this.onSetEventClick}
           >
             {isNew ? 'Add event' : 'Update event'}
           </button>
           <button
             type="button"
-            className="cancel-button"
+            className="cancel-button edit-event-control-button btn btn-primary"
             onClick={this.onCancelClick}
           >
             Cancel
+          </button>
+          <button
+            type="button"
+            className="event-delete-button edit-event-control-button btn btn-danger"
+            onClick={this.onDeleteEventClick}
+          >
+            Delete
           </button>
         </div>
       </div>
@@ -181,6 +195,7 @@ const mapDispatchToProps = {
   setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
+  deleteEvent: projectFileActions.deleteEvent,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {

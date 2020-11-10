@@ -11,9 +11,11 @@ export const MainLayout: React.FunctionComponent<ILayoutProps> = () => {
   return (
     <div className="main-layout">
       <TopBar />
-      <LeftBar />
-      <MiddleSpace />
-      <RightBar />
+      <div className="main-container">
+        <LeftBar />
+        <MiddleSpace />
+        <RightBar />
+      </div>
     </div>
   );
 };

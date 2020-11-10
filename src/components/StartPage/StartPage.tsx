@@ -67,14 +67,14 @@ class StartPage extends React.Component<
         <div className="start-page-sidebar">
           <button
             type="button"
-            className="new-file-button"
+            className="new-file-button btn btn-primary"
             onClick={this.onNewFileClick}
           >
             New file
           </button>
           <button
             type="button"
-            className="open-file-button"
+            className="open-file-button btn btn-primary"
             onClick={this.onOpenFileClick}
           >
             Open file
@@ -87,7 +87,7 @@ class StartPage extends React.Component<
               <div key={'recent-item' + index}>
                 <button
                   type="button"
-                  className="recent-project-button"
+                  className="recent-project-button btn btn-link"
                   key={'recent-project-key' + index}
                   onClick={() => {
                     ipcRenderer.send(appConst.OPEN_FILE, item.path);
@@ -98,7 +98,7 @@ class StartPage extends React.Component<
                 </button>
                 <button
                   type="button"
-                  className="delete-recent-project-button"
+                  className="delete-recent-project-button btn btn-danger"
                   key={'delete-recent-key' + index}
                   onClick={() => {
                     ipcRenderer.send(

@@ -6,8 +6,7 @@ import StartPage from '../../StartPage/StartPage';
 import ProjectEditForm from '../../ProjectEditForm/ProjectEditForm';
 import EventEditForm from '../../EventEditForm/EventEditForm';
 import { StoreType } from '../../../reduxStore/store';
-import { actions as projectFileActions } from '../../../reduxStore/projectFileSlice';
-import { actions as appStateActions } from '../../../reduxStore/appStateSlice';
+
 import * as appConst from '../../../types/textConstants';
 
 export interface IMiddleSpaceProps {}
@@ -27,7 +26,7 @@ class MiddleSpace extends React.Component<
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { currentAppState, saveCurrentProject, setAppState } = this.props;
+    const { currentAppState } = this.props;
 
     let pageContent = <div>ERROR: Wrong appState current value</div>;
     if (currentAppState === appConst.EMTPY_SCREEN) {
@@ -44,34 +43,13 @@ class MiddleSpace extends React.Component<
 
     return (
       <div className="middle-space" ref={this.containerRef}>
-        <button
-          type="button"
-          className="save-project-button"
-          onClick={() => {
-            saveCurrentProject();
-          }}
-        >
-          [temporary] Save project
-        </button>
-        <button
-          type="button"
-          className="edit-project-button"
-          onClick={() => {
-            setAppState(appConst.PROJECT_EDIT_FORM);
-          }}
-        >
-          [temporary] Edit project
-        </button>
         {pageContent}
       </div>
     );
   }
 }
 
-const mapDispatchToProps = {
-  saveCurrentProject: projectFileActions.saveCurrentProject,
-  setAppState: appStateActions.setAppState,
-};
+const mapDispatchToProps = {};
 
 const mapStateToProps = (state: StoreType, ownProps: IMiddleSpaceProps) => {
   return {

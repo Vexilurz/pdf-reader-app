@@ -25,17 +25,25 @@ class ProjectsTabs extends React.Component<
       setCurrentFile,
       saveCurrentProjectTemporary,
       deleteFileFromOpened,
+      currentAppState,
     } = this.props;
+    const ACTIVE = ' active';
+    const startPageActive =
+      currentAppState === appConst.START_PAGE ? ACTIVE : '';
     return (
-      <div className="projects-tabs">
+      <ul className="nav nav-tabs projects-tabs">
         {openedProjectFiles.map((project, index) => {
+          const active = currentProjectFile.path === project.path ? ACTIVE : '';
           return (
-            <div className="project-tab" key={'project-tab-key' + index}>
-              <button
-                type="button"
-                className="project-button"
-                key={'project-button-key' + index}
-                onClick={() => {
+            <li
+              className="nav-item project-tab"
+              key={'project-tab-key' + index}
+            >
+              <a
+                className={'nav-link' + active}
+                href="#"
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (currentProjectFile.path !== project.path) {
                     saveCurrentProjectTemporary();
                     setCurrentFile(project);
@@ -43,35 +51,38 @@ class ProjectsTabs extends React.Component<
                   }
                 }}
               >
-                {project.content?.name} ({deletePathFromFilename(project.path)})
-              </button>
-              <button
-                type="button"
-                className="close-button"
-                key={'close-button-key' + index}
-                onClick={() => {
-                  if (currentProjectFile.path === project.path) {
-                    setAppState(appConst.START_PAGE);
-                  }
-                  deleteFileFromOpened(project.path);
-                }}
-              >
-                x
-              </button>
-            </div>
+                {project.content?.name} ({deletePathFromFilename(project.path)}){' '}
+                <a
+                  // class="nav-link"
+                  href="#"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (currentProjectFile.path === project.path) {
+                      setAppState(appConst.START_PAGE);
+                    }
+                    deleteFileFromOpened(project.path);
+                  }}
+                >
+                  x
+                </a>
+              </a>
+            </li>
           );
         })}
-        <button
-          type="button"
-          className="project-tab"
-          key="project-tab-add"
-          onClick={() => {
-            setAppState(appConst.START_PAGE);
-          }}
-        >
-          +
-        </button>
-      </div>
+        <li className="nav-item project-tab" key="project-tab-add">
+          <a
+            className={'nav-link' + startPageActive}
+            href="#"
+            onClick={(e) => {
+              e.stopPropagation();
+              setCurrentFile({ path: '', content: getNewFile('') });
+              setAppState(appConst.START_PAGE);
+            }}
+          >
+            +
+          </a>
+        </li>
+      </ul>
     );
   }
 }
@@ -87,6 +98,7 @@ const mapStateToProps = (state: StoreType, ownProps: IProjectsTabsProps) => {
   return {
     currentProjectFile: state.projectFile.currentProjectFile,
     openedProjectFiles: state.projectFile.openedProjectFiles,
+    currentAppState: state.appState.current,
   };
 };
 
