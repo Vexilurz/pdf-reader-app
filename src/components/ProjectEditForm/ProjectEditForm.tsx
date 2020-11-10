@@ -64,10 +64,11 @@ class ProjectEditForm extends React.Component<
 
   render(): React.ReactElement {
     const { path } = this.state;
+    const { setAppState } = this.props;
     return (
       <div className="project-edit-form">
         <div className="project-name">
-          Name:
+          {'Name:   '}
           <input
             className="project-name-input"
             type="text"
@@ -80,20 +81,29 @@ class ProjectEditForm extends React.Component<
         <div className="set-file-path">
           <button
             type="button"
-            className="set-file-path-button btn btn-primary"
+            className="set-file-path-button edit-project-control-button btn btn-primary"
             onClick={this.onSetCurrentFilePathClick}
           >
             Set file path
           </button>
           Path to save: {path}
         </div>
-        <div className="save-changes">
+        <div className="control-buttons">
           <button
             type="button"
-            className="save-changes-button btn btn-primary"
+            className="save-changes-button edit-project-control-button btn btn-primary"
             onClick={this.onSaveChangesClick}
           >
             Save
+          </button>
+          <button
+            type="button"
+            className="cancel-button edit-project-control-button btn btn-primary"
+            onClick={() => {
+              setAppState(appConst.START_PAGE);
+            }}
+          >
+            Cancel
           </button>
         </div>
       </div>
