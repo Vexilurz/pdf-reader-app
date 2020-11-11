@@ -6,63 +6,43 @@ import * as appConst from '../../../types/textConstants';
 import EventsArea from '../../EventsArea/EventsArea';
 import { actions as projectFileActions } from '../../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../../reduxStore/appStateSlice';
-import { Rnd } from 'react-rnd';
+import ResizePanel from 'react-resize-panel';
 
 export interface ILeftBarProps {}
-export interface ILeftBarState {
-  width: number | string;
-  height: number | string;
-}
+export interface ILeftBarState {}
 
 class LeftBar extends React.Component<
   StatePropsType & DispatchPropsType,
   ILeftBarState
 > {
+  private resizeRef: React.RefObject<any>;
+
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
-    this.state = {
-      width: '18%',
-      height: '100%',
-    };
+    this.resizeRef = React.createRef();
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    // this.resizeRef?.current?.width = '400px';
+  }
 
   render(): React.ReactElement {
     const { currentAppState, saveCurrentProject, setAppState } = this.props;
-    const { width, height } = this.state;
     const isVisible =
       currentAppState === appConst.PDF_VIEWER ||
       currentAppState === appConst.EMTPY_SCREEN ||
       currentAppState === appConst.EVENT_FORM;
 
     return isVisible ? (
-      <div
-        className="left-bar"
-        style={{ width, maxWidth: '800px', minWidth: '200px' }}
+      <ResizePanel
+        direction="e"
+        handleClass="left-bar"
+        ref={this.resizeRef}
+        style={{ width: '350px' }}
       >
-        <Rnd
-          disableDragging={true}
-          enableResizing={{
-            bottom: false,
-            bottomLeft: false,
-            bottomRight: false,
-            left: false,
-            right: true,
-            top: false,
-            topLeft: false,
-            topRight: false,
-          }}
-          bounds="parent"
-          // maxHeight={'90%'}
-          size={{ width, height }}
-          onResizeStop={(e, direction, ref, delta, position) => {
-            console.log(position);
-            this.setState({
-              width: ref.style.width,
-              height: ref.style.height,
-            });
-          }}
+        <div
+          className="left-bar"
+          style={{ width: this.resizeRef?.current?.width }}
         >
           <div className="project-controls">
             <button
@@ -85,8 +65,8 @@ class LeftBar extends React.Component<
             </button>
           </div>
           <EventsArea />
-        </Rnd>
-      </div>
+        </div>
+      </ResizePanel>
     ) : (
       <></>
     );
