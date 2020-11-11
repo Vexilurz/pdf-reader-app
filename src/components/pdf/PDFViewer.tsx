@@ -345,7 +345,7 @@ class PDFViewer extends React.Component<
       pdfData,
       numPages,
       pagesRendered,
-      scale,
+      // scale,
       renderTextLayer,
     } = this.state;
 
@@ -365,42 +365,44 @@ class PDFViewer extends React.Component<
           </div>
         ) : null}
         {pdfData ? (
-          <Document
-            file={pdfData}
-            onLoadSuccess={this.onDocumentLoadSuccess}
-            inputRef={(ref) => (this.containerRef.current = ref)}
-            onMouseUp={this.onMouseUp}
-            // onMouseDown={this.onMouseDown}
-          >
-            {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
-              const isCurrentlyRendering = pagesRenderedPlusOne === index + 1;
-              const isLastPage = numPages === index + 1;
-              const needsCallbackToRenderNextPage =
-                isCurrentlyRendering && !isLastPage;
+          <div className="pdf-document">
+            <Document
+              file={pdfData}
+              onLoadSuccess={this.onDocumentLoadSuccess}
+              inputRef={(ref) => (this.containerRef.current = ref)}
+              onMouseUp={this.onMouseUp}
+              // onMouseDown={this.onMouseDown}
+            >
+              {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
+                const isCurrentlyRendering = pagesRenderedPlusOne === index + 1;
+                const isLastPage = numPages === index + 1;
+                const needsCallbackToRenderNextPage =
+                  isCurrentlyRendering && !isLastPage;
 
-              return (
-                <div className="pdf-page">
-                  {/* <hr /> */}
-                  <Page
-                    key={`page_${index + 1}`}
-                    onRenderSuccess={
-                      needsCallbackToRenderNextPage
-                        ? this.onRenderSuccess
-                        : null
-                    }
-                    scale={scale}
-                    pageNumber={index + 1}
-                    onLoadSuccess={this.onPageLoad}
-                    customTextRenderer={this.pdfRenderer(index + 1)}
-                    renderTextLayer={renderTextLayer}
-                    onGetTextSuccess={() => {
-                      this.onRenderFinished(index + 1);
-                    }}
-                  />
-                </div>
-              );
-            })}
-          </Document>
+                return (
+                  <div className="pdf-page">
+                    <Page
+                      key={`page_${index + 1}`}
+                      onRenderSuccess={
+                        needsCallbackToRenderNextPage
+                          ? this.onRenderSuccess
+                          : null
+                      }
+                      scale={1.3}
+                      // scale={scale}
+                      pageNumber={index + 1}
+                      onLoadSuccess={this.onPageLoad}
+                      customTextRenderer={this.pdfRenderer(index + 1)}
+                      renderTextLayer={renderTextLayer}
+                      onGetTextSuccess={() => {
+                        this.onRenderFinished(index + 1);
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </Document>
+          </div>
         ) : null}
       </div>
     );

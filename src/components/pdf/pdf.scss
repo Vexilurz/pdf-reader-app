@@ -1,3 +1,41 @@
+.pdf-viewer {
+  overflow: auto;
+  height: 100%;
+  // max-width: 70vw;
+  position: absolute;
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // justify-content: space-around;
+}
+
+.pdf-document {
+  display: flex;
+  // flex-direction: column;
+  justify-content: space-around;
+}
+
+.pdf-page {
+  margin-top: 15px;
+}
+
+.loading-container {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  background-color: gray;
+  opacity: 0.8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .react-pdf__Page.pdf-page {
   display: inline-block;
   justify-content: center;
@@ -24,32 +62,6 @@
 
 .react-pdf__Document {
   line-height: initial;
-}
-
-.pdf-viewer {
-  overflow: auto;
-  height: 100%;
-  // max-width: 70vw;
-  position: absolute;
-  max-width: 100%;
-}
-
-.loading-container {
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 10;
-  background-color: gray;
-  opacity: 0.8;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.pdf-page {
-  margin-top: 15px;
 }
 
 // mark {
