@@ -30,7 +30,11 @@ class MiddleSpace extends React.Component<
 
     let pageContent = <div>ERROR: Wrong appState current value</div>;
     if (currentAppState === appConst.EMTPY_SCREEN) {
-      pageContent = <div className="empty-screen">Please select PDF</div>;
+      pageContent = (
+        <div className="empty-screen">
+          <div>Please select PDF</div>
+        </div>
+      );
     } else if (currentAppState === appConst.START_PAGE) {
       pageContent = <StartPage />;
     } else if (currentAppState === appConst.PROJECT_EDIT_FORM) {

@@ -30,8 +30,8 @@ class LeftBar extends React.Component<
     const { currentAppState, saveCurrentProject, setAppState } = this.props;
     const isVisible =
       currentAppState === appConst.PDF_VIEWER ||
-      currentAppState === appConst.EMTPY_SCREEN ||
-      currentAppState === appConst.EVENT_FORM;
+      currentAppState === appConst.EMTPY_SCREEN;
+    // ||      currentAppState === appConst.EVENT_FORM;
 
     return isVisible ? (
       <ResizePanel
