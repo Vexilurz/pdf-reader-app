@@ -39,14 +39,19 @@ class ProjectEditForm extends React.Component<
   };
 
   onSaveChangesClick = (): void => {
-    const { setCurrentFile, setAppState, addFileToOpened } = this.props;
+    const {
+      setCurrentFile,
+      setAppState,
+      addFileToOpened,
+      currentProjectFile,
+    } = this.props;
     const { path } = this.state;
     if (path !== '') {
       const newFile: IProjectFileWithPath = {
         path,
         content: getNewFile(this.projectNameRef.current.value),
       };
-      newFile.content.events = this.props.currentProjectFile.content.events;
+      newFile.content.events = currentProjectFile.content.events;
       setCurrentFile(newFile);
       addFileToOpened(newFile);
       setAppState(appConst.PDF_VIEWER);
