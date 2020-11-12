@@ -18,7 +18,7 @@ class LeftBar extends React.Component<
 > {
   handleResize = (contentRect) => {
     const { leftSidebarWidth, setLeftSidebarWidth } = this.props;
-    if (leftSidebarWidth !== contentRect?.bounds?.width) {
+    if (Math.abs(leftSidebarWidth - contentRect?.bounds?.width) > 5) {
       setLeftSidebarWidth(contentRect?.bounds?.width);
     }
   };

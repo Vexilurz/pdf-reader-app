@@ -17,7 +17,7 @@ class RightBar extends React.Component<
 > {
   handleResize = (contentRect) => {
     const { rightSidebarWidth, setRightSidebarWidth } = this.props;
-    if (rightSidebarWidth !== contentRect?.bounds?.width) {
+    if (Math.abs(rightSidebarWidth - contentRect?.bounds?.width) > 5) {
       setRightSidebarWidth(contentRect?.bounds?.width);
     }
   };
