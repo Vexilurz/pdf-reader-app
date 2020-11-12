@@ -1,10 +1,12 @@
 import './right-bar.scss';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import ResizePanel from 'react-resize-panel';
+import Measure from 'react-measure';
 import { StoreType } from '../../../reduxStore/store';
 import * as appConst from '../../../types/textConstants';
 import BookmarksArea from '../../BookmarksArea/BookmarksArea';
-import ResizePanel from 'react-resize-panel';
+import { actions as appStateActions } from '../../../reduxStore/appStateSlice';
 
 export interface IRightBarProps {}
 export interface IRightBarState {}
@@ -13,12 +15,12 @@ class RightBar extends React.Component<
   StatePropsType & DispatchPropsType,
   IRightBarState
 > {
-  private resizeRef: React.RefObject<any>;
-
-  constructor(props: StatePropsType & DispatchPropsType) {
-    super(props);
-    this.resizeRef = React.createRef();
-  }
+  handleResize = (contentRect) => {
+    const { rightSidebarWidth, setRightSidebarWidth } = this.props;
+    if (rightSidebarWidth !== contentRect?.bounds?.width) {
+      setRightSidebarWidth(contentRect?.bounds?.width);
+    }
+  };
 
   render(): React.ReactElement {
     const { currentAppState } = this.props;
@@ -28,25 +30,30 @@ class RightBar extends React.Component<
       <ResizePanel
         direction="w"
         handleClass="right-bar"
-        ref={this.resizeRef}
         style={{ width: '350px' }}
       >
-        <div
-          className="right-bar"
-          style={{ width: this.resizeRef?.current?.width }}
-        >
-          <BookmarksArea />
-        </div>
+        <Measure bounds onResize={this.handleResize}>
+          {({ measureRef }) => (
+            <div className="right-bar" ref={measureRef}>
+              <BookmarksArea />
+            </div>
+          )}
+        </Measure>
       </ResizePanel>
-    ) : null;
+    ) : (
+      <></>
+    );
   }
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  setRightSidebarWidth: appStateActions.setRightSidebarWidth,
+};
 
 const mapStateToProps = (state: StoreType, ownProps: IRightBarProps) => {
   return {
     currentAppState: state.appState.current,
+    rightSidebarWidth: state.appState.rightSidebarWidth,
   };
 };
 
