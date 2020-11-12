@@ -4,6 +4,7 @@ import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import Dropzone from 'react-dropzone';
 import Alert from 'react-bootstrap/Alert';
+import { DateTime } from 'luxon';
 import { StoreType } from '../../reduxStore/store';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
@@ -77,6 +78,12 @@ class EventItem extends React.Component<
     setAppState(appConst.PDF_VIEWER);
   };
 
+  getDateString = (): string => {
+    const { event } = this.props;
+    const date = new DateTime(event?.date);
+    return date.setLocale('en').toLocaleString(DateTime.DATE_MED);
+  };
+
   render(): React.ReactElement {
     const { event } = this.props;
     const { dropAreaVisible } = this.state;
@@ -92,9 +99,7 @@ class EventItem extends React.Component<
             <div className="event-title">
               <b>{event.title}</b>
             </div>
-            <div className="event-date float-right">
-              {new Date(event?.date).toLocaleDateString()}
-            </div>
+            <div className="event-date float-right">{this.getDateString()}</div>
           </div>
           <div className="event-description">{event.description}</div>
           <div className="event-pdf-files">
