@@ -139,14 +139,14 @@ class BookmarkItem extends React.Component<
             <div className="bookmark-controls">
               <button
                 type="button"
-                className="edit-bookmark-button btn btn-primary"
+                className="edit-bookmark-button btn btn-primary btn-sm"
                 onClick={this.onEdit}
               >
                 Edit
               </button>
               <button
                 type="button"
-                className="delete-bookmark-button btn btn-danger"
+                className="delete-bookmark-button btn btn-danger btn-sm"
                 onClick={this.onDelete}
               >
                 X

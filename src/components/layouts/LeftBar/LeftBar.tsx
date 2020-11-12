@@ -1,6 +1,8 @@
 import './left-bar.scss';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import ResizePanel from 'react-resize-panel';
+import Measure from 'react-measure';
 import { StoreType } from '../../../reduxStore/store';
 import * as appConst from '../../../types/textConstants';
 import EventsArea from '../../EventsArea/EventsArea';
@@ -14,41 +16,55 @@ class LeftBar extends React.Component<
   StatePropsType & DispatchPropsType,
   ILeftBarState
 > {
-  componentDidMount() {}
+  handleResize = (contentRect) => {
+    const { leftSidebarWidth, setLeftSidebarWidth } = this.props;
+    if (Math.abs(leftSidebarWidth - contentRect?.bounds?.width) > 5) {
+      setLeftSidebarWidth(contentRect?.bounds?.width);
+    }
+  };
 
   render(): React.ReactElement {
     const { currentAppState, saveCurrentProject, setAppState } = this.props;
     const isVisible =
       currentAppState === appConst.PDF_VIEWER ||
-      currentAppState === appConst.EMTPY_SCREEN ||
-      currentAppState === appConst.EVENT_FORM
-        ? 'visible'
-        : 'hidden';
+      currentAppState === appConst.EMTPY_SCREEN;
 
-    return (
-      <div className="left-bar" style={{ visibility: isVisible }}>
-        <div className="project-controls">
-          <button
-            type="button"
-            className="save-project-button btn btn-primary"
-            onClick={() => {
-              saveCurrentProject();
-            }}
-          >
-            Save project
-          </button>
-          <button
-            type="button"
-            className="edit-project-button btn btn-primary"
-            onClick={() => {
-              setAppState(appConst.PROJECT_EDIT_FORM);
-            }}
-          >
-            Edit project
-          </button>
-        </div>
-        <EventsArea />
-      </div>
+    return isVisible ? (
+      <ResizePanel
+        direction="e"
+        handleClass="left-bar"
+        style={{ width: '350px' }}
+      >
+        <Measure bounds onResize={this.handleResize}>
+          {({ measureRef }) => (
+            <div className="left-bar" ref={measureRef}>
+              <div className="project-controls">
+                <button
+                  type="button"
+                  className="save-project-button btn btn-primary"
+                  onClick={() => {
+                    saveCurrentProject();
+                  }}
+                >
+                  Save project
+                </button>
+                <button
+                  type="button"
+                  className="edit-project-button btn btn-primary"
+                  onClick={() => {
+                    setAppState(appConst.PROJECT_EDIT_FORM);
+                  }}
+                >
+                  Edit project
+                </button>
+              </div>
+              <EventsArea />
+            </div>
+          )}
+        </Measure>
+      </ResizePanel>
+    ) : (
+      <></>
     );
   }
 }
@@ -56,11 +72,13 @@ class LeftBar extends React.Component<
 const mapDispatchToProps = {
   saveCurrentProject: projectFileActions.saveCurrentProject,
   setAppState: appStateActions.setAppState,
+  setLeftSidebarWidth: appStateActions.setLeftSidebarWidth,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: ILeftBarProps) => {
   return {
     currentAppState: state.appState.current,
+    leftSidebarWidth: state.appState.leftSidebarWidth,
   };
 };
 

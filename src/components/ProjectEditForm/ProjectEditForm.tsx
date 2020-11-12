@@ -64,7 +64,7 @@ class ProjectEditForm extends React.Component<
 
   render(): React.ReactElement {
     const { path } = this.state;
-    const { setAppState } = this.props;
+    const { setAppState, currentProjectFile } = this.props;
     return (
       <div className="project-edit-form">
         <div className="project-name">
@@ -100,7 +100,9 @@ class ProjectEditForm extends React.Component<
             type="button"
             className="cancel-button edit-project-control-button btn btn-primary"
             onClick={() => {
-              setAppState(appConst.START_PAGE);
+              if (currentProjectFile.path !== '')
+                setAppState(appConst.EMTPY_SCREEN);
+              else setAppState(appConst.START_PAGE);
             }}
           >
             Cancel

@@ -6,7 +6,6 @@ import StartPage from '../../StartPage/StartPage';
 import ProjectEditForm from '../../ProjectEditForm/ProjectEditForm';
 import EventEditForm from '../../EventEditForm/EventEditForm';
 import { StoreType } from '../../../reduxStore/store';
-
 import * as appConst from '../../../types/textConstants';
 
 export interface IMiddleSpaceProps {}
@@ -26,11 +25,20 @@ class MiddleSpace extends React.Component<
   componentDidMount() {}
 
   render(): React.ReactElement {
-    const { currentAppState } = this.props;
+    const {
+      currentAppState,
+      leftSidebarWidth,
+      rightSidebarWidth,
+      mainContainerWidth,
+    } = this.props;
 
     let pageContent = <div>ERROR: Wrong appState current value</div>;
     if (currentAppState === appConst.EMTPY_SCREEN) {
-      pageContent = <div className="empty-screen">Please select PDF</div>;
+      pageContent = (
+        <div className="empty-screen">
+          <div>Please select PDF</div>
+        </div>
+      );
     } else if (currentAppState === appConst.START_PAGE) {
       pageContent = <StartPage />;
     } else if (currentAppState === appConst.PROJECT_EDIT_FORM) {
@@ -41,8 +49,17 @@ class MiddleSpace extends React.Component<
       pageContent = <EventEditForm />;
     }
 
+    const width = mainContainerWidth - leftSidebarWidth - rightSidebarWidth;
+
     return (
-      <div className="middle-space" ref={this.containerRef}>
+      <div
+        className="middle-space"
+        ref={this.containerRef}
+        style={{
+          marginLeft: leftSidebarWidth,
+          width,
+        }}
+      >
         {pageContent}
       </div>
     );
@@ -54,6 +71,9 @@ const mapDispatchToProps = {};
 const mapStateToProps = (state: StoreType, ownProps: IMiddleSpaceProps) => {
   return {
     currentAppState: state.appState.current,
+    leftSidebarWidth: state.appState.leftSidebarWidth,
+    rightSidebarWidth: state.appState.rightSidebarWidth,
+    mainContainerWidth: state.appState.mainContainerWidth,
   };
 };
 

@@ -3,6 +3,7 @@ import './pdf.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import Measure from 'react-measure';
 // import { CircularProgress } from '@material-ui/core';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 import { StoreType } from '../../reduxStore/store';
@@ -23,6 +24,7 @@ export interface IPDFViewerState {
   scale: number;
   pagesRendered: any;
   renderTextLayer: boolean;
+  pdfDocWidth: number;
 }
 
 class PDFViewer extends React.Component<
@@ -43,6 +45,7 @@ class PDFViewer extends React.Component<
       scale: 1.0,
       pagesRendered: null,
       renderTextLayer: false,
+      pdfDocWidth: 1000,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
@@ -339,14 +342,19 @@ class PDFViewer extends React.Component<
     this.clearSelection();
   };
 
+  handlePdfDocResize = (contentRect) => {
+    this.setState({ pdfDocWidth: contentRect?.bounds?.width });
+  };
+
   render(): React.ReactElement {
     const { currentPdf, pdfLoading } = this.props;
     const {
       pdfData,
       numPages,
       pagesRendered,
-      scale,
+      // scale,
       renderTextLayer,
+      pdfDocWidth,
     } = this.state;
 
     /**
@@ -356,7 +364,11 @@ class PDFViewer extends React.Component<
     const pagesRenderedPlusOne = Math.min(pagesRendered + 1, numPages);
 
     return (
-      <div className="pdf-viewer" ref={this.containerRef}>
+      <div
+        className="pdf-viewer"
+        ref={this.containerRef}
+        style={{ width: pdfDocWidth }}
+      >
         {currentPdf.path}
         {pdfLoading ? (
           <div className="loading-container">
@@ -365,42 +377,49 @@ class PDFViewer extends React.Component<
           </div>
         ) : null}
         {pdfData ? (
-          <Document
-            file={pdfData}
-            onLoadSuccess={this.onDocumentLoadSuccess}
-            inputRef={(ref) => (this.containerRef.current = ref)}
-            onMouseUp={this.onMouseUp}
-            // onMouseDown={this.onMouseDown}
-          >
-            {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
-              const isCurrentlyRendering = pagesRenderedPlusOne === index + 1;
-              const isLastPage = numPages === index + 1;
-              const needsCallbackToRenderNextPage =
-                isCurrentlyRendering && !isLastPage;
+          <Measure bounds onResize={this.handlePdfDocResize}>
+            {({ measureRef }) => (
+              <div className="pdf-document" ref={measureRef}>
+                <Document
+                  file={pdfData}
+                  onLoadSuccess={this.onDocumentLoadSuccess}
+                  inputRef={(ref) => (this.containerRef.current = ref)}
+                  onMouseUp={this.onMouseUp}
+                  // onMouseDown={this.onMouseDown}
+                >
+                  {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
+                    const isCurrentlyRendering =
+                      pagesRenderedPlusOne === index + 1;
+                    const isLastPage = numPages === index + 1;
+                    const needsCallbackToRenderNextPage =
+                      isCurrentlyRendering && !isLastPage;
 
-              return (
-                <div className="pdf-page">
-                  {/* <hr /> */}
-                  <Page
-                    key={`page_${index + 1}`}
-                    onRenderSuccess={
-                      needsCallbackToRenderNextPage
-                        ? this.onRenderSuccess
-                        : null
-                    }
-                    scale={scale}
-                    pageNumber={index + 1}
-                    onLoadSuccess={this.onPageLoad}
-                    customTextRenderer={this.pdfRenderer(index + 1)}
-                    renderTextLayer={renderTextLayer}
-                    onGetTextSuccess={() => {
-                      this.onRenderFinished(index + 1);
-                    }}
-                  />
-                </div>
-              );
-            })}
-          </Document>
+                    return (
+                      <div className="pdf-page">
+                        <Page
+                          key={`page_${index + 1}`}
+                          onRenderSuccess={
+                            needsCallbackToRenderNextPage
+                              ? this.onRenderSuccess
+                              : null
+                          }
+                          scale={1.3}
+                          // scale={scale}
+                          pageNumber={index + 1}
+                          onLoadSuccess={this.onPageLoad}
+                          customTextRenderer={this.pdfRenderer(index + 1)}
+                          renderTextLayer={renderTextLayer}
+                          onGetTextSuccess={() => {
+                            this.onRenderFinished(index + 1);
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </Document>
+              </div>
+            )}
+          </Measure>
         ) : null}
       </div>
     );
