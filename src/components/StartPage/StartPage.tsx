@@ -2,6 +2,7 @@ import './start-page.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
@@ -52,6 +53,7 @@ class StartPage extends React.Component<
   onNewFileClick = (): void => {
     const { setAppState, setCurrentFile } = this.props;
     const newFile: IProjectFileWithPath = {
+      id: uuidv4(),
       path: '',
       content: getNewFile(''),
     };

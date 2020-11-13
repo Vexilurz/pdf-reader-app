@@ -48,6 +48,7 @@ class ProjectEditForm extends React.Component<
     const { path } = this.state;
     if (path !== '') {
       const newFile: IProjectFileWithPath = {
+        id: currentProjectFile.id,
         path,
         content: getNewFile(this.projectNameRef.current.value),
       };

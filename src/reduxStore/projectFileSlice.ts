@@ -25,7 +25,7 @@ export interface IProjectFileState {
 }
 
 const initialState: IProjectFileState = {
-  currentProjectFile: { path: '', content: getNewFile('') },
+  currentProjectFile: { id: '', path: '', content: getNewFile('') },
   openedProjectFiles: [],
   currentPdf: { path: '', eventID: '' },
   currentIndexes: { fileIndex: -1, eventIndex: -1 },
@@ -67,8 +67,7 @@ export const projectFileSlice = createSlice({
       action: PayloadAction<IProjectFileWithPath>
     ) => {
       const { payload } = action;
-      const { path, content } = payload;
-      state.currentProjectFile = { path, content };
+      state.currentProjectFile = payload;
       state.currentPdf = { path: '', eventID: '' };
     },
     setCurrentPdf: (
@@ -84,6 +83,7 @@ export const projectFileSlice = createSlice({
       if (path !== '') {
         const stringed = JSON.stringify(state.currentProjectFile.content);
         ipcRenderer.send(appConst.SAVE_CURRENT_PROJECT, {
+          id: state.currentProjectFile.id,
           path: state.currentProjectFile.path,
           content: stringed,
         });

@@ -6,6 +6,7 @@ export interface IProjectFile {
 }
 
 export interface IProjectFileWithPath {
+  id: string;
   path: string;
   content: IProjectFile;
 }
