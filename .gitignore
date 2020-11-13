@@ -51,5 +51,6 @@ Thumbs.db
 .parcel-cache
 
 projects/*
+pdf/*
 
 recent.json

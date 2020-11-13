@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { deletePathFromFilename } from '../utils/commonUtils';
 import { IProjectFile } from '../types/projectFile';
 import { IEvent } from '../types/event';
+import { zipDirectory, unzipFile } from '../utils/zip';
 
 // https://www.electronjs.org/docs/api/dialog
 
@@ -60,6 +61,9 @@ const saveCurrentProject = async (event, currentProject) => {
   const res = await fs.writeFile(`${path}project.json`, JSON.stringify(content));
 
   // save ZIP to currentProject.path (this is with filename)
+  await zipDirectory(path, currentProject.path);
+
+  // await unzipFile(currentProject.path, '.tmp/');
 
   // todo: listen to this event in renderer to display success message
   event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
