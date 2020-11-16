@@ -55,12 +55,14 @@ const saveCurrentProject = async (event, currentProject) => {
   const newEvents: IEvent[] = await Promise.all(
     content.events.map(async (item) => {
       await fs.mkdir(`${path}${item.id}/`, { recursive: true });
+      // We want delete all deleted events. So we mark existing events ('').
       const existEventInd = existingEventsOnDisc.findIndex((ev) => ev === item.id);
       if (existEventInd > -1) existingEventsOnDisc[existEventInd] = '';
       const existingPdfsOnDisc = await fs.readdir(`${path}${item.id}/`);
       const files = await Promise.all(
         item.files.map(async (file) => {
           const fileName = deletePathFromFilename(file.path);
+          // We want delete all deleted PDFs. So we mark existing pdfs.
           const pdfInd = existingPdfsOnDisc.findIndex((pdf) => pdf === fileName);
           if (pdfInd > -1) existingPdfsOnDisc[pdfInd] = '';
           // todo: check for file exists. file may be already without path and have relative position.
@@ -72,6 +74,7 @@ const saveCurrentProject = async (event, currentProject) => {
           return { path: fileName, bookmarks: file.bookmarks };
         })
       );
+      // ... and delete remaining pdfs.
       existingPdfsOnDisc.forEach((pdf) => {
         if (pdf !== '') fssync.unlinkSync(`${path}${item.id}/${pdf}`);
       });
@@ -80,6 +83,7 @@ const saveCurrentProject = async (event, currentProject) => {
   );
   content.events = newEvents;
 
+  // Delete deleted (remaining) events:
   existingEventsOnDisc.forEach((ev) => {
     if (ev !== '') fssync.rmdirSync(`${path}${ev}`, { recursive: true });
   });
