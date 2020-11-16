@@ -69,11 +69,9 @@ const saveCurrentProject = async (event, currentProject) => {
           return { path: fileName, bookmarks: file.bookmarks };
         })
       );
-      // await Promise.all(
       pdfs.forEach(async (pdf) => {
         if (pdf !== '') await fs.unlink(`${path}${item.id}/${pdf}`);
       });
-      // );
       return { ...item, files };
     })
   );
@@ -82,8 +80,6 @@ const saveCurrentProject = async (event, currentProject) => {
   const res = await fs.writeFile(`${path}${appConst.PROJECT_FILE_NAME}`, JSON.stringify(content));
 
   await zipDirectory(path, currentProject.path);
-
-  // await unzipFile(currentProject.path, '.tmp/');
 
   // todo: listen to this event in renderer to display success message
   event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
@@ -94,12 +90,19 @@ const deleteFolder = async (event, projectID) => {
   await fs.rmdir(path, { recursive: true });
 };
 
+const clearCache = async (event) => {
+  const path = `${appConst.OPENED_PROJECTS_PATH}`;
+  await fs.rmdir(path, { recursive: true });
+  await fs.mkdir(path, { recursive: true });
+};
+
 export default (): void => {
   const listeners = [
     { name: appConst.OPEN_FILE, callback: openFile },
     { name: appConst.SHOW_NEW_FILE_DIALOG, callback: newFileDialog },
     { name: appConst.SAVE_CURRENT_PROJECT, callback: saveCurrentProject },
     { name: appConst.DELETE_FOLDER, callback: deleteFolder },
+    { name: appConst.CLEAR_CACHE, callback: clearCache },
   ];
 
   listeners.forEach(async (listener) => {

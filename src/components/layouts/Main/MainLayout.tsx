@@ -1,13 +1,15 @@
 import './main-layout.scss';
 import * as React from 'react';
 import Measure from 'react-measure';
+import { connect } from 'react-redux';
+import { ipcRenderer } from 'electron';
 import TopBar from '../TopBar/TopBar';
 import LeftBar from '../LeftBar/LeftBar';
 import RightBar from '../RightBar/RightBar';
 import MiddleSpace from '../MiddleSpace/MiddleSpace';
-import { connect } from 'react-redux';
 import { StoreType } from '../../../reduxStore/store';
 import { actions as appStateActions } from '../../../reduxStore/appStateSlice';
+import * as appConst from '../../../types/textConstants';
 
 export interface IMainLayoutProps {}
 export interface IMainLayoutState {}
@@ -16,6 +18,10 @@ class MainLayout extends React.Component<
   StatePropsType & DispatchPropsType,
   IMainLayoutState
 > {
+  componentDidMount() {
+    ipcRenderer.send(appConst.CLEAR_CACHE);
+  }
+
   handleResize = (contentRect) => {
     const { mainContainerWidth, setMainContainerWidth } = this.props;
     if (mainContainerWidth !== contentRect?.bounds?.width) {
