@@ -81,11 +81,17 @@ const saveCurrentProject = async (event, currentProject) => {
   event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
 };
 
+const deleteFolder = async (event, projectID) => {
+  const path = `${appConst.OPENED_PROJECTS_PATH}${projectID}/`;
+  await fs.rmdir(path, { recursive: true });
+};
+
 export default (): void => {
   const listeners = [
     { name: appConst.OPEN_FILE, callback: openFile },
     { name: appConst.SHOW_NEW_FILE_DIALOG, callback: newFileDialog },
     { name: appConst.SAVE_CURRENT_PROJECT, callback: saveCurrentProject },
+    { name: appConst.DELETE_FOLDER, callback: deleteFolder },
   ];
 
   listeners.forEach(async (listener) => {

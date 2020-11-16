@@ -13,6 +13,7 @@ export const SAVE_CURRENT_PROJECT = 'save-current-project';
 export const ADD_TO_RECENT_PROJECTS = 'add-to-recent-projects';
 export const DELETE_FROM_RECENT_PROJECTS = 'delete-from-recent-projects';
 export const GET_RECENT_PROJECTS = 'get-recent-projects';
+export const DELETE_FOLDER = 'delete-folder';
 
 // renderer process listeners:
 export const OPEN_FILE_DIALOG_RESPONSE = 'open-file-dialog-response';

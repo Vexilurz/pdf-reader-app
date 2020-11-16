@@ -117,6 +117,7 @@ export const projectFileSlice = createSlice({
       const path = action.payload;
       const index = state.openedProjectFiles.findIndex((item) => item.path === path);
       if (index > -1) {
+        ipcRenderer.send(appConst.DELETE_FOLDER, state.openedProjectFiles[index].id);
         state.openedProjectFiles.splice(index, 1);
       }
     },
