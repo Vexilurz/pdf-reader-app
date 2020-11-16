@@ -14,6 +14,10 @@ import { IPDFdata } from '../../types/pdf';
 import * as DOM from 'react-dom';
 import { IBookmark, getInfSelection } from '../../types/bookmark';
 import { splitTriple, splitDuo } from '../../utils/splitUtils';
+import {
+  deletePathFromFilename,
+  getPathWithoutFilename,
+} from '../../utils/commonUtils';
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
@@ -265,7 +269,7 @@ class PDFViewer extends React.Component<
         let pattern = '';
         if (textItem.str) {
           this.newPatternWorkResult = false;
-          if (bookmarks.length > 0) {
+          if (bookmarks?.length > 0) {
             let index = 0;
             while (!this.newPatternWorkResult && index < bookmarks.length) {
               pattern = this.newPattern(
@@ -369,7 +373,7 @@ class PDFViewer extends React.Component<
         ref={this.containerRef}
         style={{ width: pdfDocWidth }}
       >
-        {currentPdf.path}
+        {deletePathFromFilename(currentPdf.path)}
         {pdfLoading ? (
           <div className="loading-container">
             {/* <CircularProgress size={'200px'} /> */}

@@ -8,7 +8,10 @@ import { DateTime } from 'luxon';
 import { StoreType } from '../../reduxStore/store';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
-import { deletePathFromFilename } from '../../utils/commonUtils';
+import {
+  deletePathFromFilename,
+  getPathWithoutFilename,
+} from '../../utils/commonUtils';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
@@ -70,11 +73,16 @@ class EventItem extends React.Component<
       setSelection,
       setShowLoading,
       event,
+      currentProjectFile,
     } = this.props;
     setShowLoading(true);
     setSelection(getInfSelection());
-    ipcRenderer.send(appConst.LOAD_PDF_FILE, file.path);
-    setCurrentPdf({ path: file.path, eventID: event.id });
+    let path = file.path;
+    if (getPathWithoutFilename(file.path) === '') {
+      path = `${appConst.OPENED_PROJECTS_PATH}${currentProjectFile.id}/${event.id}/${file.path}`;
+    }
+    ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
+    setCurrentPdf({ path, eventID: event.id });
     setAppState(appConst.PDF_VIEWER);
   };
 
@@ -152,6 +160,7 @@ const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {
   return {
     event: ownProps.event,
     currentPdf: state.projectFile.currentPdf,
+    currentProjectFile: state.projectFile.currentProjectFile,
   };
 };
 

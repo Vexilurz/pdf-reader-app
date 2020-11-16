@@ -10,6 +10,10 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
 import * as appConst from '../../types/textConstants';
+import {
+  deletePathFromFilename,
+  getPathWithoutFilename,
+} from '../../utils/commonUtils';
 
 export interface IEventEditFormProps {}
 export interface IEventEditFormState {}
@@ -40,8 +44,11 @@ class EventEditForm extends React.Component<
       setAppState,
       setCurrentPdf,
     } = this.props;
-    if (isNew) addEvent(editingEvent);
-    else updateEvent(editingEvent);
+    if (isNew) {
+      addEvent(editingEvent);
+    } else {
+      updateEvent(editingEvent);
+    }
     setCurrentPdf({ path: '', eventID: '' });
     setAppState(appConst.EMTPY_SCREEN);
   };

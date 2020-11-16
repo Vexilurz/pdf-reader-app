@@ -54,9 +54,12 @@ const saveCurrentProject = async (event, currentProject) => {
   const newEvents: IEvent[] = await Promise.all(
     content.events.map(async (item) => {
       await fs.mkdir(`${path}${item.id}/`, { recursive: true });
+      const pdfs = await fs.readdir(`${path}${item.id}/`);
       const files = await Promise.all(
         item.files.map(async (file) => {
           const fileName = deletePathFromFilename(file.path);
+          const ind = pdfs.findIndex((pdf) => pdf === fileName);
+          if (ind > -1) pdfs[ind] = '';
           // todo: check for file exists. file may be already without path and have relative position.
           if (getPathWithoutFilename(file.path) === '') {
 
@@ -66,6 +69,11 @@ const saveCurrentProject = async (event, currentProject) => {
           return { path: fileName, bookmarks: file.bookmarks };
         })
       );
+      // await Promise.all(
+      pdfs.forEach(async (pdf) => {
+        if (pdf !== '') await fs.unlink(`${path}${item.id}/${pdf}`);
+      });
+      // );
       return { ...item, files };
     })
   );
@@ -73,7 +81,7 @@ const saveCurrentProject = async (event, currentProject) => {
 
   const res = await fs.writeFile(`${path}${appConst.PROJECT_FILE_NAME}`, JSON.stringify(content));
 
-  // await zipDirectory(path, currentProject.path);
+  await zipDirectory(path, currentProject.path);
 
   // await unzipFile(currentProject.path, '.tmp/');
 

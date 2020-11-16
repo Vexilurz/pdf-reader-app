@@ -6,6 +6,7 @@ import { IBookmark } from '../types/bookmark';
 import { IPdfFileWithBookmarks, getNewPdfFile } from '../types/pdf';
 import * as appConst from '../types/textConstants';
 import { actions as appStateActions } from './appStateSlice';
+import { deletePathFromFilename, getPathWithoutFilename } from '../utils/commonUtils';
 
 interface IPdfFilePathWithEventID {
   path: string;
@@ -37,7 +38,7 @@ const getCurrentIndexes = (state: IProjectFileState): IEventAndFileIndex => {
   );
   const fileIndex = state.currentProjectFile.content.events[
     eventIndex
-  ]?.files.findIndex((file) => file.path === state.currentPdf.path);
+  ]?.files.findIndex((file) => deletePathFromFilename(file.path) === deletePathFromFilename(state.currentPdf.path));
   return { fileIndex, eventIndex };
 };
 
