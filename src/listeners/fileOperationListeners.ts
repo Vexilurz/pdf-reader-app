@@ -49,38 +49,45 @@ const newFileDialog = async (event, arg) => {
 
 const saveCurrentProject = async (event, currentProject) => {
   const path = `${appConst.OPENED_PROJECTS_PATH}${currentProject.id}/`;
-  await fs.mkdir(path, { recursive: true });
+  fssync.mkdirSync(path, { recursive: true });
   const content: IProjectFile = JSON.parse(currentProject.content);
-  const existingEventsOnDisc = await fs.readdir(`${path}`);
-  const newEvents: IEvent[] = await Promise.all(
-    content.events.map(async (item) => {
-      await fs.mkdir(`${path}${item.id}/`, { recursive: true });
-      // We want delete all deleted events. So we mark existing events ('').
-      const existEventInd = existingEventsOnDisc.findIndex((ev) => ev === item.id);
-      if (existEventInd > -1) existingEventsOnDisc[existEventInd] = '';
-      const existingPdfsOnDisc = await fs.readdir(`${path}${item.id}/`);
-      const files = await Promise.all(
-        item.files.map(async (file) => {
-          const fileName = deletePathFromFilename(file.path);
-          // We want delete all deleted PDFs. So we mark existing pdfs.
-          const pdfInd = existingPdfsOnDisc.findIndex((pdf) => pdf === fileName);
-          if (pdfInd > -1) existingPdfsOnDisc[pdfInd] = '';
-          // todo: check for file exists. file may be already without path and have relative position.
-          if (getPathWithoutFilename(file.path) === '') {
-
-          } else {
-            await fs.copyFile(file.path, `${path}${item.id}/${fileName}`);
+  const existingEventsOnDisc = fssync.readdirSync(`${path}`);
+  const newEvents: IEvent[] = content.events.map((item) => {
+    fssync.mkdirSync(`${path}${item.id}/`, { recursive: true });
+    // We want delete all deleted events. So we mark existing events ('').
+    const existEventInd = existingEventsOnDisc.findIndex((ev) => ev === item.id);
+    if (existEventInd > -1) existingEventsOnDisc[existEventInd] = '';
+    const existingPdfsOnDisc = fssync.readdirSync(`${path}${item.id}/`);
+    const files = item.files.map((file) => {
+      const fileName = deletePathFromFilename(file.path);
+      // todo: check for file exists. file may be already without path and have relative position.
+      let newFileName = fileName;
+      if (getPathWithoutFilename(file.path) === '') {
+        // file already have place in the openedProjects folder.
+      } else {
+        let i = 1;
+        try {
+          while (fssync.existsSync(`${path}${item.id}/${newFileName}`)) {
+            newFileName = `(${i})${fileName}`;
+            i += 1;
           }
-          return { path: fileName, bookmarks: file.bookmarks };
-        })
-      );
-      // ... and delete remaining pdfs.
-      existingPdfsOnDisc.forEach((pdf) => {
-        if (pdf !== '') fssync.unlinkSync(`${path}${item.id}/${pdf}`);
-      });
-      return { ...item, files };
-    })
-  );
+          fssync.copyFileSync(file.path, `${path}${item.id}/${newFileName}`);
+          console.log('copied', `${path}${item.id}/${newFileName}`);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      // We want delete all deleted PDFs. So we mark existing pdfs.
+      const pdfInd = existingPdfsOnDisc.findIndex((pdf) => pdf === newFileName);
+      if (pdfInd > -1) existingPdfsOnDisc[pdfInd] = '';
+      return { path: newFileName, bookmarks: file.bookmarks };
+    });
+    // ... and delete remaining pdfs.
+    existingPdfsOnDisc.forEach((pdf) => {
+      if (pdf !== '') fssync.unlinkSync(`${path}${item.id}/${pdf}`);
+    });
+    return { ...item, files };
+  });
   content.events = newEvents;
 
   // Delete deleted (remaining) events:
@@ -88,9 +95,11 @@ const saveCurrentProject = async (event, currentProject) => {
     if (ev !== '') fssync.rmdirSync(`${path}${ev}`, { recursive: true });
   });
 
-  const res = await fs.writeFile(`${path}${appConst.PROJECT_FILE_NAME}`, JSON.stringify(content));
+  const res = fssync.writeFileSync(`${path}${appConst.PROJECT_FILE_NAME}`, JSON.stringify(content));
 
-  await fs.unlink(currentProject.path);
+  if (fssync.existsSync(currentProject.path))
+    fssync.unlinkSync(currentProject.path);
+
   await zipDirectory(path, currentProject.path);
 
   // todo: listen to this event in renderer to display success message
