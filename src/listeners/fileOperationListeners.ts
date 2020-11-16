@@ -51,15 +51,18 @@ const saveCurrentProject = async (event, currentProject) => {
   const path = `${appConst.OPENED_PROJECTS_PATH}${currentProject.id}/`;
   await fs.mkdir(path, { recursive: true });
   const content: IProjectFile = JSON.parse(currentProject.content);
+  const existingEventsOnDisc = await fs.readdir(`${path}`);
   const newEvents: IEvent[] = await Promise.all(
     content.events.map(async (item) => {
       await fs.mkdir(`${path}${item.id}/`, { recursive: true });
-      const pdfs = await fs.readdir(`${path}${item.id}/`);
+      const existEventInd = existingEventsOnDisc.findIndex((ev) => ev === item.id);
+      if (existEventInd > -1) existingEventsOnDisc[existEventInd] = '';
+      const existingPdfsOnDisc = await fs.readdir(`${path}${item.id}/`);
       const files = await Promise.all(
         item.files.map(async (file) => {
           const fileName = deletePathFromFilename(file.path);
-          const ind = pdfs.findIndex((pdf) => pdf === fileName);
-          if (ind > -1) pdfs[ind] = '';
+          const pdfInd = existingPdfsOnDisc.findIndex((pdf) => pdf === fileName);
+          if (pdfInd > -1) existingPdfsOnDisc[pdfInd] = '';
           // todo: check for file exists. file may be already without path and have relative position.
           if (getPathWithoutFilename(file.path) === '') {
 
@@ -69,16 +72,21 @@ const saveCurrentProject = async (event, currentProject) => {
           return { path: fileName, bookmarks: file.bookmarks };
         })
       );
-      pdfs.forEach(async (pdf) => {
-        if (pdf !== '') await fs.unlink(`${path}${item.id}/${pdf}`);
+      existingPdfsOnDisc.forEach((pdf) => {
+        if (pdf !== '') fssync.unlinkSync(`${path}${item.id}/${pdf}`);
       });
       return { ...item, files };
     })
   );
   content.events = newEvents;
 
+  existingEventsOnDisc.forEach((ev) => {
+    if (ev !== '') fssync.rmdirSync(`${path}${ev}`, { recursive: true });
+  });
+
   const res = await fs.writeFile(`${path}${appConst.PROJECT_FILE_NAME}`, JSON.stringify(content));
 
+  await fs.unlink(currentProject.path);
   await zipDirectory(path, currentProject.path);
 
   // todo: listen to this event in renderer to display success message
