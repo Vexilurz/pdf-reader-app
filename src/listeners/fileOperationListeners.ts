@@ -1,8 +1,9 @@
 import { ipcMain, dialog } from 'electron';
 import { promises as fs } from 'fs';
+import * as fssync from 'fs';
 import * as appConst from '../types/textConstants';
 import { v4 as uuidv4 } from 'uuid';
-import { deletePathFromFilename } from '../utils/commonUtils';
+import { deletePathFromFilename, getPathWithoutFilename } from '../utils/commonUtils';
 import { IProjectFile } from '../types/projectFile';
 import { IEvent } from '../types/event';
 import { zipDirectory, unzipFile } from '../utils/zip';
@@ -19,12 +20,19 @@ const openFile = async (event, path: string) => {
     }
   }
   if (ourPath) {
-    const content = await fs.readFile(ourPath);
-    event.reply(appConst.OPEN_FILE_DIALOG_RESPONSE, {
-      id: uuidv4(),
-      path: ourPath,
-      content: JSON.parse(content),
-    });
+    const newID = uuidv4();
+    const destPath = `${appConst.OPENED_PROJECTS_PATH}${newID}/`;
+    try {
+      await unzipFile(ourPath, destPath);
+      const content = await fs.readFile(`${destPath}${appConst.PROJECT_FILE_NAME}`);
+      event.reply(appConst.OPEN_FILE_DIALOG_RESPONSE, {
+        id: newID,
+        path: ourPath,
+        content: JSON.parse(content),
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 };
 
@@ -32,8 +40,9 @@ const newFileDialog = async (event, arg) => {
   const response = await dialog.showSaveDialog({ properties: [] });
   if (!response.canceled) {
     event.reply(appConst.NEW_FILE_DIALOG_RESPONSE, {
+      // id: uuidv4(),
       path: response.filePath,
-      content: null,
+      // content: null,
     });
   }
 };
@@ -49,7 +58,11 @@ const saveCurrentProject = async (event, currentProject) => {
         item.files.map(async (file) => {
           const fileName = deletePathFromFilename(file.path);
           // todo: check for file exists. file may be already without path and have relative position.
-          await fs.copyFile(file.path, `${path}${item.id}/${fileName}`);
+          if (getPathWithoutFilename(file.path) === '') {
+
+          } else {
+            await fs.copyFile(file.path, `${path}${item.id}/${fileName}`);
+          }
           return { path: fileName, bookmarks: file.bookmarks };
         })
       );
@@ -58,10 +71,9 @@ const saveCurrentProject = async (event, currentProject) => {
   );
   content.events = newEvents;
 
-  const res = await fs.writeFile(`${path}project.json`, JSON.stringify(content));
+  const res = await fs.writeFile(`${path}${appConst.PROJECT_FILE_NAME}`, JSON.stringify(content));
 
-  // save ZIP to currentProject.path (this is with filename)
-  await zipDirectory(path, currentProject.path);
+  // await zipDirectory(path, currentProject.path);
 
   // await unzipFile(currentProject.path, '.tmp/');
 

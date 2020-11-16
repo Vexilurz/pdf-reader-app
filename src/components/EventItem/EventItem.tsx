@@ -115,7 +115,7 @@ class EventItem extends React.Component<
               );
             })}
           </div>
-          {dropAreaVisible ? (
+          {/* {dropAreaVisible ? (
             <div className="event-dropzone">
               <Dropzone onDrop={this.onFilesDrop}>
                 {({ getRootProps, getInputProps }) => (
@@ -130,7 +130,7 @@ class EventItem extends React.Component<
                 )}
               </Dropzone>
             </div>
-          ) : null}
+          ) : null} */}
         </Alert>
       </li>
     );

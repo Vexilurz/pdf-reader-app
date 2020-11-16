@@ -25,6 +25,7 @@ export const GET_RECENT_PROJECTS_RESPONSE = 'get-recent-projects-response';
 
 // files:
 export const RECENT_PROJECTS_FILENAME = 'recent.json';
+export const PROJECT_FILE_NAME = 'project.json';
 
 // other:
 export const OPENED_PROJECTS_PATH = '.openedProjects/';
