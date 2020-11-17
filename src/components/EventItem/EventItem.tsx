@@ -1,16 +1,18 @@
 import './event-item.scss';
 import * as React from 'react';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, shell } from 'electron';
 import { connect } from 'react-redux';
 import Dropzone from 'react-dropzone';
 import Alert from 'react-bootstrap/Alert';
 import { DateTime } from 'luxon';
+import * as pathLib from 'path';
 import { StoreType } from '../../reduxStore/store';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
 import {
   deletePathFromFilename,
   getPathWithoutFilename,
+  getFileExt,
 } from '../../utils/commonUtils';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
@@ -76,9 +78,17 @@ class EventItem extends React.Component<
     if (getPathWithoutFilename(file.path) === '') {
       path = `${appConst.CACHE_PATH}${currentProjectFile.id}/${event.id}/${file.path}`;
     }
-    ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
-    setCurrentPdf({ path, eventID: event.id });
-    setAppState(appConst.PDF_VIEWER);
+    if (getFileExt(path)?.toLowerCase() === 'pdf') {
+      ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
+      setCurrentPdf({ path, eventID: event.id });
+      setAppState(appConst.PDF_VIEWER);
+    } else {
+      // TODO: crunch finding app root
+      const appRoot = getPathWithoutFilename(
+        pathLib.resolve(process.cwd(), 'webpack.config.js')
+      );
+      shell.openPath(`${appRoot}/${path}`.replaceAll('\\', '/'));
+    }
   };
 
   getDateString = (): string => {
