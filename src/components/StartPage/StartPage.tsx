@@ -55,7 +55,7 @@ class StartPage extends React.Component<
     const newFile: IProjectFileWithPath = {
       id: uuidv4(),
       path: '',
-      content: getNewFile(''),
+      content: getNewFile('Your project name'),
     };
     setCurrentFile(newFile);
     setAppState(appConst.PROJECT_EDIT_FORM);

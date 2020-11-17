@@ -33,7 +33,7 @@ class ProjectsTabs extends React.Component<
     return (
       <ul className="nav nav-tabs projects-tabs">
         {openedProjectFiles.map((project, index) => {
-          const active = currentProjectFile.path === project.path ? ACTIVE : '';
+          const active = currentProjectFile.id === project.id ? ACTIVE : '';
           return (
             <li
               className="nav-item project-tab"
@@ -44,7 +44,7 @@ class ProjectsTabs extends React.Component<
                 href="#"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (currentProjectFile.path !== project.path) {
+                  if (currentProjectFile.id !== project.id) {
                     saveCurrentProjectTemporary();
                     setCurrentFile(project);
                     setAppState(appConst.EMTPY_SCREEN);
@@ -57,10 +57,10 @@ class ProjectsTabs extends React.Component<
                   href="#"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (currentProjectFile.path === project.path) {
+                    if (currentProjectFile.id === project.id) {
                       setAppState(appConst.START_PAGE);
                     }
-                    deleteFileFromOpened(project.path);
+                    deleteFileFromOpened(project.id);
                   }}
                 >
                   x

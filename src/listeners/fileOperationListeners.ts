@@ -21,7 +21,7 @@ const openFile = async (event, path: string) => {
   }
   if (ourPath) {
     const newID = uuidv4();
-    const destPath = `${appConst.OPENED_PROJECTS_PATH}${newID}/`;
+    const destPath = `${appConst.CACHE_PATH}${newID}/`;
     try {
       await unzipFile(ourPath, destPath);
       const content = await fs.readFile(`${destPath}${appConst.PROJECT_FILE_NAME}`);
@@ -36,66 +36,24 @@ const openFile = async (event, path: string) => {
   }
 };
 
-const newFileDialog = async (event, arg) => {
-  const response = await dialog.showSaveDialog({ properties: [] });
+const saveFileDialog = async (event, arg) => {
+  const response = await dialog.showSaveDialog({
+    filters: [
+      { name: 'ZIP files', extensions: ['zip'] },
+      { name: 'All files', extensions: ['*'] },
+    ],
+  });
   if (!response.canceled) {
     event.reply(appConst.NEW_FILE_DIALOG_RESPONSE, {
-      // id: uuidv4(),
       path: response.filePath,
-      // content: null,
     });
   }
 };
 
 const saveCurrentProject = async (event, currentProject) => {
-  const path = `${appConst.OPENED_PROJECTS_PATH}${currentProject.id}/`;
-  fssync.mkdirSync(path, { recursive: true });
-  const content: IProjectFile = JSON.parse(currentProject.content);
-  const existingEventsOnDisc = fssync.readdirSync(`${path}`);
-  const newEvents: IEvent[] = content.events.map((item) => {
-    fssync.mkdirSync(`${path}${item.id}/`, { recursive: true });
-    // We want delete all deleted events. So we mark existing events ('').
-    const existEventInd = existingEventsOnDisc.findIndex((ev) => ev === item.id);
-    if (existEventInd > -1) existingEventsOnDisc[existEventInd] = '';
-    const existingPdfsOnDisc = fssync.readdirSync(`${path}${item.id}/`);
-    const files = item.files.map((file) => {
-      const fileName = deletePathFromFilename(file.path);
-      // todo: check for file exists. file may be already without path and have relative position.
-      let newFileName = fileName;
-      if (getPathWithoutFilename(file.path) === '') {
-        // file already have place in the openedProjects folder.
-      } else {
-        let i = 1;
-        try {
-          while (fssync.existsSync(`${path}${item.id}/${newFileName}`)) {
-            newFileName = `(${i})${fileName}`;
-            i += 1;
-          }
-          fssync.copyFileSync(file.path, `${path}${item.id}/${newFileName}`);
-          console.log('copied', `${path}${item.id}/${newFileName}`);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      // We want delete all deleted PDFs. So we mark existing pdfs.
-      const pdfInd = existingPdfsOnDisc.findIndex((pdf) => pdf === newFileName);
-      if (pdfInd > -1) existingPdfsOnDisc[pdfInd] = '';
-      return { path: newFileName, bookmarks: file.bookmarks };
-    });
-    // ... and delete remaining pdfs.
-    existingPdfsOnDisc.forEach((pdf) => {
-      if (pdf !== '') fssync.unlinkSync(`${path}${item.id}/${pdf}`);
-    });
-    return { ...item, files };
-  });
-  content.events = newEvents;
-
-  // Delete deleted (remaining) events:
-  existingEventsOnDisc.forEach((ev) => {
-    if (ev !== '') fssync.rmdirSync(`${path}${ev}`, { recursive: true });
-  });
-
-  const res = fssync.writeFileSync(`${path}${appConst.PROJECT_FILE_NAME}`, JSON.stringify(content));
+  const path = `${appConst.CACHE_PATH}${currentProject.id}/`;
+  // fssync.mkdirSync(path, { recursive: true });
+  const res = fssync.writeFileSync(`${path}${appConst.PROJECT_FILE_NAME}`, currentProject.content);
 
   if (fssync.existsSync(currentProject.path))
     fssync.unlinkSync(currentProject.path);
@@ -106,24 +64,68 @@ const saveCurrentProject = async (event, currentProject) => {
   event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
 };
 
-const deleteFolder = async (event, projectID) => {
-  const path = `${appConst.OPENED_PROJECTS_PATH}${projectID}/`;
+const deleteFolderFromCache = async (event, folder: string) => {
+  const path = `${appConst.CACHE_PATH}${folder}/`;
   await fs.rmdir(path, { recursive: true });
 };
 
-const clearCache = async (event) => {
-  const path = `${appConst.OPENED_PROJECTS_PATH}`;
-  await fs.rmdir(path, { recursive: true });
+const createFolderInCache = async (event, folder: string) => {
+  const path = `${appConst.CACHE_PATH}${folder}/`;
   await fs.mkdir(path, { recursive: true });
+};
+
+const clearCache = async (event) => {
+  const path = `${appConst.CACHE_PATH}`;
+  fssync.rmdirSync(path, { recursive: true });
+  await fs.mkdir(path, { recursive: true });
+};
+
+const updateEventInCache = async (e, payload) => {
+  const { projectID } = payload;
+  const event: IEvent = JSON.parse(payload.event);
+  const path = `${appConst.CACHE_PATH}${projectID}/${event.id}/`;
+  fssync.mkdirSync(path, { recursive: true });
+  const existingPdfsOnDisk = fssync.readdirSync(path);
+
+  event.files = event.files.map((file) => {
+    const fileName = deletePathFromFilename(file.path);
+    let newFileName = fileName;
+    if (getPathWithoutFilename(file.path) === '') {
+      // file already have place in the cache folder.
+    } else {
+      let i = 1;
+      try {
+        while (fssync.existsSync(`${path}${newFileName}`)) {
+          newFileName = `(${i})${fileName}`;
+          i += 1;
+        }
+        fssync.copyFileSync(file.path, `${path}${newFileName}`);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    // We want delete all deleted PDFs. So we remove existing pdfs from array...
+    const pdfInd = existingPdfsOnDisk.findIndex((pdf) => pdf === newFileName);
+    if (pdfInd > -1) existingPdfsOnDisk.splice(pdfInd, 1);
+    return { ...file, path: newFileName };
+  });
+  // ...and delete remaining pdfs.
+  existingPdfsOnDisk.forEach((pdf) => {
+    fssync.unlinkSync(`${path}${pdf}`);
+  });
+
+  e.reply(appConst.UPDATE_EVENT_IN_CACHE_COMPLETE, JSON.stringify(event));
 };
 
 export default (): void => {
   const listeners = [
     { name: appConst.OPEN_FILE, callback: openFile },
-    { name: appConst.SHOW_NEW_FILE_DIALOG, callback: newFileDialog },
+    { name: appConst.SHOW_SAVE_FILE_DIALOG, callback: saveFileDialog },
     { name: appConst.SAVE_CURRENT_PROJECT, callback: saveCurrentProject },
-    { name: appConst.DELETE_FOLDER, callback: deleteFolder },
+    { name: appConst.DELETE_FOLDER_FROM_CACHE, callback: deleteFolderFromCache },
+    { name: appConst.CREATE_FOLDER_IN_CACHE, callback: createFolderInCache },
     { name: appConst.CLEAR_CACHE, callback: clearCache },
+    { name: appConst.UPDATE_EVENT_IN_CACHE, callback: updateEventInCache },
   ];
 
   listeners.forEach(async (listener) => {

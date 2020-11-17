@@ -7,14 +7,16 @@ export const EMTPY_SCREEN = 'empty-screen';
 
 // main process listeners:
 export const OPEN_FILE = 'open-file';
-export const SHOW_NEW_FILE_DIALOG = 'show-new-file-dialog';
+export const SHOW_SAVE_FILE_DIALOG = 'show-new-file-dialog';
 export const LOAD_PDF_FILE = 'load-pdf-file';
 export const SAVE_CURRENT_PROJECT = 'save-current-project';
 export const ADD_TO_RECENT_PROJECTS = 'add-to-recent-projects';
 export const DELETE_FROM_RECENT_PROJECTS = 'delete-from-recent-projects';
 export const GET_RECENT_PROJECTS = 'get-recent-projects';
-export const DELETE_FOLDER = 'delete-folder';
+export const CREATE_FOLDER_IN_CACHE = 'create-folder-in-cache';
+export const DELETE_FOLDER_FROM_CACHE = 'delete-folder-from-cache';
 export const CLEAR_CACHE = 'clear-cache';
+export const UPDATE_EVENT_IN_CACHE = 'update-event-in-cache';
 
 // renderer process listeners:
 export const OPEN_FILE_DIALOG_RESPONSE = 'open-file-dialog-response';
@@ -24,10 +26,12 @@ export const SAVE_CURRENT_PROJECT_DONE = 'save-current-project-done';
 export const ADD_TO_RECENT_PROJECTS_DONE = 'add-to-recent-projects-done';
 export const DELETE_FROM_RECENT_PROJECTS_DONE = 'delete-from-recent-projects-done';
 export const GET_RECENT_PROJECTS_RESPONSE = 'get-recent-projects-response';
+export const UPDATE_EVENT_IN_CACHE_COMPLETE = 'update-event-in-cache-complete';
+
 
 // files:
 export const RECENT_PROJECTS_FILENAME = 'recent.json';
 export const PROJECT_FILE_NAME = 'project.json';
 
 // other:
-export const OPENED_PROJECTS_PATH = '.openedProjects/';
+export const CACHE_PATH = '.cache/';

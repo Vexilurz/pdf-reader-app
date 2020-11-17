@@ -20,11 +20,7 @@ class BookmarksArea extends React.Component<
   onAddBookmark = () => {
     const { addBookmark, selection, setEditingBookmarkID } = this.props;
     if (selection.start !== Infinity && selection.end !== Infinity) {
-      const newBookmark = createBookmark(
-        'bookmark comment here',
-        selection,
-        '#cce5ff'
-      );
+      const newBookmark = createBookmark('', selection, '#cce5ff');
       addBookmark(newBookmark);
       setEditingBookmarkID(newBookmark.id);
     }

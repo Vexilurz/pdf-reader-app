@@ -52,6 +52,6 @@ Thumbs.db
 
 projects/*
 pdf/*
-.openedProjects/*
+.cache/*
 
 recent.json

@@ -37,33 +37,28 @@ class EventItem extends React.Component<
     };
   }
 
-  componentDidMount(): void {
-    this.initListeners();
-  }
-
-  initListeners = (): void => {};
+  componentDidMount(): void {}
 
   onEditEventClick = () => {
-    const { setAppState, setEditingEvent, setIsNew, event } = this.props;
+    const { setAppState, setEditingEvent, event } = this.props;
     setEditingEvent(event);
-    setIsNew(false);
     setAppState(appConst.EVENT_FORM);
   };
 
   // todo: refactor? almost the same in the EventEditForm
-  onFilesDrop = (acceptedFiles) => {
-    const { event, updateEvent } = this.props;
-    const updatedEvent = { ...event };
-    const files = Object.assign([], updatedEvent.files);
-    acceptedFiles.forEach((file) => {
-      // todo: use toLowerCase when compare?
-      const { path } = file;
-      const index = files.findIndex((f) => f.path === path);
-      if (index === -1) files.push({ path, bookmarks: [] });
-    });
-    updatedEvent.files = files;
-    updateEvent(updatedEvent);
-  };
+  // onFilesDrop = (acceptedFiles) => {
+  //   const { event, updateEvent } = this.props;
+  //   const updatedEvent = { ...event };
+  //   const files = Object.assign([], updatedEvent.files);
+  //   acceptedFiles.forEach((file) => {
+  //     // todo: use toLowerCase when compare?
+  //     const { path } = file;
+  //     const index = files.findIndex((f) => f.path === path);
+  //     if (index === -1) files.push({ path, bookmarks: [] });
+  //   });
+  //   updatedEvent.files = files;
+  //   updateEvent(updatedEvent);
+  // };
 
   onPdfFileClick = (file: IPdfFileWithBookmarks) => (e) => {
     e.stopPropagation();
@@ -79,7 +74,7 @@ class EventItem extends React.Component<
     setSelection(getInfSelection());
     let path = file.path;
     if (getPathWithoutFilename(file.path) === '') {
-      path = `${appConst.OPENED_PROJECTS_PATH}${currentProjectFile.id}/${event.id}/${file.path}`;
+      path = `${appConst.CACHE_PATH}${currentProjectFile.id}/${event.id}/${file.path}`;
     }
     ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
     setCurrentPdf({ path, eventID: event.id });
@@ -88,13 +83,13 @@ class EventItem extends React.Component<
 
   getDateString = (): string => {
     const { event } = this.props;
-    const date = new DateTime(event?.date);
+    const date = DateTime.fromISO(event?.date);
     return date.setLocale('en').toLocaleString(DateTime.DATE_MED);
   };
 
   render(): React.ReactElement {
     const { event } = this.props;
-    const { dropAreaVisible } = this.state;
+    // const { dropAreaVisible } = this.state;
 
     return (
       <li className="event-item">
@@ -149,7 +144,6 @@ const mapDispatchToProps = {
   setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
-  setIsNew: editingEventActions.setIsNew,
   updateEvent: projectFileActions.updateEvent,
   deleteEvent: projectFileActions.deleteEvent,
   setSelection: pdfViewerActions.setSelection,
