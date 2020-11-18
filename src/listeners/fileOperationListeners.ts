@@ -66,7 +66,7 @@ const saveCurrentProject = async (event, currentProject) => {
 
 const deleteFolderFromCache = async (event, folder: string) => {
   const path = pathLib.join(appConst.CACHE_PATH, folder);
-  await fs.rmdir(path, { recursive: true });
+  await fs.rmdir(path + pathLib.sep, { recursive: true });
 };
 
 const createFolderInCache = async (event, folder: string) => {
@@ -75,8 +75,8 @@ const createFolderInCache = async (event, folder: string) => {
 };
 
 const clearCache = async (event) => {
-  const path = `${appConst.CACHE_PATH}`;
-  fssync.rmdirSync(path, { recursive: true });
+  const path = appConst.CACHE_PATH;
+  fssync.rmdirSync(path + pathLib.sep, { recursive: true });
   await fs.mkdir(path, { recursive: true });
 };
 
@@ -85,13 +85,25 @@ const updateEventInCache = async (e, payload) => {
   const event: IEvent = JSON.parse(payload.event);
   const path = pathLib.join(appConst.CACHE_PATH, projectID, event.id);
   fssync.mkdirSync(path, { recursive: true });
-  const existingPdfsOnDisk = fssync.readdirSync(path);
 
+  // delete deleted files:
+  const existingFilesOnDisk = fssync.readdirSync(path);
+  event.files.forEach((file) => {
+    if (pathLib.dirname(file.path) === '.') {
+      const pdfInd = existingFilesOnDisk.findIndex((ef) => ef === pathLib.basename(file.path));
+      if (pdfInd > -1) existingFilesOnDisk.splice(pdfInd, 1);
+    }
+  });
+  existingFilesOnDisk.forEach((pdf) => {
+    fssync.unlinkSync(pathLib.join(path, pdf));
+  });
+
+  // copy new files and change file paths
   event.files = event.files.map((file) => {
     const fileName = pathLib.basename(file.path);
     let newFileName = fileName;
     if (pathLib.dirname(file.path) === '.') {
-      // file already have place in the cache folder.
+      // file already have place in the cache folder, and we dont need to copy them.
     } else {
       let i = 1;
       try {
@@ -104,14 +116,7 @@ const updateEventInCache = async (e, payload) => {
         console.error(err);
       }
     }
-    // We want delete all deleted PDFs. So we remove existing pdfs from array...
-    const pdfInd = existingPdfsOnDisk.findIndex((pdf) => pdf === newFileName);
-    if (pdfInd > -1) existingPdfsOnDisk.splice(pdfInd, 1);
     return { ...file, path: newFileName };
-  });
-  // ...and delete remaining pdfs.
-  existingPdfsOnDisk.forEach((pdf) => {
-    fssync.unlinkSync(pathLib.join(path, pdf));
   });
 
   e.reply(appConst.UPDATE_EVENT_IN_CACHE_COMPLETE, JSON.stringify(event));

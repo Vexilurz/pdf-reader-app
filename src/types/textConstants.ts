@@ -32,7 +32,7 @@ export const GET_RECENT_PROJECTS_RESPONSE = 'get-recent-projects-response';
 export const UPDATE_EVENT_IN_CACHE_COMPLETE = 'update-event-in-cache-complete';
 
 // other:
-const APP_FOLDER = pathLib.join(os.homedir(), 'documentsApp');
-export const CACHE_PATH = pathLib.join(APP_FOLDER, '.documentsAppCache');
+const APP_FOLDER = pathLib.join(os.homedir(), 'documentsApp' + pathLib.sep);
+export const CACHE_PATH = pathLib.join(APP_FOLDER, '.documentsAppCache' + pathLib.sep);
 export const RECENT_PROJECTS_FILENAME = pathLib.join(APP_FOLDER, 'recent.json');
 export const PROJECT_FILE_NAME = 'project.json';
