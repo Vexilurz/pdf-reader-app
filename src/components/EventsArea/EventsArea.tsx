@@ -18,9 +18,8 @@ class EventsArea extends React.Component<
   componentDidMount() {}
 
   onCreateNewEventClick = () => {
-    const { setAppState, setEditingEvent, setIsNew } = this.props;
+    const { setAppState, setEditingEvent } = this.props;
     setEditingEvent(getNewEvent());
-    setIsNew(true);
     setAppState(appConst.EVENT_FORM);
   };
 
@@ -49,7 +48,6 @@ class EventsArea extends React.Component<
 const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
-  setIsNew: editingEventActions.setIsNew,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventsAreaProps) => {

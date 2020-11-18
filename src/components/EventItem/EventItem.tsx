@@ -1,14 +1,14 @@
 import './event-item.scss';
 import * as React from 'react';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, shell } from 'electron';
 import { connect } from 'react-redux';
 import Dropzone from 'react-dropzone';
 import Alert from 'react-bootstrap/Alert';
 import { DateTime } from 'luxon';
+import * as pathLib from 'path';
 import { StoreType } from '../../reduxStore/store';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
-import { deletePathFromFilename } from '../../utils/commonUtils';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
@@ -34,33 +34,28 @@ class EventItem extends React.Component<
     };
   }
 
-  componentDidMount(): void {
-    this.initListeners();
-  }
-
-  initListeners = (): void => {};
+  componentDidMount(): void {}
 
   onEditEventClick = () => {
-    const { setAppState, setEditingEvent, setIsNew, event } = this.props;
+    const { setAppState, setEditingEvent, event } = this.props;
     setEditingEvent(event);
-    setIsNew(false);
     setAppState(appConst.EVENT_FORM);
   };
 
   // todo: refactor? almost the same in the EventEditForm
-  onFilesDrop = (acceptedFiles) => {
-    const { event, updateEvent } = this.props;
-    const updatedEvent = { ...event };
-    const files = Object.assign([], updatedEvent.files);
-    acceptedFiles.forEach((file) => {
-      // todo: use toLowerCase when compare?
-      const { path } = file;
-      const index = files.findIndex((f) => f.path === path);
-      if (index === -1) files.push({ path, bookmarks: [] });
-    });
-    updatedEvent.files = files;
-    updateEvent(updatedEvent);
-  };
+  // onFilesDrop = (acceptedFiles) => {
+  //   const { event, updateEvent } = this.props;
+  //   const updatedEvent = { ...event };
+  //   const files = Object.assign([], updatedEvent.files);
+  //   acceptedFiles.forEach((file) => {
+  //     // todo: use toLowerCase when compare?
+  //     const { path } = file;
+  //     const index = files.findIndex((f) => f.path === path);
+  //     if (index === -1) files.push({ path, bookmarks: [] });
+  //   });
+  //   updatedEvent.files = files;
+  //   updateEvent(updatedEvent);
+  // };
 
   onPdfFileClick = (file: IPdfFileWithBookmarks) => (e) => {
     e.stopPropagation();
@@ -70,23 +65,37 @@ class EventItem extends React.Component<
       setSelection,
       setShowLoading,
       event,
+      currentProjectFile,
     } = this.props;
-    setShowLoading(true);
-    setSelection(getInfSelection());
-    ipcRenderer.send(appConst.LOAD_PDF_FILE, file.path);
-    setCurrentPdf({ path: file.path, eventID: event.id });
-    setAppState(appConst.PDF_VIEWER);
+    let path = file.path;
+    if (pathLib.dirname(file.path) === '.') {
+      path = pathLib.join(
+        appConst.CACHE_PATH,
+        currentProjectFile.id,
+        event.id,
+        file.path
+      );
+    }
+    if (pathLib.extname(path).toLowerCase() === '.pdf') {
+      setShowLoading(true);
+      setSelection(getInfSelection());
+      ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
+      setCurrentPdf({ path, eventID: event.id });
+      setAppState(appConst.PDF_VIEWER);
+    } else {
+      shell.openPath(path);
+    }
   };
 
   getDateString = (): string => {
     const { event } = this.props;
-    const date = new DateTime(event?.date);
+    const date = DateTime.fromISO(event?.date);
     return date.setLocale('en').toLocaleString(DateTime.DATE_MED);
   };
 
   render(): React.ReactElement {
     const { event } = this.props;
-    const { dropAreaVisible } = this.state;
+    // const { dropAreaVisible } = this.state;
 
     return (
       <li className="event-item">
@@ -110,12 +119,12 @@ class EventItem extends React.Component<
                   key={'event-key' + index}
                   onClick={this.onPdfFileClick(file)}
                 >
-                  {deletePathFromFilename(file.path)}
+                  {pathLib.basename(file.path)}
                 </p>
               );
             })}
           </div>
-          {dropAreaVisible ? (
+          {/* {dropAreaVisible ? (
             <div className="event-dropzone">
               <Dropzone onDrop={this.onFilesDrop}>
                 {({ getRootProps, getInputProps }) => (
@@ -130,7 +139,7 @@ class EventItem extends React.Component<
                 )}
               </Dropzone>
             </div>
-          ) : null}
+          ) : null} */}
         </Alert>
       </li>
     );
@@ -141,7 +150,6 @@ const mapDispatchToProps = {
   setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
-  setIsNew: editingEventActions.setIsNew,
   updateEvent: projectFileActions.updateEvent,
   deleteEvent: projectFileActions.deleteEvent,
   setSelection: pdfViewerActions.setSelection,
@@ -152,6 +160,7 @@ const mapStateToProps = (state: StoreType, ownProps: IEventItemProps) => {
   return {
     event: ownProps.event,
     currentPdf: state.projectFile.currentPdf,
+    currentProjectFile: state.projectFile.currentProjectFile,
   };
 };
 

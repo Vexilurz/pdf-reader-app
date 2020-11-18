@@ -1,18 +1,15 @@
 import { ipcMain } from 'electron';
 import { promises as fs } from 'fs';
+import * as fssync from 'fs';
 import * as appConst from '../types/textConstants';
 
-const checkForRecentFileExists = async () => {
-  try {
-    const exists = await fs.stat(appConst.RECENT_PROJECTS_FILENAME);
-  } catch (e) {
-    console.log(e);
-    await fs.writeFile(appConst.RECENT_PROJECTS_FILENAME, JSON.stringify([]));
-  }
+const checkForRecentFileExists = () => {
+  if (!fssync.existsSync(appConst.RECENT_PROJECTS_FILENAME))
+    fssync.writeFileSync(appConst.RECENT_PROJECTS_FILENAME, JSON.stringify([]));
 };
 
 const addToRecentProjects = async (event, project) => {
-  await checkForRecentFileExists();
+  checkForRecentFileExists();
   const content = await fs.readFile(appConst.RECENT_PROJECTS_FILENAME);
   let recent = JSON.parse(content);
 
@@ -35,7 +32,7 @@ const addToRecentProjects = async (event, project) => {
 };
 
 const deleteFromRecentProjects = async (event, project) => {
-  await checkForRecentFileExists();
+  checkForRecentFileExists();
   const content = await fs.readFile(appConst.RECENT_PROJECTS_FILENAME);
   let recent = JSON.parse(content);
 
@@ -50,7 +47,7 @@ const deleteFromRecentProjects = async (event, project) => {
 };
 
 const getRecentProjects = async (event) => {
-  await checkForRecentFileExists();
+  checkForRecentFileExists();
   const recent = await fs.readFile(appConst.RECENT_PROJECTS_FILENAME);
   event.reply(appConst.GET_RECENT_PROJECTS_RESPONSE, JSON.parse(recent));
 };

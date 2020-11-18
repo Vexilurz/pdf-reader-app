@@ -3,12 +3,10 @@ import { IEvent, getNewEvent } from '../types/event';
 
 export interface IEditingEventState {
   event: IEvent;
-  isNew: boolean;
 }
 
 const initialState: IEditingEventState = {
   event: getNewEvent(),
-  isNew: true,
 };
 
 export const editingEventSlice = createSlice({
@@ -18,10 +16,6 @@ export const editingEventSlice = createSlice({
     setEditingEvent: (state: IEditingEventState, action: PayloadAction<IEvent>) => {
       const { payload } = action;
       state.event = payload;
-    },
-    setIsNew: (state: IEditingEventState, action: PayloadAction<boolean>) => {
-      const { payload } = action;
-      state.isNew = payload;
     },
   },
 });

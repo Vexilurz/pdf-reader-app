@@ -49,8 +49,11 @@ Thumbs.db
 *.wmv
 
 .parcel-cache
-public/pdfjs-2.5.207-dist
 
-public/ug571-ultrascale-selectio.pdf
+projects/*
+pdf/*
+.cache/*
 
 recent.json
+
+example.pdf

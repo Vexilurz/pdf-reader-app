@@ -31,6 +31,7 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@reduxjs/toolkit": "^1.4.0",
+    "archiver": "^5.0.2",
     "bootstrap": "^4.5.3",
     "luxon": "^1.25.0",
     "react": "^16.13.1",
@@ -44,6 +45,7 @@
     "react-redux": "^7.2.1",
     "react-resize-panel": "^0.3.5",
     "react-router-dom": "^5.2.0",
+    "unzipper": "^0.10.11",
     "uuid": "^8.3.1"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 /* eslint-disable */
 import './pdf.scss';
+import * as pathLib from 'path';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
@@ -265,7 +266,7 @@ class PDFViewer extends React.Component<
         let pattern = '';
         if (textItem.str) {
           this.newPatternWorkResult = false;
-          if (bookmarks.length > 0) {
+          if (bookmarks?.length > 0) {
             let index = 0;
             while (!this.newPatternWorkResult && index < bookmarks.length) {
               pattern = this.newPattern(
@@ -369,7 +370,7 @@ class PDFViewer extends React.Component<
         ref={this.containerRef}
         style={{ width: pdfDocWidth }}
       >
-        {currentPdf.path}
+        {pathLib.basename(currentPdf.path)}
         {pdfLoading ? (
           <div className="loading-container">
             {/* <CircularProgress size={'200px'} /> */}

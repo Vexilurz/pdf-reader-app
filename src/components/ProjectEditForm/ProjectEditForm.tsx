@@ -9,9 +9,7 @@ import { IProjectFileWithPath, getNewFile } from '../../types/projectFile';
 import * as appConst from '../../types/textConstants';
 
 export interface IProjectEditFormProps {}
-export interface IProjectEditFormState {
-  path: string;
-}
+export interface IProjectEditFormState {}
 
 class ProjectEditForm extends React.Component<
   StatePropsType & DispatchPropsType,
@@ -22,9 +20,7 @@ class ProjectEditForm extends React.Component<
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     this.projectNameRef = React.createRef();
-    this.state = {
-      path: props.currentProjectFile.path,
-    };
+    this.state = {};
   }
 
   componentDidMount(): void {
@@ -32,38 +28,26 @@ class ProjectEditForm extends React.Component<
     this.projectNameRef.current.value = this.props.currentProjectFile.content.name;
   }
 
-  initListeners = (): void => {
-    ipcRenderer.on(appConst.NEW_FILE_DIALOG_RESPONSE, (event, response) => {
-      this.setState({ path: response.path });
-    });
-  };
+  initListeners = (): void => {};
 
   onSaveChangesClick = (): void => {
-    const { setCurrentFile, setAppState, addFileToOpened } = this.props;
-    const { path } = this.state;
-    if (path !== '') {
-      const newFile: IProjectFileWithPath = {
-        path,
-        content: getNewFile(this.projectNameRef.current.value),
-      };
-      newFile.content.events = this.props.currentProjectFile.content.events;
-      setCurrentFile(newFile);
-      addFileToOpened(newFile);
-      setAppState(appConst.PDF_VIEWER);
-      ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, newFile);
-      // todo: save file?
-    } else {
-      // todo: show message "please set save path to new file"
-      setAppState(appConst.START_PAGE);
-    }
-  };
-
-  onSetCurrentFilePathClick = (): void => {
-    ipcRenderer.send(appConst.SHOW_NEW_FILE_DIALOG);
+    const {
+      setCurrentFile,
+      setAppState,
+      addFileToOpened,
+      currentProjectFile,
+    } = this.props;
+    const newFile: IProjectFileWithPath = {
+      ...currentProjectFile,
+      content: getNewFile(this.projectNameRef.current.value),
+    };
+    newFile.content.events = currentProjectFile.content.events;
+    setCurrentFile(newFile);
+    addFileToOpened(newFile);
+    setAppState(appConst.PDF_VIEWER);
   };
 
   render(): React.ReactElement {
-    const { path } = this.state;
     const { setAppState, currentProjectFile } = this.props;
     return (
       <div className="project-edit-form">
@@ -78,23 +62,13 @@ class ProjectEditForm extends React.Component<
             }}
           />
         </div>
-        <div className="set-file-path">
-          <button
-            type="button"
-            className="set-file-path-button edit-project-control-button btn btn-primary"
-            onClick={this.onSetCurrentFilePathClick}
-          >
-            Set file path
-          </button>
-          Path to save: {path}
-        </div>
         <div className="control-buttons">
           <button
             type="button"
             className="save-changes-button edit-project-control-button btn btn-primary"
             onClick={this.onSaveChangesClick}
           >
-            Save
+            Save project settings
           </button>
           <button
             type="button"

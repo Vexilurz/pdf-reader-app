@@ -1,4 +1,4 @@
-import { ipcMain, dialog } from 'electron';
+import { ipcMain } from 'electron';
 import { promises as fs } from 'fs';
 import * as appConst from '../types/textConstants';
 

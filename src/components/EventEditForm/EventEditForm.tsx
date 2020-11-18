@@ -10,9 +10,12 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
 import * as appConst from '../../types/textConstants';
+import { IEvent } from '../../types/event';
 
 export interface IEventEditFormProps {}
-export interface IEventEditFormState {}
+export interface IEventEditFormState {
+  updating: boolean;
+}
 
 class EventEditForm extends React.Component<
   StatePropsType & DispatchPropsType,
@@ -20,40 +23,53 @@ class EventEditForm extends React.Component<
 > {
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
-    this.state = {};
+    this.state = {
+      updating: false,
+    };
   }
 
   componentDidMount(): void {
     this.initListeners();
   }
 
-  componentDidUpdate(prevProps, prevState): void {}
-
-  initListeners = (): void => {};
+  initListeners = (): void => {
+    ipcRenderer.on(
+      appConst.UPDATE_EVENT_IN_CACHE_COMPLETE,
+      (event, payload) => {
+        const { updateEvent, setAppState } = this.props;
+        const updatedEvent: IEvent = JSON.parse(payload);
+        updateEvent(updatedEvent);
+        setAppState(appConst.EMTPY_SCREEN);
+        this.setState({ updating: false });
+      }
+    );
+  };
 
   onSetEventClick = (): void => {
-    const {
-      addEvent,
-      updateEvent,
-      editingEvent,
-      isNew,
-      setAppState,
-      setCurrentPdf,
-    } = this.props;
-    if (isNew) addEvent(editingEvent);
-    else updateEvent(editingEvent);
-    setCurrentPdf({ path: '', eventID: '' });
-    setAppState(appConst.EMTPY_SCREEN);
+    const { editingEvent, currentProjectFile } = this.props;
+    this.setState({ updating: true });
+    ipcRenderer.send(appConst.UPDATE_EVENT_IN_CACHE, {
+      projectID: currentProjectFile.id,
+      event: JSON.stringify(editingEvent),
+    });
   };
 
   onCancelClick = (): void => {
-    const { setAppState, setCurrentPdf } = this.props;
-    // setCurrentPdf({ path: '', eventID: '' });
+    const { setAppState } = this.props;
     setAppState(appConst.EMTPY_SCREEN);
   };
 
   onDeleteEventClick = () => {
-    const { setAppState, deleteEvent, editingEvent } = this.props;
+    const {
+      setAppState,
+      deleteEvent,
+      editingEvent,
+      currentProjectFile,
+    } = this.props;
+    ipcRenderer.send(
+      appConst.DELETE_FOLDER_FROM_CACHE,
+      `${currentProjectFile.id}/${editingEvent.id}`
+    );
     deleteEvent(editingEvent);
     setAppState(appConst.EMTPY_SCREEN);
   };
@@ -84,7 +100,8 @@ class EventEditForm extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { editingEvent, setEditingEvent, isNew } = this.props;
+    const { editingEvent, setEditingEvent } = this.props;
+    const { updating } = this.state;
     return (
       <div className="event-edit-form">
         <div className="event-id">ID: {editingEvent.id}</div>
@@ -110,7 +127,7 @@ class EventEditForm extends React.Component<
             selected={new Date(editingEvent.date)}
             onChange={(date: Date) => {
               const updatedEvent = { ...editingEvent };
-              updatedEvent.date = date.toUTCString();
+              updatedEvent.date = date.toISOString();
               setEditingEvent(updatedEvent);
             }}
           />
@@ -167,7 +184,12 @@ class EventEditForm extends React.Component<
             className="set-event-button edit-event-control-button btn btn-primary"
             onClick={this.onSetEventClick}
           >
-            {isNew ? 'Add event' : 'Update event'}
+            {updating ? (
+              <div className="updating-container">
+                <img src="./public/loading.gif" alt="Updating..." />
+              </div>
+            ) : null}
+            Save
           </button>
           <button
             type="button"
@@ -190,7 +212,6 @@ class EventEditForm extends React.Component<
 }
 
 const mapDispatchToProps = {
-  addEvent: projectFileActions.addEvent,
   updateEvent: projectFileActions.updateEvent,
   setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
@@ -201,7 +222,7 @@ const mapDispatchToProps = {
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {
   return {
     editingEvent: state.editingEvent.event,
-    isNew: state.editingEvent.isNew,
+    currentProjectFile: state.projectFile.currentProjectFile,
   };
 };
 

@@ -1,12 +1,12 @@
 import './projects-tabs.scss';
+import * as pathLib from 'path';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
-import { getNewFile } from '../../types/projectFile';
-import { deletePathFromFilename } from '../../utils/commonUtils';
+import { getNewFileWithPath } from '../../types/projectFile';
 
 export interface IProjectsTabsProps {}
 export interface IProjectsTabsState {}
@@ -33,7 +33,7 @@ class ProjectsTabs extends React.Component<
     return (
       <ul className="nav nav-tabs projects-tabs">
         {openedProjectFiles.map((project, index) => {
-          const active = currentProjectFile.path === project.path ? ACTIVE : '';
+          const active = currentProjectFile.id === project.id ? ACTIVE : '';
           return (
             <li
               className="nav-item project-tab"
@@ -44,23 +44,23 @@ class ProjectsTabs extends React.Component<
                 href="#"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (currentProjectFile.path !== project.path) {
+                  if (currentProjectFile.id !== project.id) {
                     saveCurrentProjectTemporary();
                     setCurrentFile(project);
                     setAppState(appConst.EMTPY_SCREEN);
                   }
                 }}
               >
-                {project.content?.name} ({deletePathFromFilename(project.path)}){' '}
+                {project.content?.name} ({pathLib.basename(project.path)}){' '}
                 <a
                   // class="nav-link"
                   href="#"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (currentProjectFile.path === project.path) {
+                    if (currentProjectFile.id === project.id) {
                       setAppState(appConst.START_PAGE);
                     }
-                    deleteFileFromOpened(project.path);
+                    deleteFileFromOpened(project.id);
                   }}
                 >
                   x
@@ -75,7 +75,7 @@ class ProjectsTabs extends React.Component<
             href="#"
             onClick={(e) => {
               e.stopPropagation();
-              setCurrentFile({ path: '', content: getNewFile('') });
+              setCurrentFile(getNewFileWithPath(''));
               setAppState(appConst.START_PAGE);
             }}
           >

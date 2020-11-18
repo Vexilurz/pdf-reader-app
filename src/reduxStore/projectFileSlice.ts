@@ -1,6 +1,7 @@
+import * as pathLib from 'path';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ipcRenderer } from 'electron';
-import { IProjectFileWithPath, getNewFile } from '../types/projectFile';
+import { IProjectFileWithPath, getNewFileWithPath } from '../types/projectFile';
 import { IEvent } from '../types/event';
 import { IBookmark } from '../types/bookmark';
 import { IPdfFileWithBookmarks, getNewPdfFile } from '../types/pdf';
@@ -25,7 +26,7 @@ export interface IProjectFileState {
 }
 
 const initialState: IProjectFileState = {
-  currentProjectFile: { path: '', content: getNewFile('') },
+  currentProjectFile: getNewFileWithPath(''),
   openedProjectFiles: [],
   currentPdf: { path: '', eventID: '' },
   currentIndexes: { fileIndex: -1, eventIndex: -1 },
@@ -37,7 +38,7 @@ const getCurrentIndexes = (state: IProjectFileState): IEventAndFileIndex => {
   );
   const fileIndex = state.currentProjectFile.content.events[
     eventIndex
-  ]?.files.findIndex((file) => file.path === state.currentPdf.path);
+  ]?.files.findIndex((file) => pathLib.basename(file.path) === pathLib.basename(state.currentPdf.path));
   return { fileIndex, eventIndex };
 };
 
@@ -67,8 +68,8 @@ export const projectFileSlice = createSlice({
       action: PayloadAction<IProjectFileWithPath>
     ) => {
       const { payload } = action;
-      const { path, content } = payload;
-      state.currentProjectFile = { path, content };
+      ipcRenderer.send(appConst.CREATE_FOLDER_IN_CACHE, payload.id);
+      state.currentProjectFile = payload;
       state.currentPdf = { path: '', eventID: '' };
     },
     setCurrentPdf: (
@@ -82,22 +83,20 @@ export const projectFileSlice = createSlice({
     saveCurrentProject: (state: IProjectFileState) => {
       const { path } = state.currentProjectFile;
       if (path !== '') {
-        const stringed = JSON.stringify(state.currentProjectFile.content);
         ipcRenderer.send(appConst.SAVE_CURRENT_PROJECT, {
+          id: state.currentProjectFile.id,
           path: state.currentProjectFile.path,
-          content: stringed,
+          content: JSON.stringify(state.currentProjectFile.content),
         });
       }
     },
     saveCurrentProjectTemporary: (state: IProjectFileState) => {
-      const { path } = state.currentProjectFile;
-      if (path !== '') {
-        const index = state.openedProjectFiles.findIndex(
-          (item) => item.path === path
-        );
-        if (index > -1) {
-          state.openedProjectFiles[index] = state.currentProjectFile;
-        }
+      const { id } = state.currentProjectFile;
+      const index = state.openedProjectFiles.findIndex(
+        (item) => item.id === id
+      );
+      if (index > -1) {
+        state.openedProjectFiles[index] = state.currentProjectFile;
       }
     },
     addFileToOpened: (
@@ -105,8 +104,8 @@ export const projectFileSlice = createSlice({
       action: PayloadAction<IProjectFileWithPath>
     ) => {
       const { payload } = action;
-      const { path } = payload;
-      const index = state.openedProjectFiles.findIndex((item) => item.path === path);
+      const { id } = payload;
+      const index = state.openedProjectFiles.findIndex((item) => item.id === id);
       if (index === -1) state.openedProjectFiles.push(payload);
       else state.openedProjectFiles[index] = payload;
     },
@@ -114,25 +113,28 @@ export const projectFileSlice = createSlice({
       state: IProjectFileState,
       action: PayloadAction<string>
     ) => {
-      const path = action.payload;
-      const index = state.openedProjectFiles.findIndex((item) => item.path === path);
+      const id = action.payload;
+      const index = state.openedProjectFiles.findIndex((item) => item.id === id);
       if (index > -1) {
+        ipcRenderer.send(appConst.DELETE_FOLDER_FROM_CACHE, id);
         state.openedProjectFiles.splice(index, 1);
       }
     },
-    addEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
-      const { payload } = action;
-      state.currentProjectFile.content.events.push(payload);
-      sortEventsByDate(state.currentProjectFile.content.events);
-    },
     updateEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
       const { payload } = action;
-      state.currentProjectFile.content.events = state.currentProjectFile.content.events.map(
-        (event) => {
-          if (event.id === payload.id) return payload;
-          return event;
-        }
+      const index = state.currentProjectFile.content.events.findIndex(
+        (event) => event.id === payload.id
       );
+      if (index > -1) {
+        state.currentProjectFile.content.events = state.currentProjectFile.content.events.map(
+          (event) => {
+            if (event.id === payload.id) return payload;
+            return event;
+          }
+        );
+      } else {
+        state.currentProjectFile.content.events.push(payload);
+      }
       sortEventsByDate(state.currentProjectFile.content.events);
     },
     deleteEvent: (state: IProjectFileState, action: PayloadAction<IEvent>) => {
