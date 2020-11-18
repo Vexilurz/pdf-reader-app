@@ -55,3 +55,5 @@ pdf/*
 .cache/*
 
 recent.json
+
+example.pdf

@@ -10,10 +10,6 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
 import * as appConst from '../../types/textConstants';
-import {
-  deletePathFromFilename,
-  getPathWithoutFilename,
-} from '../../utils/commonUtils';
 import { IEvent } from '../../types/event';
 
 export interface IEventEditFormProps {}

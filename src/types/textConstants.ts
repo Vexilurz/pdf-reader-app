@@ -1,3 +1,6 @@
+import os from 'os';
+import * as pathLib from 'path';
+
 // app state:
 export const START_PAGE = 'start-page';
 export const PROJECT_EDIT_FORM = 'project-edit-form';
@@ -7,7 +10,7 @@ export const EMTPY_SCREEN = 'empty-screen';
 
 // main process listeners:
 export const OPEN_FILE = 'open-file';
-export const SHOW_SAVE_FILE_DIALOG = 'show-new-file-dialog';
+export const SHOW_SAVE_FILE_DIALOG = 'show-save-file-dialog';
 export const LOAD_PDF_FILE = 'load-pdf-file';
 export const SAVE_CURRENT_PROJECT = 'save-current-project';
 export const ADD_TO_RECENT_PROJECTS = 'add-to-recent-projects';
@@ -28,10 +31,8 @@ export const DELETE_FROM_RECENT_PROJECTS_DONE = 'delete-from-recent-projects-don
 export const GET_RECENT_PROJECTS_RESPONSE = 'get-recent-projects-response';
 export const UPDATE_EVENT_IN_CACHE_COMPLETE = 'update-event-in-cache-complete';
 
-
-// files:
-export const RECENT_PROJECTS_FILENAME = 'recent.json';
-export const PROJECT_FILE_NAME = 'project.json';
-
 // other:
-export const CACHE_PATH = '.cache/';
+const APP_FOLDER = pathLib.join(os.homedir(), 'documentsApp');
+export const CACHE_PATH = pathLib.join(APP_FOLDER, '.documentsAppCache');
+export const RECENT_PROJECTS_FILENAME = pathLib.join(APP_FOLDER, 'recent.json');
+export const PROJECT_FILE_NAME = 'project.json';

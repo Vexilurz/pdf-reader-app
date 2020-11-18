@@ -7,6 +7,7 @@ import ProjectEditForm from '../../ProjectEditForm/ProjectEditForm';
 import EventEditForm from '../../EventEditForm/EventEditForm';
 import { StoreType } from '../../../reduxStore/store';
 import * as appConst from '../../../types/textConstants';
+import os from 'os';
 
 export interface IMiddleSpaceProps {}
 export interface IMiddleSpaceState {}

@@ -1,12 +1,12 @@
+import * as pathLib from 'path';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ipcRenderer } from 'electron';
-import { IProjectFileWithPath, getNewFile } from '../types/projectFile';
+import { IProjectFileWithPath, getNewFileWithPath } from '../types/projectFile';
 import { IEvent } from '../types/event';
 import { IBookmark } from '../types/bookmark';
 import { IPdfFileWithBookmarks, getNewPdfFile } from '../types/pdf';
 import * as appConst from '../types/textConstants';
 import { actions as appStateActions } from './appStateSlice';
-import { deletePathFromFilename, getPathWithoutFilename } from '../utils/commonUtils';
 
 interface IPdfFilePathWithEventID {
   path: string;
@@ -26,7 +26,7 @@ export interface IProjectFileState {
 }
 
 const initialState: IProjectFileState = {
-  currentProjectFile: { id: '', path: '', content: getNewFile('') },
+  currentProjectFile: getNewFileWithPath(''),
   openedProjectFiles: [],
   currentPdf: { path: '', eventID: '' },
   currentIndexes: { fileIndex: -1, eventIndex: -1 },
@@ -38,7 +38,7 @@ const getCurrentIndexes = (state: IProjectFileState): IEventAndFileIndex => {
   );
   const fileIndex = state.currentProjectFile.content.events[
     eventIndex
-  ]?.files.findIndex((file) => deletePathFromFilename(file.path) === deletePathFromFilename(state.currentPdf.path));
+  ]?.files.findIndex((file) => pathLib.basename(file.path) === pathLib.basename(state.currentPdf.path));
   return { fileIndex, eventIndex };
 };
 

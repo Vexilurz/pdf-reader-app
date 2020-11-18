@@ -7,7 +7,10 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
-import { IProjectFileWithPath, getNewFile } from '../../types/projectFile';
+import {
+  IProjectFileWithPath,
+  getNewFileWithPath,
+} from '../../types/projectFile';
 
 export interface IStartPageProps {}
 export interface IStartPageState {
@@ -52,11 +55,9 @@ class StartPage extends React.Component<
 
   onNewFileClick = (): void => {
     const { setAppState, setCurrentFile } = this.props;
-    const newFile: IProjectFileWithPath = {
-      id: uuidv4(),
-      path: '',
-      content: getNewFile('Your project name'),
-    };
+    const newFile: IProjectFileWithPath = getNewFileWithPath(
+      'Your project name'
+    );
     setCurrentFile(newFile);
     setAppState(appConst.PROJECT_EDIT_FORM);
   };

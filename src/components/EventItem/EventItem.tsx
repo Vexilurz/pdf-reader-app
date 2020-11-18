@@ -9,11 +9,6 @@ import * as pathLib from 'path';
 import { StoreType } from '../../reduxStore/store';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
-import {
-  deletePathFromFilename,
-  getPathWithoutFilename,
-  getFileExt,
-} from '../../utils/commonUtils';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
@@ -72,22 +67,23 @@ class EventItem extends React.Component<
       event,
       currentProjectFile,
     } = this.props;
-    setShowLoading(true);
-    setSelection(getInfSelection());
     let path = file.path;
-    if (getPathWithoutFilename(file.path) === '') {
-      path = `${appConst.CACHE_PATH}${currentProjectFile.id}/${event.id}/${file.path}`;
+    if (pathLib.dirname(file.path) === '.') {
+      path = pathLib.join(
+        appConst.CACHE_PATH,
+        currentProjectFile.id,
+        event.id,
+        file.path
+      );
     }
-    if (getFileExt(path)?.toLowerCase() === 'pdf') {
+    if (pathLib.extname(path).toLowerCase() === '.pdf') {
+      setShowLoading(true);
+      setSelection(getInfSelection());
       ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
       setCurrentPdf({ path, eventID: event.id });
       setAppState(appConst.PDF_VIEWER);
     } else {
-      // TODO: crunch finding app root
-      const appRoot = getPathWithoutFilename(
-        pathLib.resolve(process.cwd(), 'webpack.config.js')
-      );
-      shell.openPath(`${appRoot}/${path}`.replaceAll('\\', '/'));
+      shell.openPath(path);
     }
   };
 
@@ -123,7 +119,7 @@ class EventItem extends React.Component<
                   key={'event-key' + index}
                   onClick={this.onPdfFileClick(file)}
                 >
-                  {deletePathFromFilename(file.path)}
+                  {pathLib.basename(file.path)}
                 </p>
               );
             })}

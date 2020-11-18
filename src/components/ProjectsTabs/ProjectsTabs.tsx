@@ -1,12 +1,12 @@
 import './projects-tabs.scss';
+import * as pathLib from 'path';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
-import { getNewFile } from '../../types/projectFile';
-import { deletePathFromFilename } from '../../utils/commonUtils';
+import { getNewFileWithPath } from '../../types/projectFile';
 
 export interface IProjectsTabsProps {}
 export interface IProjectsTabsState {}
@@ -51,7 +51,7 @@ class ProjectsTabs extends React.Component<
                   }
                 }}
               >
-                {project.content?.name} ({deletePathFromFilename(project.path)}){' '}
+                {project.content?.name} ({pathLib.basename(project.path)}){' '}
                 <a
                   // class="nav-link"
                   href="#"
@@ -75,7 +75,7 @@ class ProjectsTabs extends React.Component<
             href="#"
             onClick={(e) => {
               e.stopPropagation();
-              setCurrentFile({ path: '', content: getNewFile('') });
+              setCurrentFile(getNewFileWithPath(''));
               setAppState(appConst.START_PAGE);
             }}
           >

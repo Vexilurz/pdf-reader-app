@@ -1,9 +1,9 @@
 import { ipcMain, dialog } from 'electron';
 import { promises as fs } from 'fs';
 import * as fssync from 'fs';
+import * as pathLib from 'path';
 import * as appConst from '../types/textConstants';
 import { v4 as uuidv4 } from 'uuid';
-import { deletePathFromFilename, getPathWithoutFilename } from '../utils/commonUtils';
 import { IProjectFile } from '../types/projectFile';
 import { IEvent } from '../types/event';
 import { zipDirectory, unzipFile } from '../utils/zip';
@@ -21,10 +21,10 @@ const openFile = async (event, path: string) => {
   }
   if (ourPath) {
     const newID = uuidv4();
-    const destPath = `${appConst.CACHE_PATH}${newID}/`;
+    const destPath = pathLib.join(appConst.CACHE_PATH, newID);
     try {
       await unzipFile(ourPath, destPath);
-      const content = await fs.readFile(`${destPath}${appConst.PROJECT_FILE_NAME}`);
+      const content = await fs.readFile(pathLib.join(destPath, appConst.PROJECT_FILE_NAME));
       event.reply(appConst.OPEN_FILE_DIALOG_RESPONSE, {
         id: newID,
         path: ourPath,
@@ -51,9 +51,9 @@ const saveFileDialog = async (event, arg) => {
 };
 
 const saveCurrentProject = async (event, currentProject) => {
-  const path = `${appConst.CACHE_PATH}${currentProject.id}/`;
+  const path = pathLib.join(appConst.CACHE_PATH, currentProject.id);
   // fssync.mkdirSync(path, { recursive: true });
-  const res = fssync.writeFileSync(`${path}${appConst.PROJECT_FILE_NAME}`, currentProject.content);
+  const res = fssync.writeFileSync(pathLib.join(path, appConst.PROJECT_FILE_NAME), currentProject.content);
 
   if (fssync.existsSync(currentProject.path))
     fssync.unlinkSync(currentProject.path);
@@ -65,12 +65,12 @@ const saveCurrentProject = async (event, currentProject) => {
 };
 
 const deleteFolderFromCache = async (event, folder: string) => {
-  const path = `${appConst.CACHE_PATH}${folder}/`;
+  const path = pathLib.join(appConst.CACHE_PATH, folder);
   await fs.rmdir(path, { recursive: true });
 };
 
 const createFolderInCache = async (event, folder: string) => {
-  const path = `${appConst.CACHE_PATH}${folder}/`;
+  const path = pathLib.join(appConst.CACHE_PATH, folder);
   await fs.mkdir(path, { recursive: true });
 };
 
@@ -83,23 +83,23 @@ const clearCache = async (event) => {
 const updateEventInCache = async (e, payload) => {
   const { projectID } = payload;
   const event: IEvent = JSON.parse(payload.event);
-  const path = `${appConst.CACHE_PATH}${projectID}/${event.id}/`;
+  const path = pathLib.join(appConst.CACHE_PATH, projectID, event.id);
   fssync.mkdirSync(path, { recursive: true });
   const existingPdfsOnDisk = fssync.readdirSync(path);
 
   event.files = event.files.map((file) => {
-    const fileName = deletePathFromFilename(file.path);
+    const fileName = pathLib.basename(file.path);
     let newFileName = fileName;
-    if (getPathWithoutFilename(file.path) === '') {
+    if (pathLib.dirname(file.path) === '.') {
       // file already have place in the cache folder.
     } else {
       let i = 1;
       try {
-        while (fssync.existsSync(`${path}${newFileName}`)) {
+        while (fssync.existsSync(pathLib.join(path, newFileName))) {
           newFileName = `(${i})${fileName}`;
           i += 1;
         }
-        fssync.copyFileSync(file.path, `${path}${newFileName}`);
+        fssync.copyFileSync(file.path, pathLib.join(path, newFileName));
       } catch (err) {
         console.error(err);
       }
@@ -111,7 +111,7 @@ const updateEventInCache = async (e, payload) => {
   });
   // ...and delete remaining pdfs.
   existingPdfsOnDisk.forEach((pdf) => {
-    fssync.unlinkSync(`${path}${pdf}`);
+    fssync.unlinkSync(pathLib.join(path, pdf));
   });
 
   e.reply(appConst.UPDATE_EVENT_IN_CACHE_COMPLETE, JSON.stringify(event));

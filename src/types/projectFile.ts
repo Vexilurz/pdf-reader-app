@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { IEvent } from './event';
 
 export interface IProjectFile {
@@ -16,4 +17,8 @@ export const getNewFile = (name: string): IProjectFile => {
     name,
     events: [],
   };
+};
+
+export const getNewFileWithPath = (name: string): IProjectFileWithPath => {
+  return { id: uuidv4(), path: '', content: getNewFile(name) };
 };
