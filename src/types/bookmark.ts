@@ -1,9 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export interface IPdfSelection {
-  start: number;
-  end: number;
-  startContainerID: string;
+  startPage: number;
+  startContainerOffset: number;
+  startOffset: number;
+  endPage: number;
+  endContainerOffset: number;
+  endOffset: number;
 }
 
 export interface IBookmark {
@@ -15,9 +18,12 @@ export interface IBookmark {
 
 export const getInfSelection = (): IPdfSelection => {
   return {
-    start: Infinity,
-    end: Infinity,
-    startContainerID: '',
+    startOffset: Infinity,
+    endOffset: Infinity,
+    startContainerOffset: -1,
+    startPage: -1,
+    endContainerOffset: -1,
+    endPage: -1,
   };
 };
 

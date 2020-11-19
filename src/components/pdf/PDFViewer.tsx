@@ -13,8 +13,14 @@ import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IPDFdata } from '../../types/pdf';
 import * as DOM from 'react-dom';
-import { IBookmark, getInfSelection } from '../../types/bookmark';
+import {
+  IBookmark,
+  getInfSelection,
+  getBookmarkPage,
+  getBookmarkPageOffset,
+} from '../../types/bookmark';
 import { splitTriple, splitDuo } from '../../utils/splitUtils';
+import { TextItem } from './TextItem';
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
@@ -23,7 +29,6 @@ export interface IPDFViewerState {
   pdfData: IPDFdata | null;
   numPages: number;
   scale: number;
-  pagesRendered: any;
   renderTextLayer: boolean;
   pdfDocWidth: number;
 }
@@ -35,8 +40,6 @@ class PDFViewer extends React.Component<
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
   private newPatternWorkResult: boolean;
-  private pagesOffsets: number[];
-  private loadedPagesCounter: number;
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
@@ -44,22 +47,18 @@ class PDFViewer extends React.Component<
       pdfData: null,
       numPages: 0,
       scale: 1.0,
-      pagesRendered: null,
       renderTextLayer: false,
       pdfDocWidth: 1000,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
     this.newPatternWorkResult = false;
-    this.pagesOffsets = [];
-    this.loadedPagesCounter = 0;
   }
 
   componentDidMount(): void {
     ipcRenderer.on(
       appConst.PDF_FILE_CONTENT_RESPONSE,
       (event, data: Uint8Array) => {
-        this.loadedPagesCounter = 0;
         this.setState({ renderTextLayer: false, pdfData: { data } });
       }
     );
@@ -67,24 +66,24 @@ class PDFViewer extends React.Component<
 
   // shouldComponentUpdate()
 
-  calcScale = (page) => {
-    const parent = this.props.parentRef.current;
-    if (parent) {
-      const pageScale = (parent.clientWidth * 0.984) / page.originalWidth;
-      if (this.state.scale !== pageScale) {
-        this.setState({ scale: pageScale });
-      }
-    }
-  };
+  // calcScale = (page) => {
+  //   const parent = this.props.parentRef.current;
+  //   if (parent) {
+  //     const pageScale = (parent.clientWidth * 0.984) / page.originalWidth;
+  //     if (this.state.scale !== pageScale) {
+  //       this.setState({ scale: pageScale });
+  //     }
+  //   }
+  // };
 
   onPageLoad = async (page) => {
     this.removeTextLayerOffset();
-    this.calcScale(page);
-    const { numPages } = this.state;
-    this.loadedPagesCounter += 1;
-    if (this.loadedPagesCounter >= numPages) {
-      this.setState({ renderTextLayer: true });
-    }
+    // this.calcScale(page);
+    // const { numPages } = this.state;
+    // this.loadedPagesCounter += 1;
+    // if (this.loadedPagesCounter >= numPages) {
+    //   this.setState({ renderTextLayer: true });
+    // }
   };
 
   removeTextLayerOffset = () => {
@@ -99,34 +98,28 @@ class PDFViewer extends React.Component<
     });
   };
 
-  calcPageOffsets = (numPages) => {
-    this.pagesOffsets = [];
-    for (let i = 0; i < numPages; i += 1) {
-      this.getPageOffset(i + 1).then((pageOffset) =>
-        this.pagesOffsets.push(pageOffset)
-      );
-    }
-  };
+  // calcPageOffsets = (numPages) => {
+  //   this.pagesOffsets = [];
+  //   for (let i = 0; i < numPages; i += 1) {
+  //     this.getPageOffset(i + 1).then((pageOffset) =>
+  //       this.pagesOffsets.push(pageOffset)
+  //     );
+  //   }
+  // };
 
   onDocumentLoadSuccess = (document) => {
     const { numPages } = document;
-    this.setState({ numPages, pagesRendered: 0 });
+    this.setState({ numPages });
     this.documentRef.current = document;
-    this.calcPageOffsets(numPages);
-  };
-
-  onRenderSuccess = () => {
-    this.setState((prevState) => ({
-      pagesRendered: prevState.pagesRendered + 1,
-    }));
+    // this.calcPageOffsets(numPages);
   };
 
   onRenderFinished = (pageNumber: number) => {
-    const { numPages } = this.state;
-    const { setShowLoading } = this.props;
-    if (pageNumber === numPages) {
-      setShowLoading(false);
-    }
+    // const { numPages } = this.state;
+    // const { setShowLoading } = this.props;
+    // if (pageNumber === numPages) {
+    //   setShowLoading(false);
+    // }
   };
 
   getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
@@ -139,14 +132,14 @@ class PDFViewer extends React.Component<
   };
 
   // Calculates total length of all previous pages
-  getPageOffset = async (pageNumber: number) => {
-    const pageLengths = await Promise.all(
-      Array.from({ length: pageNumber - 1 }, (_, index) =>
-        this.getItemOffset(index + 1)
-      )
-    );
-    return pageLengths.reduce((acc, pageLength) => acc + pageLength, 0);
-  };
+  // getPageOffset = async (pageNumber: number) => {
+  //   const pageLengths = await Promise.all(
+  //     Array.from({ length: pageNumber - 1 }, (_, index) =>
+  //       this.getItemOffset(index + 1)
+  //     )
+  //   );
+  //   return pageLengths.reduce((acc, pageLength) => acc + pageLength, 0);
+  // };
 
   getItemIndex = (item) => {
     let index = 0;
@@ -188,109 +181,219 @@ class PDFViewer extends React.Component<
     );
   };
 
-  newPattern = (text: string, bookmark: IBookmark, counter: number) => {
-    // console.log(counter, bookmark.selection.start, bookmark.selection.end, text);
-    let result = this.getUnmarkedText(text, '0k' + counter);
-    // let result = text;
-    let dbg = 'unmarked:';
-    const { length } = text;
-    if (
-      counter >= bookmark.selection.start &&
-      counter + length <= bookmark.selection.end
-    ) {
-      // mark all text
-      dbg = 'mark all text:';
-      result = this.getMarkedText(text, bookmark.color, '0k' + counter);
-      this.newPatternWorkResult = true;
-    } else if (
-      counter >= bookmark.selection.start &&
-      counter < bookmark.selection.end
-    ) {
-      // mark left part
-      dbg = 'mark left part:';
-      result = splitDuo(bookmark.selection.end - counter)(text);
-      result[0] = this.getMarkedText(result[0], bookmark.color, '0k' + counter);
-      result[1] = this.getUnmarkedText(result[1], '1k' + counter);
-      this.newPatternWorkResult = true;
-    } else if (
-      counter + length > bookmark.selection.start &&
-      counter + length <= bookmark.selection.end
-    ) {
-      // mark right part
-      dbg = 'mark right part:';
-      result = splitDuo(bookmark.selection.start - counter)(text);
-      result[0] = this.getUnmarkedText(result[0], '0k' + counter);
-      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
-      this.newPatternWorkResult = true;
-    } else if (
-      counter < bookmark.selection.start &&
-      counter + length > bookmark.selection.end
-    ) {
-      // mark middle
-      dbg = 'mark middle:';
-      result = splitTriple(
-        bookmark.selection.start - counter,
-        bookmark.selection.end - counter
-      )(text);
-      result[0] = this.getUnmarkedText(result[0], '0k' + counter);
-      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
-      result[2] = this.getUnmarkedText(result[2], '2k' + counter);
-      this.newPatternWorkResult = true;
+  // newPattern = (
+  //   text: string,
+  //   bookmark: IBookmark,
+  //   pageNumber: number,
+  //   counter: number
+  // ) => {
+  //   let result = this.getUnmarkedText(text, `${pageNumber},${counter},0`);
+
+  //   const {
+  //     startOffset,
+  //     endOffset,
+  //     startContainerOffset,
+  //     startPage,
+  //     endContainerOffset,
+  //     endPage,
+  //   } = bookmark.selection;
+
+  //   const { length } = text;
+  //   const counterPlusLen = counter + length;
+  //   if (pageNumber >= startPage && pageNumber <= endPage) {
+  //     if (
+  //       (pageNumber > startPage && pageNumber < endPage) ||
+  //       (pageNumber === endPage && counterPlusLen <= endContainerOffset) ||
+  //       ()
+  //     ) {
+  //       // mark all text
+  //       result = this.getMarkedText(text, bookmark.color, '0k' + counter);
+  //       this.newPatternWorkResult = true;
+  //     } else if (
+  //       counter >= bookmark.selection.startOffset &&
+  //       counter < bookmark.selection.endOffset
+  //     ) {
+  //       // mark left part
+  //       result = splitDuo(bookmark.selection.endOffset - counter)(text);
+  //       result[0] = this.getMarkedText(
+  //         result[0],
+  //         bookmark.color,
+  //         '0k' + counter
+  //       );
+  //       result[1] = this.getUnmarkedText(result[1], '1k' + counter);
+  //       this.newPatternWorkResult = true;
+  //     } else if (
+  //       counter + length > bookmark.selection.startOffset &&
+  //       counter + length <= bookmark.selection.endOffset
+  //     ) {
+  //       // mark right part
+  //       result = splitDuo(bookmark.selection.startOffset - counter)(text);
+  //       result[0] = this.getUnmarkedText(result[0], '0k' + counter);
+  //       result[1] = this.getMarkedText(
+  //         result[1],
+  //         bookmark.color,
+  //         '1k' + counter
+  //       );
+  //       this.newPatternWorkResult = true;
+  //     } else if (
+  //       counter < bookmark.selection.startOffset &&
+  //       counter + length > bookmark.selection.endOffset
+  //     ) {
+  //       // mark middle
+  //       result = splitTriple(
+  //         bookmark.selection.startOffset - counter,
+  //         bookmark.selection.endOffset - counter
+  //       )(text);
+  //       result[0] = this.getUnmarkedText(result[0], '0k' + counter);
+  //       result[1] = this.getMarkedText(
+  //         result[1],
+  //         bookmark.color,
+  //         '1k' + counter
+  //       );
+  //       result[2] = this.getUnmarkedText(result[2], '2k' + counter);
+  //       this.newPatternWorkResult = true;
+  //     }
+  //   }
+  //   // console.log(dbg, result);
+  //   return result;
+  // };
+
+  split = (
+    text: string,
+    bookmarks: any[],
+    pageNumber: number,
+    counter: number
+  ) => {
+    const result = [];
+    const textEnd = text.length + counter;
+    let current = counter;
+    let index = 0;
+    for (const bookmark of bookmarks) {
+      if (bookmark.end < current) {
+        continue;
+      }
+
+      if (bookmark.start > current) {
+        result.push(
+          this.getUnmarkedText(
+            text.slice(current - counter, bookmark.start - counter),
+            `${pageNumber},${current},${index++}`
+          )
+        );
+        current = Math.min(bookmark.start, textEnd);
+      }
+
+      if (bookmark.start <= current) {
+        const start = Math.max(bookmark.start, current);
+        const end = Math.min(bookmark.end, textEnd);
+        result.push(
+          this.getMarkedText(
+            text.slice(start - counter, end - counter),
+            bookmark.color,
+            `${pageNumber},${current},${index++},${bookmark.id}`
+          )
+        );
+        current = end;
+      }
+
+      if (current === textEnd) {
+        break;
+      }
     }
-    // console.log(dbg, result);
+
+    if (current < textEnd) {
+      result.push(
+        this.getUnmarkedText(
+          text.slice(current - counter, text.length),
+          `${pageNumber},${current},${index++}`
+        )
+      );
+    }
+
     return result;
   };
 
   pdfRenderer = (pageNumber: number) => {
+    let counter = 0;
     const { currentIndexes, currentProjectFile } = this.props;
-    // const { numPages } = this.state;
 
-    const bookmarks =
+    const allBookmarks =
       currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
         currentIndexes.fileIndex
       ]?.bookmarks;
 
-    let counter = this.pagesOffsets[pageNumber - 1];
+    const bookmarksFiltered = allBookmarks.filter(
+      (v) =>
+        v.selection.startPage <= pageNumber && v.selection.endPage >= pageNumber
+    );
+
+    const bookmarksSorted = bookmarksFiltered
+      .map((v) => {
+        let start = v.selection.startContainerOffset + v.selection.startOffset;
+        let end = v.selection.endContainerOffset + v.selection.endOffset;
+
+        if (pageNumber > v.selection.startPage) {
+          start = 0;
+        }
+
+        if (pageNumber < v.selection.endPage) {
+          end = Infinity;
+        }
+
+        return { start, end, color: v.color, id: v.id };
+      })
+      .sort((a, b) => a.start - b.start);
+
     // this is crunches. I don't know why renderer calls twice on the same textItem.
-    // that cause counter wrong calculation.
     let prevTextItem = null;
-    // let prevPattern = null;
-    console.log('%c%s', 'color: lime; font: 1.2rem/1 Tahoma;', 'PDF_RENDERER');
+    console.log(
+      '%c%s',
+      'color: lime; font: 1.2rem/1 Tahoma;',
+      'PDF_RENDERER',
+      pageNumber
+    );
     return (textItem) => {
       if (prevTextItem !== textItem) {
-        console.log(pageNumber);
-        //   console.log('prev');
-        //   return prevPattern;
-        // } else {
         prevTextItem = textItem;
         let pattern = '';
         if (textItem.str) {
-          this.newPatternWorkResult = false;
-          if (bookmarks?.length > 0) {
+          // this.newPatternWorkResult = false;
+          if (bookmarksSorted?.length > 0) {
             let index = 0;
-            while (!this.newPatternWorkResult && index < bookmarks.length) {
-              pattern = this.newPattern(
-                textItem.str,
-                bookmarks[index],
-                counter
-              );
-              index += 1;
-            }
+            // while (!this.newPatternWorkResult && index < bookmarks.length) {
+            pattern = this.split(
+              textItem.str,
+              bookmarksSorted,
+              pageNumber,
+              counter
+            );
+            // index += 1;
+            // }
           } else {
-            pattern = this.getUnmarkedText(textItem.str, '0k' + counter);
+            pattern = this.getUnmarkedText(
+              textItem.str,
+              `${pageNumber},${counter},0`
+            );
           }
+          // pattern = (
+          //   <TextItem
+          //     key={`${pageNumber},${counter},0`}
+          //     id={`${pageNumber},${counter},0`}
+          //   >
+          //     {textItem.str}
+          //   </TextItem>
+          // );
           counter += textItem.str.length;
         }
-        // prevPattern = pattern;
         return pattern;
       }
     };
   };
 
-  clearSelection = () => {
-    const { setSelection } = this.props;
-    setSelection(getInfSelection());
-  };
+  // clearSelection = () => {
+  //   const { setSelection } = this.props;
+  //   setSelection(getInfSelection());
+  // };
 
   onMouseUp = async () => {
     const { setSelection } = this.props;
@@ -309,7 +412,6 @@ class PDFViewer extends React.Component<
     }
 
     const sel = selection.getRangeAt(0);
-
     const {
       commonAncestorContainer,
       endContainer,
@@ -320,28 +422,32 @@ class PDFViewer extends React.Component<
 
     // console.log(startContainer.parentNode.id);
 
-    // selection?.empty(); // important!
-
     // Selection partially outside PDF document
     if (!this.containerRef.current.contains(commonAncestorContainer)) {
       return;
     }
 
-    const [startTotalOffset, endTotalOffset] = await Promise.all([
-      this.getTotalOffset(startContainer, startOffset),
-      this.getTotalOffset(endContainer, endOffset),
-    ]);
+    const startIdSplit = startContainer?.parentNode?.id.split(',');
+    const endIdSplit = endContainer?.parentNode?.id.split(',');
+
+    const startContainerOffset = parseInt(startIdSplit[1], 10);
+    const startPage = parseInt(startIdSplit[0], 10);
+    const endContainerOffset = parseInt(endIdSplit[1], 10);
+    const endPage = parseInt(endIdSplit[0], 10);
 
     setSelection({
-      start: startTotalOffset,
-      end: endTotalOffset,
-      startContainerID: startContainer?.parentNode?.id,
+      startPage,
+      startContainerOffset,
+      startOffset,
+      endPage,
+      endContainerOffset,
+      endOffset,
     });
   };
 
-  onMouseDown = async () => {
-    this.clearSelection();
-  };
+  // onMouseDown = async () => {
+  //   this.clearSelection();
+  // };
 
   handlePdfDocResize = (contentRect) => {
     this.setState({ pdfDocWidth: contentRect?.bounds?.width });
@@ -352,17 +458,10 @@ class PDFViewer extends React.Component<
     const {
       pdfData,
       numPages,
-      pagesRendered,
       // scale,
-      renderTextLayer,
+      // renderTextLayer,
       pdfDocWidth,
     } = this.state;
-
-    /**
-     * The amount of pages we want to render now. Always 1 more than already rendered,
-     * no more than total amount of pages in the document.
-     */
-    const pagesRenderedPlusOne = Math.min(pagesRendered + 1, numPages);
 
     return (
       <div
@@ -371,9 +470,8 @@ class PDFViewer extends React.Component<
         style={{ width: pdfDocWidth }}
       >
         {pathLib.basename(currentPdf.path)}
-        {pdfLoading ? (
+        {pdfLoading && false ? (
           <div className="loading-container">
-            {/* <CircularProgress size={'200px'} /> */}
             <img src="./public/loading.gif" alt="Loading..." />
           </div>
         ) : null}
@@ -388,28 +486,17 @@ class PDFViewer extends React.Component<
                   onMouseUp={this.onMouseUp}
                   // onMouseDown={this.onMouseDown}
                 >
-                  {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
-                    const isCurrentlyRendering =
-                      pagesRenderedPlusOne === index + 1;
-                    const isLastPage = numPages === index + 1;
-                    const needsCallbackToRenderNextPage =
-                      isCurrentlyRendering && !isLastPage;
-
+                  {Array.from(new Array(numPages), (el, index) => {
                     return (
-                      <div className="pdf-page">
+                      <div className="pdf-page" key={`page_${index + 1}`}>
                         <Page
-                          key={`page_${index + 1}`}
-                          onRenderSuccess={
-                            needsCallbackToRenderNextPage
-                              ? this.onRenderSuccess
-                              : null
-                          }
+                          // onRenderSuccess={}
                           scale={1.3}
                           // scale={scale}
                           pageNumber={index + 1}
                           onLoadSuccess={this.onPageLoad}
                           customTextRenderer={this.pdfRenderer(index + 1)}
-                          renderTextLayer={renderTextLayer}
+                          // renderTextLayer={renderTextLayer}
                           onGetTextSuccess={() => {
                             this.onRenderFinished(index + 1);
                           }}
@@ -436,7 +523,6 @@ const mapDispatchToProps = {
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
   return {
     currentPdf: state.projectFile.currentPdf,
-    // pdfSelection: state.pdfViewer.pdfSelection,
     parentRef: ownProps.parentRef,
     currentProjectFile: state.projectFile.currentProjectFile,
     currentIndexes: state.projectFile.currentIndexes,

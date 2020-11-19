@@ -64,7 +64,16 @@ class BookmarkItem extends React.Component<
   render(): React.ReactElement {
     const { bookmark, editingBookmarkID } = this.props;
     const { comment, color } = this.state;
+    const {
+      startOffset,
+      endOffset,
+      startContainerOffset,
+      startPage,
+      endContainerOffset,
+      endPage,
+    } = bookmark.selection;
     const needToEdit = editingBookmarkID === bookmark.id;
+    const info = `${startPage},${startContainerOffset}:${startOffset} .. ${endPage},${endContainerOffset}:${endOffset}`;
     return (
       <div
         className="bookmark-item"
@@ -91,10 +100,7 @@ class BookmarkItem extends React.Component<
                 }}
               />
             </div>
-            <div className="bookmark-position">
-              {bookmark.selection.start} .. {bookmark.selection.end} [
-              {bookmark.selection.startContainerID}]
-            </div>
+            <div className="bookmark-position">{info}</div>
             <div className="bookmark-color">
               <CirclePicker
                 color={color}
@@ -132,10 +138,7 @@ class BookmarkItem extends React.Component<
             }}
           >
             <div className="bookmark-comment">{bookmark.comment}</div>
-            <div className="bookmark-position">
-              {bookmark.selection.start} .. {bookmark.selection.end} [
-              {bookmark.selection.startContainerID}]
-            </div>
+            <div className="bookmark-position">{info}</div>
             <div className="bookmark-controls">
               <button
                 type="button"

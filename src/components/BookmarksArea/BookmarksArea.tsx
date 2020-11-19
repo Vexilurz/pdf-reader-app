@@ -19,7 +19,10 @@ class BookmarksArea extends React.Component<
 
   onAddBookmark = () => {
     const { addBookmark, selection, setEditingBookmarkID } = this.props;
-    if (selection.start !== Infinity && selection.end !== Infinity) {
+    if (
+      selection.startOffset !== Infinity &&
+      selection.endOffset !== Infinity
+    ) {
       const newBookmark = createBookmark('', selection, '#cce5ff');
       addBookmark(newBookmark);
       setEditingBookmarkID(newBookmark.id);
@@ -27,7 +30,20 @@ class BookmarksArea extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { projectFile, indexes, setEditingBookmarkID } = this.props;
+    const {
+      projectFile,
+      indexes,
+      setEditingBookmarkID,
+      selection,
+    } = this.props;
+    const {
+      startOffset,
+      endOffset,
+      startContainerOffset,
+      startPage,
+      endContainerOffset,
+      endPage,
+    } = selection;
     return (
       <div
         className="bookmarks-area"
@@ -35,7 +51,8 @@ class BookmarksArea extends React.Component<
           setEditingBookmarkID('');
         }}
       >
-        Bookmarks area
+        Bookmarks area{' '}
+        {`${startPage},${startContainerOffset}:${startOffset} .. ${endPage},${endContainerOffset}:${endOffset}`}
         <div className="bookmarks-list">
           {projectFile.events[indexes.eventIndex]?.files[
             indexes.fileIndex
