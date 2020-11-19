@@ -64,16 +64,9 @@ class BookmarkItem extends React.Component<
   render(): React.ReactElement {
     const { bookmark, editingBookmarkID } = this.props;
     const { comment, color } = this.state;
-    const {
-      startOffset,
-      endOffset,
-      startContainerOffset,
-      startPage,
-      endContainerOffset,
-      endPage,
-    } = bookmark.selection;
+    const { startOffset, endOffset, startPage, endPage } = bookmark.selection;
+    const info = `${startPage}:${startOffset} .. ${endPage}:${endOffset}`;
     const needToEdit = editingBookmarkID === bookmark.id;
-    const info = `${startPage},${startContainerOffset}:${startOffset} .. ${endPage},${endContainerOffset}:${endOffset}`;
     return (
       <div
         className="bookmark-item"
@@ -132,9 +125,7 @@ class BookmarkItem extends React.Component<
             className="bookmark-item-view"
             onClick={(e) => {
               e.stopPropagation();
-              document
-                .getElementById(bookmark.selection.startContainerID)
-                .scrollIntoView();
+              document.getElementById(bookmark.id).scrollIntoView();
             }}
           >
             <div className="bookmark-comment">{bookmark.comment}</div>

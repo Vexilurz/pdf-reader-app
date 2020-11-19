@@ -39,7 +39,6 @@ class PDFViewer extends React.Component<
 > {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
-  private newPatternWorkResult: boolean;
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
@@ -52,7 +51,6 @@ class PDFViewer extends React.Component<
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
-    this.newPatternWorkResult = false;
   }
 
   componentDidMount(): void {
@@ -165,9 +163,14 @@ class PDFViewer extends React.Component<
     return this.pagesOffsets[pageNumber - 1] + itemOffset + offset;
   };
 
-  getMarkedText = (text: string, color: string, key: any) => {
+  getMarkedText = (text: string, color: string, key: any, id: string) => {
     return (
-      <mark id={key} key={key} style={{ color, backgroundColor: color }}>
+      <mark
+        title={key}
+        key={key}
+        id={id}
+        style={{ color, backgroundColor: color }}
+      >
         {text}
       </mark>
     );
@@ -175,97 +178,20 @@ class PDFViewer extends React.Component<
 
   getUnmarkedText = (text: string, key: any) => {
     return (
-      <span id={key} key={key}>
+      <span title={key} key={key}>
         {text}
       </span>
     );
   };
 
-  // newPattern = (
-  //   text: string,
-  //   bookmark: IBookmark,
-  //   pageNumber: number,
-  //   counter: number
-  // ) => {
-  //   let result = this.getUnmarkedText(text, `${pageNumber},${counter},0`);
-
-  //   const {
-  //     startOffset,
-  //     endOffset,
-  //     startContainerOffset,
-  //     startPage,
-  //     endContainerOffset,
-  //     endPage,
-  //   } = bookmark.selection;
-
-  //   const { length } = text;
-  //   const counterPlusLen = counter + length;
-  //   if (pageNumber >= startPage && pageNumber <= endPage) {
-  //     if (
-  //       (pageNumber > startPage && pageNumber < endPage) ||
-  //       (pageNumber === endPage && counterPlusLen <= endContainerOffset) ||
-  //       ()
-  //     ) {
-  //       // mark all text
-  //       result = this.getMarkedText(text, bookmark.color, '0k' + counter);
-  //       this.newPatternWorkResult = true;
-  //     } else if (
-  //       counter >= bookmark.selection.startOffset &&
-  //       counter < bookmark.selection.endOffset
-  //     ) {
-  //       // mark left part
-  //       result = splitDuo(bookmark.selection.endOffset - counter)(text);
-  //       result[0] = this.getMarkedText(
-  //         result[0],
-  //         bookmark.color,
-  //         '0k' + counter
-  //       );
-  //       result[1] = this.getUnmarkedText(result[1], '1k' + counter);
-  //       this.newPatternWorkResult = true;
-  //     } else if (
-  //       counter + length > bookmark.selection.startOffset &&
-  //       counter + length <= bookmark.selection.endOffset
-  //     ) {
-  //       // mark right part
-  //       result = splitDuo(bookmark.selection.startOffset - counter)(text);
-  //       result[0] = this.getUnmarkedText(result[0], '0k' + counter);
-  //       result[1] = this.getMarkedText(
-  //         result[1],
-  //         bookmark.color,
-  //         '1k' + counter
-  //       );
-  //       this.newPatternWorkResult = true;
-  //     } else if (
-  //       counter < bookmark.selection.startOffset &&
-  //       counter + length > bookmark.selection.endOffset
-  //     ) {
-  //       // mark middle
-  //       result = splitTriple(
-  //         bookmark.selection.startOffset - counter,
-  //         bookmark.selection.endOffset - counter
-  //       )(text);
-  //       result[0] = this.getUnmarkedText(result[0], '0k' + counter);
-  //       result[1] = this.getMarkedText(
-  //         result[1],
-  //         bookmark.color,
-  //         '1k' + counter
-  //       );
-  //       result[2] = this.getUnmarkedText(result[2], '2k' + counter);
-  //       this.newPatternWorkResult = true;
-  //     }
-  //   }
-  //   // console.log(dbg, result);
-  //   return result;
-  // };
-
-  split = (
+  newPattern = (
     text: string,
     bookmarks: any[],
     pageNumber: number,
     counter: number
   ) => {
     const result = [];
-    const textEnd = text.length + counter;
+    const textEnd = counter + text.length;
     let current = counter;
     let index = 0;
     for (const bookmark of bookmarks) {
@@ -290,7 +216,8 @@ class PDFViewer extends React.Component<
           this.getMarkedText(
             text.slice(start - counter, end - counter),
             bookmark.color,
-            `${pageNumber},${current},${index++},${bookmark.id}`
+            `${pageNumber},${current},${index++}`,
+            `${bookmark.id}`
           )
         );
         current = end;
@@ -329,8 +256,8 @@ class PDFViewer extends React.Component<
 
     const bookmarksSorted = bookmarksFiltered
       .map((v) => {
-        let start = v.selection.startContainerOffset + v.selection.startOffset;
-        let end = v.selection.endContainerOffset + v.selection.endOffset;
+        let start = v.selection.startOffset;
+        let end = v.selection.endOffset;
 
         if (pageNumber > v.selection.startPage) {
           start = 0;
@@ -344,31 +271,27 @@ class PDFViewer extends React.Component<
       })
       .sort((a, b) => a.start - b.start);
 
+    // console.log(
+    //   '%c%s',
+    //   'color: lime; font: 1.2rem/1 Tahoma;',
+    //   'PDF_RENDERER',
+    //   pageNumber
+    // );
+
     // this is crunches. I don't know why renderer calls twice on the same textItem.
     let prevTextItem = null;
-    console.log(
-      '%c%s',
-      'color: lime; font: 1.2rem/1 Tahoma;',
-      'PDF_RENDERER',
-      pageNumber
-    );
     return (textItem) => {
       if (prevTextItem !== textItem) {
         prevTextItem = textItem;
         let pattern = '';
         if (textItem.str) {
-          // this.newPatternWorkResult = false;
           if (bookmarksSorted?.length > 0) {
-            let index = 0;
-            // while (!this.newPatternWorkResult && index < bookmarks.length) {
-            pattern = this.split(
+            pattern = this.newPattern(
               textItem.str,
               bookmarksSorted,
               pageNumber,
               counter
             );
-            // index += 1;
-            // }
           } else {
             pattern = this.getUnmarkedText(
               textItem.str,
@@ -389,11 +312,6 @@ class PDFViewer extends React.Component<
       }
     };
   };
-
-  // clearSelection = () => {
-  //   const { setSelection } = this.props;
-  //   setSelection(getInfSelection());
-  // };
 
   onMouseUp = async () => {
     const { setSelection } = this.props;
@@ -420,34 +338,26 @@ class PDFViewer extends React.Component<
       startOffset,
     } = sel;
 
-    // console.log(startContainer.parentNode.id);
-
     // Selection partially outside PDF document
     if (!this.containerRef.current.contains(commonAncestorContainer)) {
       return;
     }
 
-    const startIdSplit = startContainer?.parentNode?.id.split(',');
-    const endIdSplit = endContainer?.parentNode?.id.split(',');
+    const startIdSplit = startContainer?.parentNode?.title.split(',');
+    const endIdSplit = endContainer?.parentNode?.title.split(',');
 
-    const startContainerOffset = parseInt(startIdSplit[1], 10);
+    const start = parseInt(startIdSplit[1], 10) + startOffset;
     const startPage = parseInt(startIdSplit[0], 10);
-    const endContainerOffset = parseInt(endIdSplit[1], 10);
+    const end = parseInt(endIdSplit[1], 10) + endOffset;
     const endPage = parseInt(endIdSplit[0], 10);
 
     setSelection({
       startPage,
-      startContainerOffset,
-      startOffset,
+      startOffset: start,
       endPage,
-      endContainerOffset,
-      endOffset,
+      endOffset: end,
     });
   };
-
-  // onMouseDown = async () => {
-  //   this.clearSelection();
-  // };
 
   handlePdfDocResize = (contentRect) => {
     this.setState({ pdfDocWidth: contentRect?.bounds?.width });
@@ -484,7 +394,6 @@ class PDFViewer extends React.Component<
                   onLoadSuccess={this.onDocumentLoadSuccess}
                   inputRef={(ref) => (this.containerRef.current = ref)}
                   onMouseUp={this.onMouseUp}
-                  // onMouseDown={this.onMouseDown}
                 >
                   {Array.from(new Array(numPages), (el, index) => {
                     return (
