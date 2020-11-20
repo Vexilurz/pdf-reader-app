@@ -34,9 +34,9 @@ class BookmarksArea extends React.Component<
       projectFile,
       indexes,
       setEditingBookmarkID,
-      // selection,
+      selection,
     } = this.props;
-    // const { startOffset, endOffset, startPage, endPage } = selection;
+    const { startOffset, endOffset, startPage, endPage } = selection;
     return (
       <div
         className="bookmarks-area"
@@ -45,7 +45,7 @@ class BookmarksArea extends React.Component<
         }}
       >
         Bookmarks area
-        {/* {`  ${startPage}:${startOffset} .. ${endPage}:${endOffset}`} */}
+        {`  ${startPage}:${startOffset} .. ${endPage}:${endOffset}`}
         <div className="bookmarks-list">
           {projectFile.events[indexes.eventIndex]?.files[
             indexes.fileIndex

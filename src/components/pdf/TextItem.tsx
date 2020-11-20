@@ -1,32 +1,40 @@
 import * as React from 'react';
 
-export interface ITextItemProps {
-  children: any;
-  id: string;
-}
-export interface ITextItemState {
+export interface ITextItemChunk {
+  text: string;
   color: string;
+  title: string;
+  id: string | null;
 }
+
+export interface ITextItemProps {
+  chunks: ITextItemChunk[];
+}
+export interface ITextItemState {}
 
 export class TextItem extends React.Component<ITextItemProps, ITextItemState> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      color: 'white',
-    };
-  }
-
-  componentDidMount() {
-    setTimeout(() => {
-      if (this.props.id === '1,0,0') this.setState({ color: 'red' });
-    }, 5000);
-  }
+  componentDidMount() {}
 
   render(): React.ReactElement {
-    const { children, id } = this.props;
+    const { chunks } = this.props;
     return (
-      <span id={id} style={{ backgroundColor: this.state.color }}>
-        {children}
+      <span className="text-item">
+        {chunks?.map((chunk, index) => {
+          return (
+            <span
+              className="text-item-chunk"
+              key={`chunk${index}`}
+              id={chunk?.id}
+              title={chunk?.title}
+              style={{
+                color: chunk?.color,
+                backgroundColor: chunk?.color,
+              }}
+            >
+              {chunk?.text}
+            </span>
+          );
+        })}
       </span>
     );
   }

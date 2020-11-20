@@ -20,7 +20,14 @@ import {
   getBookmarkPageOffset,
 } from '../../types/bookmark';
 import { splitTriple, splitDuo } from '../../utils/splitUtils';
-import { TextItem } from './TextItem';
+import { TextItem, ITextItemChunk } from './TextItem';
+
+interface IChunks {
+  chunks: ITextItemChunk[];
+}
+interface IChunksArray {
+  textItemArray: IChunks[];
+}
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
@@ -31,6 +38,7 @@ export interface IPDFViewerState {
   scale: number;
   renderTextLayer: boolean;
   pdfDocWidth: number;
+  pageChunks: IChunksArray[];
 }
 
 class PDFViewer extends React.Component<
@@ -39,6 +47,8 @@ class PDFViewer extends React.Component<
 > {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
+  private _pageChunks: IChunksArray[];
+  private pagesRendered: number;
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
@@ -48,9 +58,12 @@ class PDFViewer extends React.Component<
       scale: 1.0,
       renderTextLayer: false,
       pdfDocWidth: 1000,
+      pageChunks: [],
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
+    this._pageChunks = [];
+    this.pagesRendered = 0;
   }
 
   componentDidMount(): void {
@@ -61,8 +74,6 @@ class PDFViewer extends React.Component<
       }
     );
   }
-
-  // shouldComponentUpdate()
 
   // calcScale = (page) => {
   //   const parent = this.props.parentRef.current;
@@ -77,11 +88,6 @@ class PDFViewer extends React.Component<
   onPageLoad = async (page) => {
     this.removeTextLayerOffset();
     // this.calcScale(page);
-    // const { numPages } = this.state;
-    // this.loadedPagesCounter += 1;
-    // if (this.loadedPagesCounter >= numPages) {
-    //   this.setState({ renderTextLayer: true });
-    // }
   };
 
   removeTextLayerOffset = () => {
@@ -96,71 +102,24 @@ class PDFViewer extends React.Component<
     });
   };
 
-  // calcPageOffsets = (numPages) => {
-  //   this.pagesOffsets = [];
-  //   for (let i = 0; i < numPages; i += 1) {
-  //     this.getPageOffset(i + 1).then((pageOffset) =>
-  //       this.pagesOffsets.push(pageOffset)
-  //     );
-  //   }
-  // };
-
   onDocumentLoadSuccess = (document) => {
     const { numPages } = document;
-    this.setState({ numPages });
+    this._pageChunks = new Array(numPages + 1).fill({
+      textItemArray: [],
+    });
+    this.setState({ numPages, pageChunks: new Array(numPages + 1) });
     this.documentRef.current = document;
     // this.calcPageOffsets(numPages);
   };
 
   onRenderFinished = (pageNumber: number) => {
-    // const { numPages } = this.state;
-    // const { setShowLoading } = this.props;
-    // if (pageNumber === numPages) {
-    //   setShowLoading(false);
-    // }
-  };
-
-  getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
-    const page = await this.documentRef.current.getPage(pageNumber);
-    const textContent = await page.getTextContent();
-    // console.log('getItemOffset', itemIndex, textContent);
-    return textContent.items
-      .slice(0, itemIndex)
-      .reduce((acc: number, item) => acc + item.str.length, 0);
-  };
-
-  // Calculates total length of all previous pages
-  // getPageOffset = async (pageNumber: number) => {
-  //   const pageLengths = await Promise.all(
-  //     Array.from({ length: pageNumber - 1 }, (_, index) =>
-  //       this.getItemOffset(index + 1)
-  //     )
-  //   );
-  //   return pageLengths.reduce((acc, pageLength) => acc + pageLength, 0);
-  // };
-
-  getItemIndex = (item) => {
-    let index = 0;
-    while ((item = item.previousSibling) !== null) {
-      index += 1;
+    const { numPages } = this.state;
+    const { setShowLoading } = this.props;
+    this.pagesRendered += 1;
+    if (this.pagesRendered === numPages) {
+      setShowLoading(false);
+      this.setState({ pageChunks: [...this._pageChunks] });
     }
-    return index;
-  };
-
-  getTotalOffset = async (container, offset) => {
-    const textLayerItem = container.parentNode.parentNode;
-    const textLayer = textLayerItem.parentNode;
-    const page = textLayer.parentNode;
-    const pageNumber = parseInt(page.dataset.pageNumber, 10);
-    const itemIndex = this.getItemIndex(textLayerItem);
-    const [itemOffset] = await Promise.all([
-      // this.getPageOffset(pageNumber),
-      this.getItemOffset(pageNumber, itemIndex),
-    ]);
-
-    // console.log('getTotalOffset', pageOffset, itemOffset, offset);
-
-    return this.pagesOffsets[pageNumber - 1] + itemOffset + offset;
   };
 
   getMarkedText = (text: string, color: string, key: any, id: string) => {
@@ -241,7 +200,8 @@ class PDFViewer extends React.Component<
   };
 
   pdfRenderer = (pageNumber: number) => {
-    let counter = 0;
+    let textLenCounter = 0;
+    let indexCounter = 0;
     const { currentIndexes, currentProjectFile } = this.props;
 
     const allBookmarks =
@@ -285,28 +245,49 @@ class PDFViewer extends React.Component<
         prevTextItem = textItem;
         let pattern = '';
         if (textItem.str) {
-          if (bookmarksSorted?.length > 0) {
-            pattern = this.newPattern(
-              textItem.str,
-              bookmarksSorted,
-              pageNumber,
-              counter
-            );
-          } else {
-            pattern = this.getUnmarkedText(
-              textItem.str,
-              `${pageNumber},${counter},0`
-            );
-          }
-          // pattern = (
-          //   <TextItem
-          //     key={`${pageNumber},${counter},0`}
-          //     id={`${pageNumber},${counter},0`}
-          //   >
-          //     {textItem.str}
-          //   </TextItem>
-          // );
-          counter += textItem.str.length;
+          // if (bookmarksSorted?.length > 0) {
+          //   pattern = this.newPattern(
+          //     textItem.str,
+          //     bookmarksSorted,
+          //     pageNumber,
+          //     counter
+          //   );
+          // } else {
+          //   pattern = this.getUnmarkedText(
+          //     textItem.str,
+          //     `${pageNumber},${counter},0`
+          //   );
+          // }
+          this._pageChunks[pageNumber].textItemArray.push({
+            chunks: [
+              {
+                title: `${pageNumber},${textLenCounter}`,
+                text: textItem.str,
+                id: null,
+                color: 'red',
+              },
+            ],
+          });
+          pattern = (
+            <TextItem
+              chunks={
+                this.state.pageChunks[pageNumber]?.textItemArray[indexCounter]
+                  ?.chunks
+              }
+            />
+            // <TextItem
+            //   chunks={[
+            //     {
+            //       title: `${pageNumber},${textLenCounter}`,
+            //       text: textItem.str,
+            //       id: null,
+            //       color: null,
+            //     },
+            //   ]}
+            // />
+          );
+          textLenCounter += textItem.str.length;
+          indexCounter += 1;
         }
         return pattern;
       }
@@ -372,7 +353,7 @@ class PDFViewer extends React.Component<
       // renderTextLayer,
       pdfDocWidth,
     } = this.state;
-
+    this.pagesRendered = 0;
     return (
       <div
         className="pdf-viewer"
