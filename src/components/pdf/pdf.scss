@@ -32,6 +32,14 @@
   margin-top: 15px;
 }
 
+.pdf-search {
+  margin: 4px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  max-height: 30px;
+}
+
 .loading-container {
   height: 100%;
   width: 100%;

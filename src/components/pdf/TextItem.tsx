@@ -3,7 +3,7 @@ import * as React from 'react';
 export interface ITextItemChunk {
   text: string;
   color: string;
-  title: string;
+  className: string;
   id: string | null;
 }
 
@@ -22,10 +22,10 @@ export class TextItem extends React.Component<ITextItemProps, ITextItemState> {
         {chunks?.map((chunk, index) => {
           return (
             <span
-              className="text-item-chunk"
+              // className="text-item-chunk"
               key={`chunk${index}`}
               id={chunk?.id}
-              title={chunk?.title}
+              className={chunk?.className}
               style={{
                 color: chunk?.color,
                 backgroundColor: chunk?.color,

@@ -22,12 +22,12 @@ import {
 import { splitTriple, splitDuo } from '../../utils/splitUtils';
 import { TextItem, ITextItemChunk } from './TextItem';
 
-interface IChunks {
-  chunks: ITextItemChunk[];
-}
-interface IChunksArray {
-  textItemArray: IChunks[];
-}
+// interface IChunks {
+//   chunks: ITextItemChunk[];
+// }
+// interface IChunksArray {
+//   textItemArray: IChunks[];
+// }
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
@@ -38,7 +38,8 @@ export interface IPDFViewerState {
   scale: number;
   renderTextLayer: boolean;
   pdfDocWidth: number;
-  pageChunks: IChunksArray[];
+  searchPattern: string | null;
+  // pageChunks: IChunksArray[];
 }
 
 class PDFViewer extends React.Component<
@@ -47,8 +48,10 @@ class PDFViewer extends React.Component<
 > {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
-  private _pageChunks: IChunksArray[];
+  private searchRef: React.RefObject<any>;
+  // private _pageChunks: IChunksArray[];
   private pagesRendered: number;
+  private pageText: string[];
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
@@ -58,12 +61,15 @@ class PDFViewer extends React.Component<
       scale: 1.0,
       renderTextLayer: false,
       pdfDocWidth: 1000,
-      pageChunks: [],
+      searchPattern: null,
+      // pageChunks: [],
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
-    this._pageChunks = [];
+    this.searchRef = React.createRef();
+    // this._pageChunks = [];
     this.pagesRendered = 0;
+    this.pageText = [];
   }
 
   componentDidMount(): void {
@@ -104,10 +110,11 @@ class PDFViewer extends React.Component<
 
   onDocumentLoadSuccess = (document) => {
     const { numPages } = document;
-    this._pageChunks = new Array(numPages + 1).fill({
-      textItemArray: [],
-    });
-    this.setState({ numPages, pageChunks: new Array(numPages + 1) });
+    // this._pageChunks = new Array(numPages + 1).fill({
+    //   textItemArray: [],
+    // });
+    this.pageText = new Array(numPages).fill('');
+    this.setState({ numPages });
     this.documentRef.current = document;
     // this.calcPageOffsets(numPages);
   };
@@ -118,14 +125,28 @@ class PDFViewer extends React.Component<
     this.pagesRendered += 1;
     if (this.pagesRendered === numPages) {
       setShowLoading(false);
-      this.setState({ pageChunks: [...this._pageChunks] });
+      // this.setState({ pageChunks: [...this._pageChunks] });
     }
+  };
+
+  selectAllMatches = () => {
+    const searchPattern = this.searchRef.current.value;
+    let matchIndex = -1;
+    matchIndex = this.pageText[0].indexOf(searchPattern);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+
+    const range = new Range();
+    const qwe = document.getElementsByClassName('1,2674,0');
+    range.setStart(qwe[0], 0);
+    range.setEnd(qwe[0], 1);
+    selection?.addRange(range);
   };
 
   getMarkedText = (text: string, color: string, key: any, id: string) => {
     return (
       <mark
-        title={key}
+        className={key}
         key={key}
         id={id}
         style={{ color, backgroundColor: color }}
@@ -137,7 +158,7 @@ class PDFViewer extends React.Component<
 
   getUnmarkedText = (text: string, key: any) => {
     return (
-      <span title={key} key={key}>
+      <span className={key} key={key}>
         {text}
       </span>
     );
@@ -199,6 +220,31 @@ class PDFViewer extends React.Component<
     return result;
   };
 
+  highlightPattern = (text, pattern) => {
+    const splitText = text.split(pattern);
+
+    if (splitText.length <= 1) {
+      return text;
+    }
+
+    const matches = text.match(pattern);
+
+    const tmp = splitText.reduce(
+      (arr, element, index) =>
+        matches[index]
+          ? [
+              ...arr,
+              element,
+              <mark key={index} style={{ backgroundColor: 'blue' }}>
+                {matches[index]}
+              </mark>,
+            ]
+          : [...arr, element],
+      []
+    );
+    return tmp;
+  };
+
   pdfRenderer = (pageNumber: number) => {
     let textLenCounter = 0;
     let indexCounter = 0;
@@ -218,15 +264,12 @@ class PDFViewer extends React.Component<
       .map((v) => {
         let start = v.selection.startOffset;
         let end = v.selection.endOffset;
-
         if (pageNumber > v.selection.startPage) {
           start = 0;
         }
-
         if (pageNumber < v.selection.endPage) {
           end = Infinity;
         }
-
         return { start, end, color: v.color, id: v.id };
       })
       .sort((a, b) => a.start - b.start);
@@ -245,47 +288,43 @@ class PDFViewer extends React.Component<
         prevTextItem = textItem;
         let pattern = '';
         if (textItem.str) {
-          // if (bookmarksSorted?.length > 0) {
-          //   pattern = this.newPattern(
-          //     textItem.str,
-          //     bookmarksSorted,
-          //     pageNumber,
-          //     counter
-          //   );
-          // } else {
-          //   pattern = this.getUnmarkedText(
-          //     textItem.str,
-          //     `${pageNumber},${counter},0`
-          //   );
-          // }
-          this._pageChunks[pageNumber].textItemArray.push({
-            chunks: [
-              {
-                title: `${pageNumber},${textLenCounter}`,
-                text: textItem.str,
-                id: null,
-                color: 'red',
-              },
-            ],
-          });
-          pattern = (
-            <TextItem
-              chunks={
-                this.state.pageChunks[pageNumber]?.textItemArray[indexCounter]
-                  ?.chunks
-              }
-            />
-            // <TextItem
-            //   chunks={[
+          this.pageText[pageNumber - 1] += textItem.str;
+          const { searchPattern } = this.state;
+          if (searchPattern) {
+            pattern = this.highlightPattern(textItem.str, searchPattern);
+          } else {
+            if (bookmarksSorted?.length > 0) {
+              pattern = this.newPattern(
+                textItem.str,
+                bookmarksSorted,
+                pageNumber,
+                textLenCounter
+              );
+            } else {
+              pattern = this.getUnmarkedText(
+                textItem.str,
+                `${pageNumber},${textLenCounter},0`
+              );
+            }
+            // this._pageChunks[pageNumber].textItemArray.push({
+            //   chunks: [
             //     {
-            //       title: `${pageNumber},${textLenCounter}`,
+            //       className: `${pageNumber},${textLenCounter}`,
             //       text: textItem.str,
             //       id: null,
-            //       color: null,
+            //       color: 'red',
             //     },
-            //   ]}
-            // />
-          );
+            //   ],
+            // });
+            // pattern = (
+            //   <TextItem
+            //     chunks={
+            //       this.state.pageChunks[pageNumber]?.textItemArray[indexCounter]
+            //         ?.chunks
+            //     }
+            //   />
+            // );
+          }
           textLenCounter += textItem.str.length;
           indexCounter += 1;
         }
@@ -324,8 +363,8 @@ class PDFViewer extends React.Component<
       return;
     }
 
-    const startIdSplit = startContainer?.parentNode?.title.split(',');
-    const endIdSplit = endContainer?.parentNode?.title.split(',');
+    const startIdSplit = startContainer?.parentNode?.className.split(',');
+    const endIdSplit = endContainer?.parentNode?.className.split(',');
 
     const start = parseInt(startIdSplit[1], 10) + startOffset;
     const startPage = parseInt(startIdSplit[0], 10);
@@ -361,7 +400,37 @@ class PDFViewer extends React.Component<
         style={{ width: pdfDocWidth }}
       >
         {pathLib.basename(currentPdf.path)}
-        {pdfLoading && false ? (
+        <div className="pdf-search">
+          <label htmlFor="search">{`Search:  `}</label>
+          <input
+            type="search"
+            id="search-input"
+            className="search-input"
+            ref={this.searchRef}
+          />
+          <button
+            type="button"
+            className="search-button btn btn-primary"
+            onClick={() => {
+              this.setState({ searchPattern: this.searchRef.current.value });
+              // this.selectAllMatches();
+            }}
+          >
+            Search
+          </button>
+          <button
+            type="button"
+            className="clear-search-button btn btn-primary"
+            onClick={() => {
+              this.searchRef.current.value = '';
+              this.setState({ searchPattern: '' });
+              // this.selectAllMatches();
+            }}
+          >
+            Clear
+          </button>
+        </div>
+        {pdfLoading ? (
           <div className="loading-container">
             <img src="./public/loading.gif" alt="Loading..." />
           </div>
