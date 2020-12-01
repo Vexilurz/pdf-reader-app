@@ -22,6 +22,7 @@ import {
 } from '../../types/bookmark';
 import { splitTriple, splitDuo } from '../../utils/splitUtils';
 import { TextItem, ITextItemChunk } from './TextItem';
+import { PdfToolBar } from './PdfToolBar';
 
 // interface IChunks {
 //   chunks: ITextItemChunk[];
@@ -429,37 +430,13 @@ class PDFViewer extends React.Component<
         ref={this.containerRef}
         style={{ width: pdfDocWidth }}
       >
-        {pathLib.basename(currentPdf.path)}
-        <div className="pdf-search">
-          <label htmlFor="search">{`Search:  `}</label>
-          <input
-            type="search"
-            id="search-input"
-            className="search-input"
-            ref={this.searchRef}
-          />
-          <button
-            type="button"
-            className="search-button btn btn-primary"
-            onClick={() => {
-              this.setState({ searchPattern: this.searchRef.current.value });
-              // this.selectAllMatches();
-            }}
-          >
-            Search
-          </button>
-          <button
-            type="button"
-            className="clear-search-button btn btn-primary"
-            onClick={() => {
-              this.searchRef.current.value = '';
-              this.setState({ searchPattern: '' });
-              // this.selectAllMatches();
-            }}
-          >
-            Clear
-          </button>
-        </div>
+        <PdfToolBar
+          pdfName={pathLib.basename(currentPdf.path)}
+          onSetPattern={(searchPattern: string) => {
+            this.setState({ searchPattern });
+          }}
+        />
+
         {pdfLoading && false ? (
           <div className="loading-container">
             <img src="./public/loading.gif" alt="Loading..." />

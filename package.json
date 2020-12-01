@@ -29,6 +29,9 @@
     "pack": "npm run build-prod && npx electron-packager ./dist --out ./pack --overwrite"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/react-fontawesome": "^0.1.13",
     "@material-ui/core": "^4.11.0",
     "@reduxjs/toolkit": "^1.4.0",
     "archiver": "^5.0.2",
