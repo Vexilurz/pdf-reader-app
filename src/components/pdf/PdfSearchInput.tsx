@@ -31,7 +31,7 @@ export const PdfSearchInput = ({
   };
 
   return (
-    <InputGroup className="mb-3" style={{ width }}>
+    <InputGroup style={{ width }}>
       <InputGroup.Prepend>
         <Button variant="outline-secondary" onClick={applySearchPattern}>
           <FontAwesomeIcon icon={faSearch} />

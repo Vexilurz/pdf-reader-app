@@ -394,13 +394,14 @@ class PDFViewer extends React.Component<
     parent,
   }: any) => {
     // console.log(`Rendered ${key} ${index}`);
+    const { scale } = this.state;
     return (
       <div key={key} style={style}>
         <div className="pdf-page" key={`page_${index + 1}_${key}`}>
           <Page
             // onRenderSuccess={}
-            scale={1.3}
-            // scale={scale}
+            // scale={1.3}
+            scale={scale}
             pageNumber={index + 1}
             onLoadSuccess={this.onPageLoad}
             customTextRenderer={this.pdfRenderer(index + 1)}
@@ -435,6 +436,9 @@ class PDFViewer extends React.Component<
           onSetPattern={(searchPattern: string) => {
             this.setState({ searchPattern });
           }}
+          onSetScale={(scale: number) => {
+            this.setState({ scale });
+          }}
         />
 
         {pdfLoading && false ? (
@@ -458,7 +462,7 @@ class PDFViewer extends React.Component<
                     rowCount={numPages}
                     rowHeight={1100}
                     rowRenderer={this.rowRenderer}
-                    // scrollToIndex={312}
+                    // scrollToIndex={3}
                   />
                 </Document>
               </div>

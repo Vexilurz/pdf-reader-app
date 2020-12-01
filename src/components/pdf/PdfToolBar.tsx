@@ -1,13 +1,12 @@
-import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { Button, FormControl, InputGroup } from 'react-bootstrap';
+import { PdfScaleControls } from './PdfScaleControls';
 import { PdfSearchInput } from './PdfSearchInput';
 import './pdfToolBar.scss';
 
 export interface IPdfToolBarProps {
   pdfName: string;
   onSetPattern(searchPattern: string): void;
+  onSetScale(scale: number): void;
 }
 export interface IPdfToolBarState {}
 
@@ -15,21 +14,15 @@ export class PdfToolBar extends React.Component<
   IPdfToolBarProps,
   IPdfToolBarState
 > {
-  private searchRef: React.RefObject<any>;
-
-  constructor(props: IPdfToolBarProps & IPdfToolBarState) {
-    super(props);
-    this.searchRef = React.createRef();
-  }
+  componentDidMount() {}
 
   render(): React.ReactElement {
-    const { pdfName, onSetPattern } = this.props;
+    const { pdfName, onSetPattern, onSetScale } = this.props;
     return (
       <div className="pdf-toolbar-container">
-        <h2>{pdfName}</h2>
-        <div className="pdf-search">
-          <PdfSearchInput onSetPattern={onSetPattern} width={250} />
-        </div>
+        <h4>{pdfName}</h4>
+        <PdfSearchInput onSetPattern={onSetPattern} width={250} />
+        <PdfScaleControls onSetScale={onSetScale} />
       </div>
     );
   }
