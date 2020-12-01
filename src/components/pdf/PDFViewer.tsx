@@ -4,6 +4,7 @@ import * as pathLib from 'path';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import { List } from 'react-virtualized';
 import Measure from 'react-measure';
 // import { CircularProgress } from '@material-ui/core';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
@@ -383,6 +384,35 @@ class PDFViewer extends React.Component<
     this.setState({ pdfDocWidth: contentRect?.bounds?.width });
   };
 
+  rowRenderer = ({
+    key,
+    index,
+    isScrolling,
+    isVisible,
+    style,
+    parent,
+  }: any) => {
+    // console.log(`Rendered ${key} ${index}`);
+    return (
+      <div key={key} style={style}>
+        <div className="pdf-page" key={`page_${index + 1}_${key}`}>
+          <Page
+            // onRenderSuccess={}
+            scale={1.3}
+            // scale={scale}
+            pageNumber={index + 1}
+            onLoadSuccess={this.onPageLoad}
+            customTextRenderer={this.pdfRenderer(index + 1)}
+            // renderTextLayer={renderTextLayer}
+            onGetTextSuccess={() => {
+              this.onRenderFinished(index + 1);
+            }}
+          />
+        </div>
+      </div>
+    );
+  };
+
   render(): React.ReactElement {
     const { currentPdf, pdfLoading } = this.props;
     const {
@@ -430,7 +460,7 @@ class PDFViewer extends React.Component<
             Clear
           </button>
         </div>
-        {pdfLoading ? (
+        {pdfLoading && false ? (
           <div className="loading-container">
             <img src="./public/loading.gif" alt="Loading..." />
           </div>
@@ -445,24 +475,14 @@ class PDFViewer extends React.Component<
                   inputRef={(ref) => (this.containerRef.current = ref)}
                   onMouseUp={this.onMouseUp}
                 >
-                  {Array.from(new Array(numPages), (el, index) => {
-                    return (
-                      <div className="pdf-page" key={`page_${index + 1}`}>
-                        <Page
-                          // onRenderSuccess={}
-                          scale={1.3}
-                          // scale={scale}
-                          pageNumber={index + 1}
-                          onLoadSuccess={this.onPageLoad}
-                          customTextRenderer={this.pdfRenderer(index + 1)}
-                          // renderTextLayer={renderTextLayer}
-                          onGetTextSuccess={() => {
-                            this.onRenderFinished(index + 1);
-                          }}
-                        />
-                      </div>
-                    );
-                  })}
+                  <List
+                    width={this.state.pdfDocWidth}
+                    height={600}
+                    rowCount={numPages}
+                    rowHeight={1100}
+                    rowRenderer={this.rowRenderer}
+                    // scrollToIndex={312}
+                  />
                 </Document>
               </div>
             )}
