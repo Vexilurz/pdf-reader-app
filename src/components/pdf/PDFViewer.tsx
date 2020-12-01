@@ -416,7 +416,7 @@ class PDFViewer extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { currentPdf, pdfLoading } = this.props;
+    const { currentPdf, pdfLoading, scrollToIndex } = this.props;
     const {
       pdfData,
       numPages,
@@ -462,7 +462,7 @@ class PDFViewer extends React.Component<
                     rowCount={numPages}
                     rowHeight={1100}
                     rowRenderer={this.rowRenderer}
-                    // scrollToIndex={3}
+                    scrollToIndex={scrollToIndex.value}
                   />
                 </Document>
               </div>
@@ -487,6 +487,7 @@ const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
     currentProjectFile: state.projectFile.currentProjectFile,
     currentIndexes: state.projectFile.currentIndexes,
     pdfLoading: state.appState.showLoading,
+    scrollToIndex: state.pdfViewer.scrollToIndex,
   };
 };
 

@@ -1,14 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IPdfSelection, getInfSelection } from '../types/bookmark';
 
+interface IScrollToIndex {
+  value: number;
+}
+
 export interface IPDFViewerState {
   pdfSelection: IPdfSelection;
   editingBookmarkID: string;
+  scrollToIndex: IScrollToIndex;
 }
 
 const initialState: IPDFViewerState = {
   pdfSelection: getInfSelection(),
   editingBookmarkID: '',
+  scrollToIndex: { value: 0 },
 };
 
 export const pdfViewerSlice = createSlice({
@@ -22,6 +28,10 @@ export const pdfViewerSlice = createSlice({
     setEditingBookmarkID: (state: IPDFViewerState, action: PayloadAction<string>) => {
       const { payload } = action;
       state.editingBookmarkID = payload;
+    },
+    setScrollToIndex: (state: IPDFViewerState, action: PayloadAction<number>) => {
+      const { payload } = action;
+      state.scrollToIndex = payload;
     },
   },
 });
