@@ -1,7 +1,7 @@
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { Button, ButtonGroup, Dropdown } from 'react-bootstrap';
 
 export interface IProps {
   onSetScale(scale: number): void;
@@ -12,14 +12,17 @@ export const PdfScaleControls = ({ onSetScale }: IProps) => {
 
   const step = 0.2;
 
+  const setScaleMain = (value: number) => {
+    setScale(value);
+    onSetScale(value);
+  };
+
   const increment = () => {
-    setScale(scale + step);
-    onSetScale(scale);
+    setScaleMain(scale + step);
   };
 
   const decrement = () => {
-    setScale(scale - step);
-    onSetScale(scale);
+    setScaleMain(scale - step);
   };
 
   return (
@@ -32,6 +35,25 @@ export const PdfScaleControls = ({ onSetScale }: IProps) => {
           <FontAwesomeIcon icon={faMinus} onClick={decrement} />
         </Button>
       </ButtonGroup>
+      <Dropdown>
+        <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+          {`${scale * 100}%`}
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu>
+          {Array.from(new Array(16), (el, index) => {
+            return (
+              <Dropdown.Item
+                onClick={() => {
+                  setScaleMain(0.5 + index * 0.1);
+                }}
+              >
+                {`${50 + index * 10}%`}
+              </Dropdown.Item>
+            );
+          })}
+        </Dropdown.Menu>
+      </Dropdown>
     </>
   );
 };
