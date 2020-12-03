@@ -111,6 +111,7 @@ class PDFViewer extends React.Component<
       style.top = '0';
       style.left = '0';
       style.transform = '';
+      style.margin = '0 auto';
     });
   };
 
