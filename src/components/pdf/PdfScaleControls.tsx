@@ -22,7 +22,7 @@ export const PdfScaleControls = ({ onSetScale }: IProps) => {
   };
 
   const decrement = () => {
-    setScaleMain(scale - step);
+    if (scale > 0.21) setScaleMain(scale - step);
   };
 
   return (
@@ -37,7 +37,7 @@ export const PdfScaleControls = ({ onSetScale }: IProps) => {
       </ButtonGroup>
       <Dropdown>
         <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-          {`${scale * 100}%`}
+          {`${(scale * 100).toFixed(0)}%`}
         </Dropdown.Toggle>
 
         <Dropdown.Menu>
@@ -48,6 +48,7 @@ export const PdfScaleControls = ({ onSetScale }: IProps) => {
                   setScaleMain(0.5 + index * 0.1);
                 }}
               >
+                {/* TODO: fix display (120.0000000000001%) */}
                 {`${50 + index * 10}%`}
               </Dropdown.Item>
             );
