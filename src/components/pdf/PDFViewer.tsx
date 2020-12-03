@@ -37,6 +37,7 @@ export interface IPDFViewerProps {
 export interface IPDFViewerState {
   pdfData: IPDFdata | null;
   numPages: number;
+  currentPage: number;
   scale: number;
   renderTextLayer: boolean;
   pdfDocWidth: number;
@@ -60,6 +61,7 @@ class PDFViewer extends React.Component<
     this.state = {
       pdfData: null,
       numPages: 0,
+      currentPage: 1,
       scale: 1.0,
       renderTextLayer: false,
       pdfDocWidth: 1000,
@@ -395,6 +397,7 @@ class PDFViewer extends React.Component<
   }: any) => {
     // console.log(`Rendered ${key} ${index}`);
     const { scale } = this.state;
+    if (isVisible) this.setState({ currentPage: index + 1 });
     return (
       <div key={key} style={style}>
         <div className="pdf-page" key={`page_${index + 1}_${key}`}>
@@ -415,11 +418,18 @@ class PDFViewer extends React.Component<
     );
   };
 
+  setPageNumber = (pageNumber: number) => {
+    const { setScrollToIndex } = this.props;
+    this.setState({ currentPage: pageNumber });
+    setScrollToIndex({ value: pageNumber - 1 });
+  };
+
   render(): React.ReactElement {
     const { currentPdf, pdfLoading, scrollToIndex } = this.props;
     const {
       pdfData,
       numPages,
+      currentPage,
       // scale,
       // renderTextLayer,
       pdfDocWidth,
@@ -439,6 +449,9 @@ class PDFViewer extends React.Component<
           onSetScale={(scale: number) => {
             this.setState({ scale });
           }}
+          onSetPageNumber={this.setPageNumber}
+          numPages={numPages}
+          currentPage={currentPage}
         />
 
         {pdfLoading && false ? (
@@ -478,6 +491,7 @@ const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
   setSelection: pdfViewerActions.setSelection,
   setShowLoading: appStateActions.setShowLoading,
+  setScrollToIndex: pdfViewerActions.setScrollToIndex,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {

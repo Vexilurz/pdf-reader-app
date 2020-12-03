@@ -29,7 +29,7 @@ export const pdfViewerSlice = createSlice({
       const { payload } = action;
       state.editingBookmarkID = payload;
     },
-    setScrollToIndex: (state: IPDFViewerState, action: PayloadAction<number>) => {
+    setScrollToIndex: (state: IPDFViewerState, action: PayloadAction<IScrollToIndex>) => {
       const { payload } = action;
       state.scrollToIndex = payload;
     },

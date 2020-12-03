@@ -3,18 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
 import { Button, FormControl, InputGroup } from 'react-bootstrap';
 
-export interface IPdfSearchInputProps {
+export interface IProps {
   onSetPattern(searchPattern: string): void;
   width: number;
 }
-export interface IPdfToolBarState {
-  searchValue: string;
-}
 
-export const PdfSearchInput = ({
-  onSetPattern,
-  width,
-}: IPdfSearchInputProps) => {
+export const PdfSearchInput = ({ onSetPattern, width }: IProps) => {
   const [searchValue, setSearchValue] = useState<string>('');
 
   const clearSearchField = () => {

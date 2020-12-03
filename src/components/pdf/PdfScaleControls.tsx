@@ -3,11 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
 import { Button, ButtonGroup } from 'react-bootstrap';
 
-export interface Props {
+export interface IProps {
   onSetScale(scale: number): void;
 }
 
-export const PdfScaleControls = ({ onSetScale }: Props) => {
+export const PdfScaleControls = ({ onSetScale }: IProps) => {
   const [scale, setScale] = useState(1);
 
   const step = 0.2;
