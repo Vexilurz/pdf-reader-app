@@ -12,6 +12,7 @@ export const EMTPY_SCREEN = 'empty-screen';
 export const OPEN_FILE = 'open-file';
 export const SHOW_SAVE_FILE_DIALOG = 'show-save-file-dialog';
 export const LOAD_PDF_FILE = 'load-pdf-file';
+export const PRINT_PDF_FILE = 'print-pdf-file';
 export const SAVE_CURRENT_PROJECT = 'save-current-project';
 export const ADD_TO_RECENT_PROJECTS = 'add-to-recent-projects';
 export const DELETE_FROM_RECENT_PROJECTS = 'delete-from-recent-projects';

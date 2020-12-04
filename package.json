@@ -36,6 +36,7 @@
     "@reduxjs/toolkit": "^1.4.0",
     "archiver": "^5.0.2",
     "bootstrap": "^4.5.3",
+    "electron-print-dialog": "0.1.0-alpha.1",
     "luxon": "^1.25.0",
     "print-js": "^1.5.0",
     "react": "^16.13.1",
