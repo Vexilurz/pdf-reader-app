@@ -33,10 +33,10 @@ export const PdfPageControl = ({
   return (
     <InputGroup style={{ width }}>
       <InputGroup.Prepend>
-        <Button variant="outline-secondary" onClick={increment}>
+        <Button variant="outline-secondary" onClick={decrement}>
           <FontAwesomeIcon icon={faAngleUp} />
         </Button>
-        <Button variant="outline-secondary" onClick={decrement}>
+        <Button variant="outline-secondary" onClick={increment}>
           <FontAwesomeIcon icon={faAngleDown} />
         </Button>
       </InputGroup.Prepend>

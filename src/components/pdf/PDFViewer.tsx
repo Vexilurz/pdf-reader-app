@@ -44,6 +44,8 @@ export interface IPDFViewerState {
   pdfDocWidth: number;
   searchPattern: string | null;
   // pageChunks: IChunksArray[];
+  currentSearchResNum: number;
+  totalSearchResCount: number;
 }
 
 class PDFViewer extends React.Component<
@@ -56,6 +58,7 @@ class PDFViewer extends React.Component<
   // private _pageChunks: IChunksArray[];
   private pagesRendered: number;
   private pageText: string[];
+  private _totalSearchResCount: number;
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
@@ -67,6 +70,8 @@ class PDFViewer extends React.Component<
       renderTextLayer: false,
       pdfDocWidth: 1000,
       searchPattern: null,
+      currentSearchResNum: 0,
+      totalSearchResCount: 0,
       // pageChunks: [],
     };
     this.containerRef = React.createRef();
@@ -75,6 +80,7 @@ class PDFViewer extends React.Component<
     // this._pageChunks = [];
     this.pagesRendered = 0;
     this.pageText = [];
+    this._totalSearchResCount = 0;
   }
 
   componentDidMount(): void {
@@ -226,28 +232,30 @@ class PDFViewer extends React.Component<
     return result;
   };
 
-  highlightPattern = (text, pattern) => {
-    const splitText = text.split(pattern);
+  highlightPattern = (text: string, pattern: string) => {
+    const splitText = text.toLowerCase().split(pattern);
 
     if (splitText.length <= 1) {
       return text;
     }
 
-    const matches = text.match(pattern);
+    const tmp = splitText.map((item, index) => {
+      if (index == splitText.length - 1) return item;
+      else {
+        this._totalSearchResCount += 1;
+        this.setState({ totalSearchResCount: this._totalSearchResCount });
+        return [
+          item,
+          this.getMarkedText(
+            pattern,
+            'blue',
+            this._totalSearchResCount,
+            `sr${this._totalSearchResCount}`
+          ),
+        ];
+      }
+    });
 
-    const tmp = splitText.reduce(
-      (arr, element, index) =>
-        matches[index]
-          ? [
-              ...arr,
-              element,
-              <mark key={index} style={{ backgroundColor: 'blue' }}>
-                {matches[index]}
-              </mark>,
-            ]
-          : [...arr, element],
-      []
-    );
     return tmp;
   };
 
@@ -421,9 +429,9 @@ class PDFViewer extends React.Component<
   };
 
   setPageNumber = (pageNumber: number) => {
-    const { setScrollToIndex } = this.props;
+    const { setScrollToPage } = this.props;
     this.setState({ currentPage: pageNumber });
-    setScrollToIndex({ value: pageNumber - 1 });
+    setScrollToPage({ value: pageNumber - 1 });
   };
 
   onPrint = () => {
@@ -445,11 +453,34 @@ class PDFViewer extends React.Component<
     //   showModal: true,
     // });
 
-    ipcRenderer.send(appConst.PRINT_PDF_FILE, pdfData);
+    // ipcRenderer.send(appConst.PRINT_PDF_FILE, pdfData);
+  };
+
+  prevSearchRes = () => {
+    const { currentSearchResNum } = this.state;
+    if (currentSearchResNum > 1) {
+      this.setState({
+        currentSearchResNum: currentSearchResNum - 1,
+      });
+      // setScrollToPage({ value: page_number });
+      // document.getElementById(element_id).scrollIntoView();
+    }
+  };
+
+  nextSearchRes = () => {
+    const { currentSearchResNum, totalSearchResCount } = this.state;
+    if (currentSearchResNum < totalSearchResCount) {
+      this.setState({
+        currentSearchResNum: currentSearchResNum + 1,
+      });
+      // TODO:
+      // setScrollToPage({ value: page_number });
+      // document.getElementById(element_id).scrollIntoView();
+    }
   };
 
   render(): React.ReactElement {
-    const { currentPdf, pdfLoading, scrollToIndex } = this.props;
+    const { currentPdf, pdfLoading, scrollToPage } = this.props;
     const {
       pdfData,
       numPages,
@@ -457,6 +488,8 @@ class PDFViewer extends React.Component<
       // scale,
       // renderTextLayer,
       pdfDocWidth,
+      currentSearchResNum,
+      totalSearchResCount,
     } = this.state;
     this.pagesRendered = 0;
     return (
@@ -468,8 +501,17 @@ class PDFViewer extends React.Component<
         <PdfToolBar
           pdfName={pathLib.basename(currentPdf.path)}
           onSetPattern={(searchPattern: string) => {
-            this.setState({ searchPattern });
+            this._totalSearchResCount = 0;
+            this.setState({
+              searchPattern,
+              totalSearchResCount: 0,
+              currentSearchResNum: 0,
+            });
           }}
+          prevSearchRes={this.prevSearchRes}
+          nextSearchRes={this.nextSearchRes}
+          currentSearchResNum={currentSearchResNum}
+          totalSearchResCount={totalSearchResCount}
           onSetScale={(scale: number) => {
             this.setState({ scale });
           }}
@@ -500,7 +542,7 @@ class PDFViewer extends React.Component<
                     rowCount={numPages}
                     rowHeight={850 * this.state.scale}
                     rowRenderer={this.rowRenderer}
-                    scrollToIndex={scrollToIndex.value}
+                    scrollToIndex={scrollToPage.value}
                   />
                 </Document>
               </div>
@@ -516,7 +558,7 @@ const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
   setSelection: pdfViewerActions.setSelection,
   setShowLoading: appStateActions.setShowLoading,
-  setScrollToIndex: pdfViewerActions.setScrollToIndex,
+  setScrollToPage: pdfViewerActions.setScrollToPage,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
@@ -526,7 +568,7 @@ const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
     currentProjectFile: state.projectFile.currentProjectFile,
     currentIndexes: state.projectFile.currentIndexes,
     pdfLoading: state.appState.showLoading,
-    scrollToIndex: state.pdfViewer.scrollToIndex,
+    scrollToPage: state.pdfViewer.scrollToPage,
   };
 };
 

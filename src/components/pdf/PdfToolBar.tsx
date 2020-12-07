@@ -10,6 +10,10 @@ import './pdfToolBar.scss';
 export interface IPdfToolBarProps {
   pdfName: string;
   onSetPattern(searchPattern: string): void;
+  prevSearchRes(): void;
+  nextSearchRes(): void;
+  currentSearchResNum: number;
+  totalSearchResCount: number;
   onSetScale(scale: number): void;
   onSetPageNumber(pageNumber: number): void;
   numPages: number;
@@ -28,6 +32,10 @@ export class PdfToolBar extends React.Component<
     const {
       pdfName,
       onSetPattern,
+      prevSearchRes,
+      nextSearchRes,
+      currentSearchResNum,
+      totalSearchResCount,
       onSetScale,
       onSetPageNumber,
       numPages,
@@ -37,9 +45,16 @@ export class PdfToolBar extends React.Component<
     return (
       <div className="pdf-toolbar-container">
         <h4>{pdfName}</h4>
-        <PdfSearchInput onSetPattern={onSetPattern} width={250} />
+        <PdfSearchInput
+          onSetPattern={onSetPattern}
+          width={250}
+          prevSearchRes={prevSearchRes}
+          nextSearchRes={nextSearchRes}
+          currentSearchResNum={currentSearchResNum}
+          totalSearchResCount={totalSearchResCount}
+        />
         <PdfPageControl
-          width={200}
+          width={170}
           onSetPageNumber={onSetPageNumber}
           numPages={numPages}
           currentPage={currentPage}

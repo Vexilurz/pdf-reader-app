@@ -8,13 +8,13 @@ interface IScrollToIndex {
 export interface IPDFViewerState {
   pdfSelection: IPdfSelection;
   editingBookmarkID: string;
-  scrollToIndex: IScrollToIndex;
+  scrollToPage: IScrollToIndex;
 }
 
 const initialState: IPDFViewerState = {
   pdfSelection: getInfSelection(),
   editingBookmarkID: '',
-  scrollToIndex: { value: 0 },
+  scrollToPage: { value: 0 },
 };
 
 export const pdfViewerSlice = createSlice({
@@ -29,9 +29,9 @@ export const pdfViewerSlice = createSlice({
       const { payload } = action;
       state.editingBookmarkID = payload;
     },
-    setScrollToIndex: (state: IPDFViewerState, action: PayloadAction<IScrollToIndex>) => {
+    setScrollToPage: (state: IPDFViewerState, action: PayloadAction<IScrollToIndex>) => {
       const { payload } = action;
-      state.scrollToIndex = payload;
+      state.scrollToPage = payload;
     },
   },
 });

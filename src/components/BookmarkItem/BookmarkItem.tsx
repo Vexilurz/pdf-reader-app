@@ -62,7 +62,7 @@ class BookmarkItem extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { bookmark, editingBookmarkID, setScrollToIndex } = this.props;
+    const { bookmark, editingBookmarkID, setScrollToPage } = this.props;
     const { comment, color } = this.state;
     const { startOffset, endOffset, startPage, endPage } = bookmark.selection;
     const info = `${startPage}:${startOffset} .. ${endPage}:${endOffset}`;
@@ -125,8 +125,8 @@ class BookmarkItem extends React.Component<
             className="bookmark-item-view"
             onClick={(e) => {
               e.stopPropagation();
-              // setScrollToIndex(-1);
-              setScrollToIndex({ value: bookmark.selection.startPage - 1 });
+              // setScrollToPage(-1);
+              setScrollToPage({ value: bookmark.selection.startPage - 1 });
               document.getElementById(bookmark.id).scrollIntoView();
             }}
           >
@@ -159,7 +159,7 @@ const mapDispatchToProps = {
   updateBookmark: projectFileActions.updateBookmark,
   deleteBookmark: projectFileActions.deleteBookmark,
   setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
-  setScrollToIndex: pdfViewerActions.setScrollToIndex,
+  setScrollToPage: pdfViewerActions.setScrollToPage,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {
