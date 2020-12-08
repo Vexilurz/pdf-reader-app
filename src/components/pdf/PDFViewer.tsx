@@ -9,6 +9,7 @@ import Measure from 'react-measure';
 // import { CircularProgress } from '@material-ui/core';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 import { StoreType } from '../../reduxStore/store';
+import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
@@ -46,6 +47,7 @@ export interface IPDFViewerState {
   // pageChunks: IChunksArray[];
   currentSearchResNum: number;
   totalSearchResCount: number;
+  displayedPdfName: string;
 }
 
 class PDFViewer extends React.Component<
@@ -72,6 +74,7 @@ class PDFViewer extends React.Component<
       searchPattern: null,
       currentSearchResNum: 0,
       totalSearchResCount: 0,
+      displayedPdfName: '',
       // pageChunks: [],
     };
     this.containerRef = React.createRef();
@@ -84,12 +87,19 @@ class PDFViewer extends React.Component<
   }
 
   componentDidMount(): void {
-    ipcRenderer.on(
-      appConst.PDF_FILE_CONTENT_RESPONSE,
-      (event, data: Uint8Array) => {
-        this.setState({ renderTextLayer: false, pdfData: { data } });
+    ipcRenderer.on(appConst.PDF_FILE_CONTENT_RESPONSE, (event, payload) => {
+      const { data, path, external } = payload;
+      const { setCurrentPdf, setAppState } = this.props;
+      this.setState({
+        renderTextLayer: false,
+        pdfData: { data },
+        displayedPdfName: pathLib.basename(path),
+      });
+      if (external) {
+        setCurrentPdf({ path, eventID: '' });
+        // setAppState(appConst.PDF_VIEWER);
       }
-    );
+    });
   }
 
   // calcScale = (page) => {
@@ -269,13 +279,13 @@ class PDFViewer extends React.Component<
         currentIndexes.fileIndex
       ]?.bookmarks;
 
-    const bookmarksFiltered = allBookmarks.filter(
+    const bookmarksFiltered = allBookmarks?.filter(
       (v) =>
         v.selection.startPage <= pageNumber && v.selection.endPage >= pageNumber
     );
 
     const bookmarksSorted = bookmarksFiltered
-      .map((v) => {
+      ?.map((v) => {
         let start = v.selection.startOffset;
         let end = v.selection.endOffset;
         if (pageNumber > v.selection.startPage) {
@@ -490,6 +500,7 @@ class PDFViewer extends React.Component<
       pdfDocWidth,
       currentSearchResNum,
       totalSearchResCount,
+      displayedPdfName,
     } = this.state;
     this.pagesRendered = 0;
     return (
@@ -499,7 +510,7 @@ class PDFViewer extends React.Component<
         style={{ width: pdfDocWidth }}
       >
         <PdfToolBar
-          pdfName={pathLib.basename(currentPdf.path)}
+          pdfName={displayedPdfName}
           onSetPattern={(searchPattern: string) => {
             this._totalSearchResCount = 0;
             this.setState({
@@ -555,6 +566,7 @@ class PDFViewer extends React.Component<
 }
 
 const mapDispatchToProps = {
+  setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setSelection: pdfViewerActions.setSelection,
   setShowLoading: appStateActions.setShowLoading,

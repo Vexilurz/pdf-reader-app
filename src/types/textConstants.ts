@@ -10,6 +10,7 @@ export const EMTPY_SCREEN = 'empty-screen';
 
 // main process listeners:
 export const OPEN_FILE = 'open-file';
+export const OPEN_EXTERNAL_PDF = 'open-external-pdf';
 export const SHOW_SAVE_FILE_DIALOG = 'show-save-file-dialog';
 export const LOAD_PDF_FILE = 'load-pdf-file';
 export const PRINT_PDF_FILE = 'print-pdf-file';

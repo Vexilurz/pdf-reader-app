@@ -79,7 +79,7 @@ class EventItem extends React.Component<
     if (pathLib.extname(path).toLowerCase() === '.pdf') {
       setShowLoading(true);
       setSelection(getInfSelection());
-      ipcRenderer.send(appConst.LOAD_PDF_FILE, path);
+      ipcRenderer.send(appConst.LOAD_PDF_FILE, { path, external: false });
       setCurrentPdf({ path, eventID: event.id });
       setAppState(appConst.PDF_VIEWER);
     } else {

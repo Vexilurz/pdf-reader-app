@@ -1,11 +1,13 @@
-import { faPrint } from '@fortawesome/free-solid-svg-icons';
+import './pdfToolBar.scss';
+import { faPrint, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ipcRenderer } from 'electron';
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { PdfPageControl } from './PdfPageControl';
 import { PdfScaleControls } from './PdfScaleControls';
 import { PdfSearchInput } from './PdfSearchInput';
-import './pdfToolBar.scss';
+import * as appConst from '../../types/textConstants';
 
 export interface IPdfToolBarProps {
   pdfName: string;
@@ -60,6 +62,14 @@ export class PdfToolBar extends React.Component<
           currentPage={currentPage}
         />
         <PdfScaleControls onSetScale={onSetScale} />
+        <Button
+          variant="outline-secondary"
+          onClick={() => {
+            ipcRenderer.send(appConst.OPEN_EXTERNAL_PDF);
+          }}
+        >
+          <FontAwesomeIcon icon={faFolderOpen} />
+        </Button>
         <Button variant="outline-secondary" onClick={onPrint}>
           <FontAwesomeIcon icon={faPrint} />
         </Button>
