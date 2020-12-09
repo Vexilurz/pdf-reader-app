@@ -2,7 +2,7 @@
 import './pdf.scss';
 import * as pathLib from 'path';
 import * as React from 'react';
-import { ipcRenderer } from 'electron';
+import electron, { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import { List, AutoSizer } from 'react-virtualized';
 import Measure from 'react-measure';
@@ -463,7 +463,7 @@ class PDFViewer extends React.Component<
     //   showModal: true,
     // });
 
-    // ipcRenderer.send(appConst.PRINT_PDF_FILE, pdfData);
+    ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
   };
 
   prevSearchRes = () => {
