@@ -7,6 +7,23 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { IBookmark } from '../../types/bookmark';
+import { Button, Dropdown } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
+
+const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
+  <Button
+    variant="outline-secondary"
+    ref={ref}
+    onClick={(e) => {
+      e.preventDefault();
+      onClick(e);
+    }}
+  >
+    {children}
+    {/* &#x25bc; */}
+  </Button>
+));
 
 export interface IBookmarkItemProps {
   bookmark: IBookmark;
@@ -104,6 +121,7 @@ class BookmarkItem extends React.Component<
               />
             </div>
             <div className="bookmark-controls">
+              <div />
               <button
                 type="button"
                 className="save-bookmark-button btn btn-primary"
@@ -111,13 +129,13 @@ class BookmarkItem extends React.Component<
               >
                 Save
               </button>
-              <button
+              {/* <button
                 type="button"
                 className="delete-bookmark-button btn btn-primary"
                 onClick={this.onDelete}
               >
                 Delete
-              </button>
+              </button> */}
             </div>
           </div>
         ) : (
@@ -130,9 +148,25 @@ class BookmarkItem extends React.Component<
               document.getElementById(bookmark.id).scrollIntoView();
             }}
           >
+            <div className="bookmark-menu">
+              <div />
+              <Dropdown>
+                <Dropdown.Toggle
+                  as={CustomToggle}
+                  variant="secondary"
+                  id="dropdown-basic"
+                >
+                  <FontAwesomeIcon icon={faEllipsisH} />
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={this.onEdit}>Edit</Dropdown.Item>
+                  <Dropdown.Item onClick={this.onDelete}>Delete</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
             <div className="bookmark-comment">{bookmark.comment}</div>
             <div className="bookmark-position">{info}</div>
-            <div className="bookmark-controls">
+            {/* <div className="bookmark-controls">
               <button
                 type="button"
                 className="edit-bookmark-button btn btn-primary btn-sm"
@@ -147,7 +181,7 @@ class BookmarkItem extends React.Component<
               >
                 X
               </button>
-            </div>
+            </div> */}
           </div>
         )}
       </div>
