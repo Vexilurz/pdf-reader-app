@@ -38,28 +38,31 @@ const printPdfFile = async (event, path: string) => {
   };
 
   const win = new BrowserWindow({
-    // show: false,
-    webPreferences: {
-      plugins: true,
-      nodeIntegration: true,
-    },
+    show: false,
+    // webPreferences: {
+    //   plugins: true,
+    //   // nodeIntegration: true,
+    // },
   });
-  // PDFWindow.addSupport(win);
+  PDFWindow.addSupport(win);
 
   // const win = new PDFWindow({
   //   width: 800,
   //   height: 600,
   // });
 
-  win.loadURL(`file://${path}`);
-  // win.loadURL('https://www.google.com/');
+  // win.loadURL(`file://${path}`);
+  win.loadURL('https://www.google.com/');
   // win.loadURL('http://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf');
 
   win.webContents.on('did-finish-load', () => {
-    win.webContents.print(options, (success, failureReason) => {
-      if (!success) console.log(failureReason);
-      console.log('Print Initiated');
-    });
+    setTimeout(() => {
+      win.webContents.print(options, (success, failureReason) => {
+        if (!success) console.log(failureReason);
+        console.log('Print Initiated');
+        win.close();
+      });
+    }, 3000); // A time to load and render PDF
   });
 };
 
