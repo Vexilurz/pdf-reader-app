@@ -39,6 +39,7 @@
     "electron-pdf-window": "^1.0.12",
     "electron-print-dialog": "0.1.0-alpha.1",
     "luxon": "^1.25.0",
+    "pdf-to-printer": "^1.5.2",
     "print-js": "^1.5.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.4.0",

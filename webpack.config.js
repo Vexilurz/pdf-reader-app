@@ -123,11 +123,11 @@ function createRenderConfig(isDev) {
 
     devServer: isDev
       ? {
-          contentBase: path.join(__dirname, 'dist'),
-          compress: true,
-          hot: true,
-          port: 9000,
-        }
+        contentBase: path.join(__dirname, 'dist'),
+        compress: true,
+        hot: true,
+        port: 9000,
+      }
       : undefined,
   };
 }
@@ -168,6 +168,12 @@ function createMainConfig(isDev) {
       ],
     },
 
+    node: {
+      global: true,
+      __dirname: true,
+      __filename: true
+    },
+
     plugins: [
       new CleanWebpackPlugin({
         cleanOnceBeforeBuildPatterns: ['main-process.*.js'],
@@ -200,10 +206,10 @@ module.exports = function (env) {
 
   console.log(
     '\n##\n## BUILDING BUNDLE FOR: ' +
-      (target == 'main' ? 'main process' : 'render process') +
-      '\n## CONFIGURATION: ' +
-      (isDev ? DEVELOPMENT : PRODUCTION) +
-      '\n##\n'
+    (target == 'main' ? 'main process' : 'render process') +
+    '\n## CONFIGURATION: ' +
+    (isDev ? DEVELOPMENT : PRODUCTION) +
+    '\n##\n'
   );
 
   return config;
