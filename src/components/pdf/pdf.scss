@@ -104,3 +104,9 @@
 //   color: transparent;
 //   white-space: pre;
 // }
+
+.konvajs-content {
+  // width: 100% !important;
+  // height: 100% !important;
+  z-index: 9999 !important;
+}

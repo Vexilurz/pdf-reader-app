@@ -49,6 +49,8 @@ export interface IPDFViewerState {
   currentSearchResNum: number;
   totalSearchResCount: number;
   displayedPdfName: string;
+  // pageWidth: number;
+  // pageHeight: number;
 }
 
 class PDFViewer extends React.Component<
@@ -77,6 +79,8 @@ class PDFViewer extends React.Component<
       totalSearchResCount: 0,
       displayedPdfName: '',
       // pageChunks: [],
+      // pageWidth: 100,
+      // pageHeight: 100,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
@@ -408,6 +412,13 @@ class PDFViewer extends React.Component<
     this.setState({ pdfDocWidth: contentRect?.bounds?.width });
   };
 
+  // handlePdfPageResize = (contentRect) => {
+  //   this.setState({
+  //     pageHeight: contentRect?.bounds?.height,
+  //     pageWidth: contentRect?.bounds?.width,
+  //   });
+  // };
+
   rowRenderer = ({
     key,
     index,
@@ -422,6 +433,8 @@ class PDFViewer extends React.Component<
     return (
       <div key={key} style={style}>
         <div className="pdf-page" key={`page_${index + 1}_${key}`}>
+          {/* <Measure bounds onResize={this.handlePdfPageResize}>
+            {({ measureRef }) => ( */}
           <Page
             // onRenderSuccess={}
             // scale={1.3}
@@ -434,7 +447,14 @@ class PDFViewer extends React.Component<
               this.onRenderFinished(index + 1);
             }}
           />
-          <DrawAnnotations width={400} height={400} />
+          {/* )}
+          </Measure> */}
+          <DrawAnnotations
+            width={600}
+            height={600}
+            // width={this.state.pageWidth}
+            // height={this.state.pageHeight}
+          />
         </div>
       </div>
     );
