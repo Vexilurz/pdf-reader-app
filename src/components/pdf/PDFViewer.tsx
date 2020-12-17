@@ -25,6 +25,7 @@ import { splitTriple, splitDuo } from '../../utils/splitUtils';
 import { TextItem, ITextItemChunk } from './TextItem';
 import { PdfToolBar } from './PdfToolBar';
 import printJS from 'print-js';
+import { DrawAnnotations } from './AreaSelection';
 
 // interface IChunks {
 //   chunks: ITextItemChunk[];
@@ -113,7 +114,7 @@ class PDFViewer extends React.Component<
   // };
 
   onPageLoad = async (page) => {
-    this.removeTextLayerOffset();
+    //this.removeTextLayerOffset();
     // this.calcScale(page);
   };
 
@@ -433,6 +434,7 @@ class PDFViewer extends React.Component<
               this.onRenderFinished(index + 1);
             }}
           />
+          <DrawAnnotations width={400} height={400} />
         </div>
       </div>
     );
