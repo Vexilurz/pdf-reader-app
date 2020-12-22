@@ -1,5 +1,9 @@
 import './pdfToolBar.scss';
-import { faPrint, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import {
+  faPrint,
+  faFolderOpen,
+  faSquare,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ipcRenderer } from 'electron';
 import React from 'react';
@@ -21,6 +25,7 @@ export interface IPdfToolBarProps {
   numPages: number;
   currentPage: number;
   onPrint(): void;
+  onAreaSelectionToggle(): void;
 }
 export interface IPdfToolBarState {}
 
@@ -43,6 +48,7 @@ export class PdfToolBar extends React.Component<
       numPages,
       currentPage,
       onPrint,
+      onAreaSelectionToggle,
     } = this.props;
     return (
       <div className="pdf-toolbar-container">
@@ -62,6 +68,9 @@ export class PdfToolBar extends React.Component<
           currentPage={currentPage}
         />
         <PdfScaleControls onSetScale={onSetScale} />
+        <Button variant="outline-secondary" onClick={onAreaSelectionToggle}>
+          <FontAwesomeIcon icon={faSquare} />
+        </Button>
         <Button
           variant="outline-secondary"
           onClick={() => {

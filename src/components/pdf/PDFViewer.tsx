@@ -49,8 +49,9 @@ export interface IPDFViewerState {
   currentSearchResNum: number;
   totalSearchResCount: number;
   displayedPdfName: string;
-  // pageWidth: number;
-  // pageHeight: number;
+  pageWidth: number;
+  pageHeight: number;
+  areaSelectionEnable: boolean;
 }
 
 class PDFViewer extends React.Component<
@@ -64,6 +65,7 @@ class PDFViewer extends React.Component<
   private pagesRendered: number;
   private pageText: string[];
   private _totalSearchResCount: number;
+  private textLayerZIndex: number;
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
@@ -79,8 +81,9 @@ class PDFViewer extends React.Component<
       totalSearchResCount: 0,
       displayedPdfName: '',
       // pageChunks: [],
-      // pageWidth: 100,
-      // pageHeight: 100,
+      pageWidth: 100,
+      pageHeight: 100,
+      areaSelectionEnable: false,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
@@ -89,6 +92,7 @@ class PDFViewer extends React.Component<
     this.pagesRendered = 0;
     this.pageText = [];
     this._totalSearchResCount = 0;
+    this.textLayerZIndex = 5;
   }
 
   componentDidMount(): void {
@@ -118,7 +122,7 @@ class PDFViewer extends React.Component<
   // };
 
   onPageLoad = async (page) => {
-    //this.removeTextLayerOffset();
+    this.removeTextLayerOffset();
     // this.calcScale(page);
   };
 
@@ -128,10 +132,11 @@ class PDFViewer extends React.Component<
     );
     textLayers.forEach((layer) => {
       const { style } = layer;
-      style.top = '0';
-      style.left = '0';
-      style.transform = '';
-      style.margin = '0 auto';
+      style.zIndex = this.textLayerZIndex;
+      // style.top = '0';
+      // style.left = '0';
+      // style.transform = '';
+      // style.margin = '0 auto';
     });
   };
 
@@ -412,12 +417,17 @@ class PDFViewer extends React.Component<
     this.setState({ pdfDocWidth: contentRect?.bounds?.width });
   };
 
-  // handlePdfPageResize = (contentRect) => {
-  //   this.setState({
-  //     pageHeight: contentRect?.bounds?.height,
-  //     pageWidth: contentRect?.bounds?.width,
-  //   });
-  // };
+  handlePdfPageResize = (index) => (contentRect) => {
+    console.log(
+      `${index}: ${contentRect?.bounds?.height} x ${contentRect?.bounds?.width}`
+    );
+    // TODO: condition is a crunch
+    if (index === 0 && contentRect?.bounds?.height > 50)
+      this.setState({
+        pageHeight: contentRect?.bounds?.height,
+        pageWidth: contentRect?.bounds?.width,
+      });
+  };
 
   rowRenderer = ({
     key,
@@ -430,31 +440,35 @@ class PDFViewer extends React.Component<
     // console.log(`Rendered ${key} ${index}`);
     const { scale } = this.state;
     if (isVisible) this.setState({ currentPage: index + 1 });
+
     return (
       <div key={key} style={style}>
         <div className="pdf-page" key={`page_${index + 1}_${key}`}>
-          {/* <Measure bounds onResize={this.handlePdfPageResize}>
-            {({ measureRef }) => ( */}
-          <Page
-            // onRenderSuccess={}
-            // scale={1.3}
-            scale={scale}
-            pageNumber={index + 1}
-            onLoadSuccess={this.onPageLoad}
-            customTextRenderer={this.pdfRenderer(index + 1)}
-            // renderTextLayer={renderTextLayer}
-            onGetTextSuccess={() => {
-              this.onRenderFinished(index + 1);
-            }}
-          />
-          {/* )}
-          </Measure> */}
           <DrawAnnotations
-            width={600}
-            height={600}
-            // width={this.state.pageWidth}
-            // height={this.state.pageHeight}
+            // width={600}
+            // height={600}
+            width={this.state.pageWidth}
+            height={this.state.pageHeight}
+            enable={this.state.areaSelectionEnable}
           />
+          <Measure bounds onResize={this.handlePdfPageResize(index)}>
+            {({ measureRef }) => (
+              <div ref={measureRef}>
+                <Page
+                  // onRenderSuccess={}
+                  scale={scale}
+                  pageNumber={index + 1}
+                  onLoadSuccess={this.onPageLoad}
+                  customTextRenderer={this.pdfRenderer(index + 1)}
+                  // renderTextLayer={renderTextLayer}
+                  onGetTextSuccess={() => {
+                    this.onRenderFinished(index + 1);
+                  }}
+                  style={{ zIndex: 134 }}
+                />
+              </div>
+            )}
+          </Measure>
         </div>
       </div>
     );
@@ -511,6 +525,18 @@ class PDFViewer extends React.Component<
     }
   };
 
+  onAreaSelectionToggle = () => {
+    const textLayers = document.querySelectorAll(
+      '.react-pdf__Page__textContent'
+    );
+    this.textLayerZIndex = this.state.areaSelectionEnable ? 5 : 1;
+    this.setState({ areaSelectionEnable: !this.state.areaSelectionEnable });
+    textLayers.forEach((layer) => {
+      const { style } = layer;
+      style.zIndex = this.textLayerZIndex;
+    });
+  };
+
   render(): React.ReactElement {
     const { currentPdf, pdfLoading, scrollToPage } = this.props;
     const {
@@ -552,6 +578,7 @@ class PDFViewer extends React.Component<
           numPages={numPages}
           currentPage={currentPage}
           onPrint={this.onPrint}
+          onAreaSelectionToggle={this.onAreaSelectionToggle}
         />
 
         {pdfLoading && false ? (
@@ -576,6 +603,7 @@ class PDFViewer extends React.Component<
                     rowHeight={850 * this.state.scale}
                     rowRenderer={this.rowRenderer}
                     scrollToIndex={scrollToPage.value}
+                    overscanRowCount={1}
                   />
                 </Document>
               </div>
