@@ -291,7 +291,9 @@ class PDFViewer extends React.Component<
 
     const bookmarksFiltered = allBookmarks?.filter(
       (v) =>
-        v.selection.startPage <= pageNumber && v.selection.endPage >= pageNumber
+        !v.isAreaSelection &&
+        v.selection.startPage <= pageNumber &&
+        v.selection.endPage >= pageNumber
     );
 
     const bookmarksSorted = bookmarksFiltered
@@ -441,6 +443,17 @@ class PDFViewer extends React.Component<
     const { scale } = this.state;
     if (isVisible) this.setState({ currentPage: index + 1 });
 
+    const { currentIndexes, currentProjectFile } = this.props;
+
+    const allBookmarks =
+      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
+        currentIndexes.fileIndex
+      ]?.bookmarks;
+
+    const bookmarksFiltered = allBookmarks?.filter(
+      (v) => v.isAreaSelection && v.selection.page === index + 1
+    );
+
     return (
       <div key={key} style={style}>
         <div className="pdf-page" key={`page_${index + 1}_${key}`}>
@@ -451,6 +464,7 @@ class PDFViewer extends React.Component<
             height={this.state.pageHeight}
             page={index + 1}
             enable={this.state.areaSelectionEnable}
+            bookmarks={bookmarksFiltered}
           />
           <Measure bounds onResize={this.handlePdfPageResize(index)}>
             {({ measureRef }) => (

@@ -6,13 +6,14 @@ import { connect } from 'react-redux';
 import * as appConst from '../../types/textConstants';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { StoreType } from '../../reduxStore/store';
-import { IAreaSelection } from '../../types/bookmark';
+import { IAreaSelection, IBookmark } from '../../types/bookmark';
 
 export interface IProps {
   height: number;
   width: number;
   page: number;
   enable: boolean;
+  bookmarks: IBookmark[];
 }
 
 export interface IState {
@@ -88,10 +89,18 @@ class AreaSelection extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { currentSelection, enable, width, height, page } = this.props;
+    const {
+      currentSelection,
+      enable,
+      width,
+      height,
+      page,
+      bookmarks,
+    } = this.props;
     const { newSelection } = this.state;
     const zIndex = enable ? 5 : 1;
     const annotationsToDraw = [currentSelection, newSelection];
+
     return (
       <Stage
         onMouseDown={this.handleMouseDown}
@@ -103,6 +112,19 @@ class AreaSelection extends React.Component<
         style={{ zIndex }}
       >
         <Layer>
+          {bookmarks.map((bookmark) => {
+            const sel = bookmark.selection as IAreaSelection;
+            return (
+              <Rect
+                x={sel.x}
+                y={sel.y}
+                width={sel.width}
+                height={sel.height}
+                fill={`${bookmark.color}44`}
+                stroke={bookmark.color}
+              />
+            );
+          })}
           {annotationsToDraw.map((value) => {
             const res =
               value && value?.page === page ? (
@@ -133,6 +155,7 @@ const mapStateToProps = (state: StoreType, ownProps: IProps) => {
     width: ownProps.width,
     height: ownProps.height,
     page: ownProps.page,
+    bookmarks: ownProps.bookmarks,
     currentSelection: state.pdfViewer.areaSelection,
   };
 };

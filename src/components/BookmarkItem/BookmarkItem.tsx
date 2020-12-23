@@ -6,7 +6,7 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
-import { IBookmark } from '../../types/bookmark';
+import { IAreaSelection, IBookmark, IPdfSelection } from '../../types/bookmark';
 import { Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
@@ -81,8 +81,25 @@ class BookmarkItem extends React.Component<
   render(): React.ReactElement {
     const { bookmark, editingBookmarkID, setScrollToPage } = this.props;
     const { comment, color } = this.state;
-    const { startOffset, endOffset, startPage, endPage } = bookmark.selection;
-    const info = `${startPage}:${startOffset} .. ${endPage}:${endOffset}`;
+    let info = '';
+    if (bookmark.isAreaSelection) {
+      const {
+        page,
+        x,
+        y,
+        width,
+        height,
+      } = bookmark.selection as IAreaSelection;
+      info = `A ${page} ${x}:${y} ${width}:${height}`;
+    } else {
+      const {
+        startOffset,
+        endOffset,
+        startPage,
+        endPage,
+      } = bookmark.selection as IPdfSelection;
+      info = `T ${startPage}:${startOffset} .. ${endPage}:${endOffset}`;
+    }
     const needToEdit = editingBookmarkID === bookmark.id;
     return (
       <div
@@ -144,7 +161,10 @@ class BookmarkItem extends React.Component<
             onClick={(e) => {
               e.stopPropagation();
               // setScrollToPage(-1);
-              setScrollToPage({ value: bookmark.selection.startPage - 1 });
+              let scrollPage = bookmark.isAreaSelection
+                ? bookmark.selection.page
+                : bookmark.selection.startPage;
+              setScrollToPage({ value: scrollPage - 1 });
               document.getElementById(bookmark.id).scrollIntoView();
             }}
           >

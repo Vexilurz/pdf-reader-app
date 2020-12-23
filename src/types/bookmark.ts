@@ -18,6 +18,7 @@ export interface IAreaSelection {
 export interface IBookmark {
   id: string;
   comment: string;
+  isAreaSelection?: boolean;
   selection: IPdfSelection | IAreaSelection;
   color: string;
 }
@@ -34,8 +35,9 @@ export const getInfSelection = (): IPdfSelection => {
 // bookmark factory
 export const createBookmark = (
   comment: string,
-  selection: IPdfSelection,
+  isAreaSelection: boolean,
+  selection: IPdfSelection | IAreaSelection,
   color: string
 ): IBookmark => {
-  return { id: uuidv4(), comment, selection, color };
+  return { id: uuidv4(), comment, isAreaSelection, selection, color };
 };
