@@ -449,6 +449,7 @@ class PDFViewer extends React.Component<
             // height={600}
             width={this.state.pageWidth}
             height={this.state.pageHeight}
+            page={index + 1}
             enable={this.state.areaSelectionEnable}
           />
           <Measure bounds onResize={this.handlePdfPageResize(index)}>

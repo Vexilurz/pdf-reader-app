@@ -4,27 +4,19 @@ import ReactDOM from 'react-dom';
 import { Stage, Layer, Rect } from 'react-konva';
 import { connect } from 'react-redux';
 import * as appConst from '../../types/textConstants';
-import { actions as projectFileActions } from '../../../reduxStore/projectFileSlice';
-import { actions as appStateActions } from '../../../reduxStore/appStateSlice';
+import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { StoreType } from '../../reduxStore/store';
-
-interface IArea {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  key: string;
-}
+import { IAreaSelection } from '../../types/bookmark';
 
 export interface IProps {
   height: number;
   width: number;
+  page: number;
   enable: boolean;
 }
 
 export interface IState {
-  currentSelection: IArea | null;
-  newSelection: IArea | null;
+  newSelection: IAreaSelection | null;
 }
 
 class AreaSelection extends React.Component<
@@ -34,29 +26,28 @@ class AreaSelection extends React.Component<
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     this.state = {
-      currentSelection: null,
       newSelection: null,
     };
   }
 
   handleMouseDown = (event) => {
-    const { enable } = this.props;
-    const { currentSelection, newSelection } = this.state;
+    const { currentSelection, enable, page, setCurrentSelection } = this.props;
+    const { newSelection } = this.state;
     if (enable) {
-      if (currentSelection) {
-        this.setState({ currentSelection: null });
-      }
       if (!newSelection) {
         const { x, y } = event.target.getStage().getPointerPosition();
         this.setState({
-          newSelection: { x, y, width: 0, height: 0, key: '' },
+          newSelection: { x, y, width: 0, height: 0, page },
         });
+      }
+      if (currentSelection) {
+        setCurrentSelection(null);
       }
     }
   };
 
   handleMouseMove = (event) => {
-    const { enable } = this.props;
+    const { enable, page } = this.props;
     const { newSelection } = this.state;
     if (enable) {
       if (newSelection) {
@@ -69,7 +60,7 @@ class AreaSelection extends React.Component<
             y: sy,
             width: x - sx,
             height: y - sy,
-            key: '',
+            page,
           },
         });
       }
@@ -77,30 +68,28 @@ class AreaSelection extends React.Component<
   };
 
   handleMouseUp = (event) => {
-    const { enable } = this.props;
+    const { enable, setCurrentSelection, page } = this.props;
     const { newSelection } = this.state;
     if (enable) {
       if (newSelection) {
         const sx = newSelection.x;
         const sy = newSelection.y;
         const { x, y } = event.target.getStage().getPointerPosition();
-        this.setState({
-          currentSelection: {
-            x: sx,
-            y: sy,
-            width: x - sx,
-            height: y - sy,
-            key: 'current-selection',
-          },
-          newSelection: null,
+        setCurrentSelection({
+          x: sx,
+          y: sy,
+          width: x - sx,
+          height: y - sy,
+          page,
         });
+        this.setState({ newSelection: null });
       }
     }
   };
 
   render(): React.ReactElement {
-    const { enable, width, height } = this.props;
-    const { currentSelection, newSelection } = this.state;
+    const { currentSelection, enable, width, height, page } = this.props;
+    const { newSelection } = this.state;
     const zIndex = enable ? 5 : 1;
     const annotationsToDraw = [currentSelection, newSelection];
     return (
@@ -115,16 +104,17 @@ class AreaSelection extends React.Component<
       >
         <Layer>
           {annotationsToDraw.map((value) => {
-            const res = value ? (
-              <Rect
-                x={value.x}
-                y={value.y}
-                width={value.width}
-                height={value.height}
-                fill="transparent"
-                stroke="blue"
-              />
-            ) : null;
+            const res =
+              value && value?.page === page ? (
+                <Rect
+                  x={value.x}
+                  y={value.y}
+                  width={value.width}
+                  height={value.height}
+                  fill="transparent"
+                  stroke="blue"
+                />
+              ) : null;
             return res;
           })}
         </Layer>
@@ -133,13 +123,17 @@ class AreaSelection extends React.Component<
   }
 }
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  setCurrentSelection: pdfViewerActions.setAreaSelection,
+};
 
 const mapStateToProps = (state: StoreType, ownProps: IProps) => {
   return {
     enable: ownProps.enable,
     width: ownProps.width,
     height: ownProps.height,
+    page: ownProps.page,
+    currentSelection: state.pdfViewer.areaSelection,
   };
 };
 

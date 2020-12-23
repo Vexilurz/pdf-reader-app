@@ -7,10 +7,18 @@ export interface IPdfSelection {
   endOffset: number;
 }
 
+export interface IAreaSelection {
+  page: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface IBookmark {
   id: string;
   comment: string;
-  selection: IPdfSelection;
+  selection: IPdfSelection | IAreaSelection;
   color: string;
 }
 
