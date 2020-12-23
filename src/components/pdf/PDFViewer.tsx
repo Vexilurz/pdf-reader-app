@@ -25,7 +25,7 @@ import { splitTriple, splitDuo } from '../../utils/splitUtils';
 import { TextItem, ITextItemChunk } from './TextItem';
 import { PdfToolBar } from './PdfToolBar';
 import printJS from 'print-js';
-import { DrawAnnotations } from './AreaSelection';
+import AreaSelection from './AreaSelection';
 
 // interface IChunks {
 //   chunks: ITextItemChunk[];
@@ -444,7 +444,7 @@ class PDFViewer extends React.Component<
     return (
       <div key={key} style={style}>
         <div className="pdf-page" key={`page_${index + 1}_${key}`}>
-          <DrawAnnotations
+          <AreaSelection
             // width={600}
             // height={600}
             width={this.state.pageWidth}
@@ -464,7 +464,6 @@ class PDFViewer extends React.Component<
                   onGetTextSuccess={() => {
                     this.onRenderFinished(index + 1);
                   }}
-                  style={{ zIndex: 134 }}
                 />
               </div>
             )}
