@@ -2,7 +2,7 @@ import './pdfToolBar.scss';
 import {
   faPrint,
   faFolderOpen,
-  faSquare,
+  faVectorSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ipcRenderer } from 'electron';
@@ -69,7 +69,7 @@ export class PdfToolBar extends React.Component<
         />
         <PdfScaleControls onSetScale={onSetScale} />
         <Button variant="outline-secondary" onClick={onAreaSelectionToggle}>
-          <FontAwesomeIcon icon={faSquare} />
+          <FontAwesomeIcon icon={faVectorSquare} />
         </Button>
         <Button
           variant="outline-secondary"

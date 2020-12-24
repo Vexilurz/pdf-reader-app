@@ -52,7 +52,7 @@ export const PdfSearchInput = ({
         <Button onClick={clearSearchField}>
           <FontAwesomeIcon icon={faTimes} />
         </Button>
-        <Button
+        {/* <Button
           variant="outline-secondary"
           onClick={() => {
             // applySearchPattern();
@@ -70,7 +70,7 @@ export const PdfSearchInput = ({
         >
           <FontAwesomeIcon icon={faAngleDown} />
         </Button>
-        {`${currentSearchResNum} of ${totalSearchResCount}`}
+        {`${currentSearchResNum} of ${totalSearchResCount}`} */}
       </InputGroup.Append>
     </InputGroup>
   );

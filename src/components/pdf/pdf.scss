@@ -68,7 +68,7 @@
   left: 50%;
 }
 
-.react-pdf__Page__textContent span {
+.react-pdf__Page__textContent > span {
   opacity: 0.5;
 
   position: relative;

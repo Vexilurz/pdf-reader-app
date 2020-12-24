@@ -40,15 +40,14 @@ export const PdfPageControl = ({
           <FontAwesomeIcon icon={faAngleDown} />
         </Button>
       </InputGroup.Prepend>
-      <FormControl
-        value={currentPage}
-        onKeyPress={(e) => {
-          if (e.charCode === 13) {
-            // TODO: can't edit
-          }
-        }}
-      />
-      {`  of ${numPages}`}
+
+      <div className="page-count-label">
+        <span>
+          <b>{currentPage}</b>
+        </span>
+        <span>of</span>
+        <span>{numPages}</span>
+      </div>
     </InputGroup>
   );
 };
