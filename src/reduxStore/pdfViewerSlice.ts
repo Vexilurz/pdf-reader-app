@@ -5,9 +5,14 @@ interface IScrollToIndex {
   value: number;
 }
 
+interface IBoolValue {
+  value: boolean;
+}
+
 export interface IPDFViewerState {
   pdfSelection: IPdfSelection;
   areaSelection: IAreaSelection | null;
+  areaSelectionEnable: IBoolValue;
   editingBookmarkID: string;
   scrollToPage: IScrollToIndex;
 }
@@ -15,6 +20,7 @@ export interface IPDFViewerState {
 const initialState: IPDFViewerState = {
   pdfSelection: getInfSelection(),
   areaSelection: null,
+  areaSelectionEnable: { value: false },
   editingBookmarkID: '',
   scrollToPage: { value: 0 },
 };
@@ -30,6 +36,10 @@ export const pdfViewerSlice = createSlice({
     setAreaSelection: (state: IPDFViewerState, action: PayloadAction<IAreaSelection | null>) => {
       const { payload } = action;
       state.areaSelection = payload;
+    },
+    toggleAreaSelectionEnable: (state: IPDFViewerState) => {
+      const tmp = { value: !state.areaSelectionEnable.value };
+      state.areaSelectionEnable = tmp;
     },
     setEditingBookmarkID: (state: IPDFViewerState, action: PayloadAction<string>) => {
       const { payload } = action;

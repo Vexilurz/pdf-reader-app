@@ -13,7 +13,7 @@ import { PdfScaleControls } from './PdfScaleControls';
 import { PdfSearchInput } from './PdfSearchInput';
 import * as appConst from '../../types/textConstants';
 
-export interface IPdfToolBarProps {
+export interface IProps {
   pdfName: string;
   onSetPattern(searchPattern: string): void;
   prevSearchRes(): void;
@@ -26,13 +26,11 @@ export interface IPdfToolBarProps {
   currentPage: number;
   onPrint(): void;
   onAreaSelectionToggle(): void;
+  areaSelectionEnable: boolean;
 }
-export interface IPdfToolBarState {}
+export interface IState {}
 
-export class PdfToolBar extends React.Component<
-  IPdfToolBarProps,
-  IPdfToolBarState
-> {
+export class PdfToolBar extends React.Component<IProps, IState> {
   componentDidMount() {}
 
   render(): React.ReactElement {
@@ -49,7 +47,11 @@ export class PdfToolBar extends React.Component<
       currentPage,
       onPrint,
       onAreaSelectionToggle,
+      areaSelectionEnable,
     } = this.props;
+    const areaSelectionToggleStyle = areaSelectionEnable
+      ? 'secondary'
+      : 'outline-secondary';
     return (
       <div className="pdf-toolbar-container">
         <h4>{pdfName}</h4>
@@ -68,7 +70,10 @@ export class PdfToolBar extends React.Component<
           currentPage={currentPage}
         />
         <PdfScaleControls onSetScale={onSetScale} />
-        <Button variant="outline-secondary" onClick={onAreaSelectionToggle}>
+        <Button
+          variant={areaSelectionToggleStyle}
+          onClick={onAreaSelectionToggle}
+        >
           <FontAwesomeIcon icon={faVectorSquare} />
         </Button>
         <Button

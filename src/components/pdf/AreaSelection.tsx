@@ -12,7 +12,6 @@ export interface IProps {
   height: number;
   width: number;
   page: number;
-  enable: boolean;
   bookmarks: IBookmark[];
 }
 
@@ -32,9 +31,14 @@ class AreaSelection extends React.Component<
   }
 
   handleMouseDown = (event) => {
-    const { currentSelection, enable, page, setCurrentSelection } = this.props;
+    const {
+      currentSelection,
+      areaSelectionEnable,
+      page,
+      setCurrentSelection,
+    } = this.props;
     const { newSelection } = this.state;
-    if (enable) {
+    if (areaSelectionEnable.value) {
       if (!newSelection) {
         const { x, y } = event.target.getStage().getPointerPosition();
         this.setState({
@@ -48,9 +52,9 @@ class AreaSelection extends React.Component<
   };
 
   handleMouseMove = (event) => {
-    const { enable, page } = this.props;
+    const { areaSelectionEnable, page } = this.props;
     const { newSelection } = this.state;
-    if (enable) {
+    if (areaSelectionEnable.value) {
       if (newSelection) {
         const sx = newSelection.x;
         const sy = newSelection.y;
@@ -69,20 +73,21 @@ class AreaSelection extends React.Component<
   };
 
   handleMouseUp = (event) => {
-    const { enable, setCurrentSelection, page } = this.props;
+    const { areaSelectionEnable, setCurrentSelection, page } = this.props;
     const { newSelection } = this.state;
-    if (enable) {
+    if (areaSelectionEnable.value) {
       if (newSelection) {
         const sx = newSelection.x;
         const sy = newSelection.y;
         const { x, y } = event.target.getStage().getPointerPosition();
-        setCurrentSelection({
-          x: sx,
-          y: sy,
-          width: x - sx,
-          height: y - sy,
-          page,
-        });
+        if (Math.abs(x - sx) >= 1 && Math.abs(y - sy) >= 1)
+          setCurrentSelection({
+            x: sx,
+            y: sy,
+            width: x - sx,
+            height: y - sy,
+            page,
+          });
         this.setState({ newSelection: null });
       }
     }
@@ -91,14 +96,14 @@ class AreaSelection extends React.Component<
   render(): React.ReactElement {
     const {
       currentSelection,
-      enable,
       width,
       height,
       page,
       bookmarks,
+      areaSelectionEnable,
     } = this.props;
     const { newSelection } = this.state;
-    const zIndex = enable ? 5 : 1;
+    const zIndex = areaSelectionEnable.value ? 5 : 1;
     const annotationsToDraw = [currentSelection, newSelection];
 
     return (
@@ -151,12 +156,12 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state: StoreType, ownProps: IProps) => {
   return {
-    enable: ownProps.enable,
     width: ownProps.width,
     height: ownProps.height,
     page: ownProps.page,
     bookmarks: ownProps.bookmarks,
     currentSelection: state.pdfViewer.areaSelection,
+    areaSelectionEnable: state.pdfViewer.areaSelectionEnable,
   };
 };
 

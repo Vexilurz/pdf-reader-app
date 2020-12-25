@@ -51,7 +51,6 @@ export interface IPDFViewerState {
   displayedPdfName: string;
   pageWidth: number;
   pageHeight: number;
-  areaSelectionEnable: boolean;
 }
 
 class PDFViewer extends React.Component<
@@ -83,7 +82,6 @@ class PDFViewer extends React.Component<
       // pageChunks: [],
       pageWidth: 100,
       pageHeight: 100,
-      areaSelectionEnable: false,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
@@ -370,49 +368,51 @@ class PDFViewer extends React.Component<
   };
 
   onMouseUp = async () => {
-    const { setSelection } = this.props;
+    if (!this.props.areaSelectionEnable.value) {
+      const { setSelection } = this.props;
 
-    if (
-      this.containerRef.current === null ||
-      this.documentRef.current === null
-    ) {
-      return;
+      if (
+        this.containerRef.current === null ||
+        this.documentRef.current === null
+      ) {
+        return;
+      }
+
+      const selection = window.getSelection();
+
+      if (selection?.toString() === '') {
+        return;
+      }
+
+      const sel = selection.getRangeAt(0);
+      const {
+        commonAncestorContainer,
+        endContainer,
+        endOffset,
+        startContainer,
+        startOffset,
+      } = sel;
+
+      // Selection partially outside PDF document
+      if (!this.containerRef.current.contains(commonAncestorContainer)) {
+        return;
+      }
+
+      const startIdSplit = startContainer?.parentNode?.className.split(',');
+      const endIdSplit = endContainer?.parentNode?.className.split(',');
+
+      const start = parseInt(startIdSplit[1], 10) + startOffset;
+      const startPage = parseInt(startIdSplit[0], 10);
+      const end = parseInt(endIdSplit[1], 10) + endOffset;
+      const endPage = parseInt(endIdSplit[0], 10);
+
+      setSelection({
+        startPage,
+        startOffset: start,
+        endPage,
+        endOffset: end,
+      });
     }
-
-    const selection = window.getSelection();
-
-    if (selection?.toString() === '') {
-      return;
-    }
-
-    const sel = selection.getRangeAt(0);
-    const {
-      commonAncestorContainer,
-      endContainer,
-      endOffset,
-      startContainer,
-      startOffset,
-    } = sel;
-
-    // Selection partially outside PDF document
-    if (!this.containerRef.current.contains(commonAncestorContainer)) {
-      return;
-    }
-
-    const startIdSplit = startContainer?.parentNode?.className.split(',');
-    const endIdSplit = endContainer?.parentNode?.className.split(',');
-
-    const start = parseInt(startIdSplit[1], 10) + startOffset;
-    const startPage = parseInt(startIdSplit[0], 10);
-    const end = parseInt(endIdSplit[1], 10) + endOffset;
-    const endPage = parseInt(endIdSplit[0], 10);
-
-    setSelection({
-      startPage,
-      startOffset: start,
-      endPage,
-      endOffset: end,
-    });
   };
 
   handlePdfDocResize = (contentRect) => {
@@ -420,9 +420,9 @@ class PDFViewer extends React.Component<
   };
 
   handlePdfPageResize = (index) => (contentRect) => {
-    console.log(
-      `${index}: ${contentRect?.bounds?.height} x ${contentRect?.bounds?.width}`
-    );
+    // console.log(
+    //   `${index}: ${contentRect?.bounds?.height} x ${contentRect?.bounds?.width}`
+    // );
     // TODO: condition is a crunch
     if (index === 0 && contentRect?.bounds?.height > 50)
       this.setState({
@@ -463,7 +463,6 @@ class PDFViewer extends React.Component<
             width={this.state.pageWidth}
             height={this.state.pageHeight}
             page={index + 1}
-            enable={this.state.areaSelectionEnable}
             bookmarks={bookmarksFiltered}
           />
           <Measure bounds onResize={this.handlePdfPageResize(index)}>
@@ -543,8 +542,11 @@ class PDFViewer extends React.Component<
     const textLayers = document.querySelectorAll(
       '.react-pdf__Page__textContent'
     );
-    this.textLayerZIndex = this.state.areaSelectionEnable ? 5 : 1;
-    this.setState({ areaSelectionEnable: !this.state.areaSelectionEnable });
+    this.textLayerZIndex = this.props.areaSelectionEnable.value ? 5 : 1;
+    if (this.props.areaSelectionEnable) {
+      this.props.setCurrentSelection(null);
+    }
+    this.props.toggleAreaSelectionEnable();
     textLayers.forEach((layer) => {
       const { style } = layer;
       style.zIndex = this.textLayerZIndex;
@@ -593,6 +595,7 @@ class PDFViewer extends React.Component<
           currentPage={currentPage}
           onPrint={this.onPrint}
           onAreaSelectionToggle={this.onAreaSelectionToggle}
+          areaSelectionEnable={this.props.areaSelectionEnable.value}
         />
 
         {pdfLoading && false ? (
@@ -635,6 +638,8 @@ const mapDispatchToProps = {
   setSelection: pdfViewerActions.setSelection,
   setShowLoading: appStateActions.setShowLoading,
   setScrollToPage: pdfViewerActions.setScrollToPage,
+  toggleAreaSelectionEnable: pdfViewerActions.toggleAreaSelectionEnable,
+  setCurrentSelection: pdfViewerActions.setAreaSelection,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
@@ -645,6 +650,7 @@ const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
     currentIndexes: state.projectFile.currentIndexes,
     pdfLoading: state.appState.showLoading,
     scrollToPage: state.pdfViewer.scrollToPage,
+    areaSelectionEnable: state.pdfViewer.areaSelectionEnable,
   };
 };
 
