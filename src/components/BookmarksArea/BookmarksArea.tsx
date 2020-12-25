@@ -7,6 +7,9 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { createBookmark } from '../../types/bookmark';
 import BookmarkItem from '../BookmarkItem/BookmarkItem';
+import { Button } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export interface IBookmarksAreaProps {}
 export interface IBookmarksAreaState {}
@@ -49,6 +52,17 @@ class BookmarksArea extends React.Component<
         }}
       >
         Bookmarks area
+        <div className="bookmarks-toolbar">
+          <Button
+            variant="outline-secondary"
+            onClick={(e) => {
+              e.stopPropagation();
+              this.onAddBookmark();
+            }}
+          >
+            <FontAwesomeIcon icon={faPlus} />
+          </Button>
+        </div>
         <div className="bookmarks-list">
           {projectFile.events[indexes.eventIndex]?.files[
             indexes.fileIndex
@@ -61,16 +75,6 @@ class BookmarksArea extends React.Component<
             );
           })}
         </div>
-        <button
-          type="button"
-          className="add-bookmark-button btn btn-primary"
-          onClick={(e) => {
-            e.stopPropagation();
-            this.onAddBookmark();
-          }}
-        >
-          Add bookmark
-        </button>
       </div>
     );
   }
