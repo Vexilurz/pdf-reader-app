@@ -30,6 +30,12 @@ class AreaSelection extends React.Component<
     };
   }
 
+  // componentDidUpdate() {
+  //   setInterval(() => {
+  //     this.props.setNeedForceUpdate(true);
+  //   }, 500);
+  // }
+
   handleMouseDown = (event) => {
     const {
       currentSelection,
@@ -152,6 +158,7 @@ class AreaSelection extends React.Component<
 
 const mapDispatchToProps = {
   setCurrentSelection: pdfViewerActions.setAreaSelection,
+  setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IProps) => {

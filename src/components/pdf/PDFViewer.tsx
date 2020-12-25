@@ -36,6 +36,7 @@ import AreaSelection from './AreaSelection';
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
+  needForceUpdate: boolean;
 }
 export interface IPDFViewerState {
   pdfData: IPDFdata | null;
@@ -60,6 +61,7 @@ class PDFViewer extends React.Component<
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
   private searchRef: React.RefObject<any>;
+  private listRef: React.RefObject<any>;
   // private _pageChunks: IChunksArray[];
   private pagesRendered: number;
   private pageText: string[];
@@ -86,6 +88,7 @@ class PDFViewer extends React.Component<
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
     this.searchRef = React.createRef();
+    this.listRef = React.createRef();
     // this._pageChunks = [];
     this.pagesRendered = 0;
     this.pageText = [];
@@ -109,6 +112,15 @@ class PDFViewer extends React.Component<
     });
   }
 
+  componentDidUpdate(prevProps) {
+    // Typical usage (don't forget to compare props):
+    // if (this.props.needForceUpdate !== prevProps.needForceUpdate) {
+    if (this.props.needForceUpdate === true) {
+      this.listRef.current.forceUpdate();
+      this.props.setNeedForceUpdate(false);
+    }
+  }
+
   // calcScale = (page) => {
   //   const parent = this.props.parentRef.current;
   //   if (parent) {
@@ -121,6 +133,7 @@ class PDFViewer extends React.Component<
 
   onPageLoad = async (page) => {
     this.removeTextLayerOffset();
+    // this.props.setNeedForceUpdate(true);
     // this.calcScale(page);
   };
 
@@ -551,6 +564,7 @@ class PDFViewer extends React.Component<
       const { style } = layer;
       style.zIndex = this.textLayerZIndex;
     });
+    this.props.setNeedForceUpdate(true);
   };
 
   render(): React.ReactElement {
@@ -615,12 +629,13 @@ class PDFViewer extends React.Component<
                 >
                   <List
                     width={this.state.pdfDocWidth}
-                    height={690}
+                    height={640}
                     rowCount={numPages}
                     rowHeight={850 * this.state.scale}
                     rowRenderer={this.rowRenderer}
                     scrollToIndex={scrollToPage.value}
                     overscanRowCount={1}
+                    ref={this.listRef}
                   />
                 </Document>
               </div>
@@ -640,12 +655,14 @@ const mapDispatchToProps = {
   setScrollToPage: pdfViewerActions.setScrollToPage,
   toggleAreaSelectionEnable: pdfViewerActions.toggleAreaSelectionEnable,
   setCurrentSelection: pdfViewerActions.setAreaSelection,
+  setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
   return {
     currentPdf: state.projectFile.currentPdf,
     parentRef: ownProps.parentRef,
+    needForceUpdate: ownProps.needForceUpdate,
     currentProjectFile: state.projectFile.currentProjectFile,
     currentIndexes: state.projectFile.currentIndexes,
     pdfLoading: state.appState.showLoading,

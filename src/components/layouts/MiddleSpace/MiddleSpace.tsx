@@ -31,6 +31,7 @@ class MiddleSpace extends React.Component<
       leftSidebarWidth,
       rightSidebarWidth,
       mainContainerWidth,
+      needForceUpdate,
     } = this.props;
 
     let pageContent = <div>ERROR: Wrong appState current value</div>;
@@ -45,7 +46,12 @@ class MiddleSpace extends React.Component<
     } else if (currentAppState === appConst.PROJECT_EDIT_FORM) {
       pageContent = <ProjectEditForm />;
     } else if (currentAppState === appConst.PDF_VIEWER) {
-      pageContent = <PDFViewer parentRef={this.containerRef} />;
+      pageContent = (
+        <PDFViewer
+          parentRef={this.containerRef}
+          needForceUpdate={needForceUpdate.value}
+        />
+      );
     } else if (currentAppState === appConst.EVENT_FORM) {
       pageContent = <EventEditForm />;
     }
@@ -75,6 +81,7 @@ const mapStateToProps = (state: StoreType, ownProps: IMiddleSpaceProps) => {
     leftSidebarWidth: state.appState.leftSidebarWidth,
     rightSidebarWidth: state.appState.rightSidebarWidth,
     mainContainerWidth: state.appState.mainContainerWidth,
+    needForceUpdate: state.pdfViewer.needForceUpdate,
   };
 };
 

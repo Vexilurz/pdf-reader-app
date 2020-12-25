@@ -15,6 +15,7 @@ export interface IPDFViewerState {
   areaSelectionEnable: IBoolValue;
   editingBookmarkID: string;
   scrollToPage: IScrollToIndex;
+  needForceUpdate: IBoolValue;
 }
 
 const initialState: IPDFViewerState = {
@@ -23,6 +24,7 @@ const initialState: IPDFViewerState = {
   areaSelectionEnable: { value: false },
   editingBookmarkID: '',
   scrollToPage: { value: 0 },
+  needForceUpdate: { value: false },
 };
 
 export const pdfViewerSlice = createSlice({
@@ -48,6 +50,10 @@ export const pdfViewerSlice = createSlice({
     setScrollToPage: (state: IPDFViewerState, action: PayloadAction<IScrollToIndex>) => {
       const { payload } = action;
       state.scrollToPage = payload;
+    },
+    setNeedForceUpdate: (state: IPDFViewerState, action: PayloadAction<boolean>) => {
+      const { payload } = action;
+      state.needForceUpdate = { value: payload };
     },
   },
 });
