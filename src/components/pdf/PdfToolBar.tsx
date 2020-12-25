@@ -53,40 +53,44 @@ export class PdfToolBar extends React.Component<IProps, IState> {
       ? 'secondary'
       : 'outline-secondary';
     return (
-      <div className="pdf-toolbar-container">
-        <h4>{pdfName}</h4>
-        <PdfSearchInput
-          onSetPattern={onSetPattern}
-          width={250}
-          prevSearchRes={prevSearchRes}
-          nextSearchRes={nextSearchRes}
-          currentSearchResNum={currentSearchResNum}
-          totalSearchResCount={totalSearchResCount}
-        />
-        <PdfPageControl
-          width={170}
-          onSetPageNumber={onSetPageNumber}
-          numPages={numPages}
-          currentPage={currentPage}
-        />
-        <PdfScaleControls onSetScale={onSetScale} />
-        <Button
-          variant={areaSelectionToggleStyle}
-          onClick={onAreaSelectionToggle}
-        >
-          <FontAwesomeIcon icon={faVectorSquare} />
-        </Button>
-        <Button
-          variant="outline-secondary"
-          onClick={() => {
-            ipcRenderer.send(appConst.OPEN_EXTERNAL_PDF);
-          }}
-        >
-          <FontAwesomeIcon icon={faFolderOpen} />
-        </Button>
-        <Button variant="outline-secondary" onClick={onPrint}>
-          <FontAwesomeIcon icon={faPrint} />
-        </Button>
+      <div className="pdf-toolbar-main-container">
+        <div>
+          <h4>{pdfName}</h4>
+        </div>
+        <div className="pdf-toolbar-container">
+          <PdfSearchInput
+            onSetPattern={onSetPattern}
+            width={250}
+            prevSearchRes={prevSearchRes}
+            nextSearchRes={nextSearchRes}
+            currentSearchResNum={currentSearchResNum}
+            totalSearchResCount={totalSearchResCount}
+          />
+          <PdfPageControl
+            width={170}
+            onSetPageNumber={onSetPageNumber}
+            numPages={numPages}
+            currentPage={currentPage}
+          />
+          <PdfScaleControls onSetScale={onSetScale} />
+          <Button
+            variant={areaSelectionToggleStyle}
+            onClick={onAreaSelectionToggle}
+          >
+            <FontAwesomeIcon icon={faVectorSquare} />
+          </Button>
+          <Button
+            variant="outline-secondary"
+            onClick={() => {
+              ipcRenderer.send(appConst.OPEN_EXTERNAL_PDF);
+            }}
+          >
+            <FontAwesomeIcon icon={faFolderOpen} />
+          </Button>
+          <Button variant="outline-secondary" onClick={onPrint}>
+            <FontAwesomeIcon icon={faPrint} />
+          </Button>
+        </div>
       </div>
     );
   }

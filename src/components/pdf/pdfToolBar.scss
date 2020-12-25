@@ -5,10 +5,10 @@
   justify-content: space-between;
   align-items: center;
   gap: 5px;
+}
 
-  h4 {
-    flex-grow: 4;
-  }
+.pdf-toolbar-main-container {
+  max-width: 100%;
 }
 
 .page-count-label {
