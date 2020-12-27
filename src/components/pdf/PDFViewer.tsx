@@ -15,24 +15,12 @@ import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IPDFdata } from '../../types/pdf';
 import * as DOM from 'react-dom';
-import {
-  IBookmark,
-  getInfSelection,
-  getBookmarkPage,
-  getBookmarkPageOffset,
-} from '../../types/bookmark';
+import { IBookmark, getInfSelection, getBookmarkPage, getBookmarkPageOffset } from '../../types/bookmark';
 import { splitTriple, splitDuo } from '../../utils/splitUtils';
 import { TextItem, ITextItemChunk } from './TextItem';
 import { PdfToolBar } from './PdfToolBar';
 import printJS from 'print-js';
 import AreaSelection from './AreaSelection';
-
-// interface IChunks {
-//   chunks: ITextItemChunk[];
-// }
-// interface IChunksArray {
-//   textItemArray: IChunks[];
-// }
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
@@ -46,7 +34,6 @@ export interface IPDFViewerState {
   renderTextLayer: boolean;
   pdfDocWidth: number;
   searchPattern: string | null;
-  // pageChunks: IChunksArray[];
   currentSearchResNum: number;
   totalSearchResCount: number;
   displayedPdfName: string;
@@ -54,15 +41,11 @@ export interface IPDFViewerState {
   pageHeight: number;
 }
 
-class PDFViewer extends React.Component<
-  StatePropsType & DispatchPropsType,
-  IPDFViewerState
-> {
+class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDFViewerState> {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
   private searchRef: React.RefObject<any>;
   private listRef: React.RefObject<any>;
-  // private _pageChunks: IChunksArray[];
   private pagesRendered: number;
   private pageText: string[];
   private _totalSearchResCount: number;
@@ -81,7 +64,6 @@ class PDFViewer extends React.Component<
       currentSearchResNum: 0,
       totalSearchResCount: 0,
       displayedPdfName: '',
-      // pageChunks: [],
       pageWidth: 100,
       pageHeight: 100,
     };
@@ -89,11 +71,18 @@ class PDFViewer extends React.Component<
     this.documentRef = React.createRef();
     this.searchRef = React.createRef();
     this.listRef = React.createRef();
-    // this._pageChunks = [];
     this.pagesRendered = 0;
     this.pageText = [];
     this._totalSearchResCount = 0;
     this.textLayerZIndex = 5;
+  }
+
+  checkForceUpdate() {
+    if (this.props.needForceUpdate === true) {
+      this.listRef.current?.forceUpdateGrid();
+      this.props.setNeedForceUpdate(false);
+      console.log('updated');
+    }
   }
 
   componentDidMount(): void {
@@ -107,59 +96,31 @@ class PDFViewer extends React.Component<
       });
       if (external) {
         setCurrentPdf({ path, eventID: '' });
-        // setAppState(appConst.PDF_VIEWER);
       }
     });
   }
 
   componentDidUpdate(prevProps) {
-    // Typical usage (don't forget to compare props):
-    // if (this.props.needForceUpdate !== prevProps.needForceUpdate) {
-    if (this.props.needForceUpdate === true) {
-      this.listRef.current.forceUpdate();
-      this.props.setNeedForceUpdate(false);
-    }
+    this.checkForceUpdate();
   }
-
-  // calcScale = (page) => {
-  //   const parent = this.props.parentRef.current;
-  //   if (parent) {
-  //     const pageScale = (parent.clientWidth * 0.984) / page.originalWidth;
-  //     if (this.state.scale !== pageScale) {
-  //       this.setState({ scale: pageScale });
-  //     }
-  //   }
-  // };
 
   onPageLoad = async (page) => {
     this.removeTextLayerOffset();
-    // this.props.setNeedForceUpdate(true);
-    // this.calcScale(page);
   };
 
   removeTextLayerOffset = () => {
-    const textLayers = document.querySelectorAll(
-      '.react-pdf__Page__textContent'
-    );
+    const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
     textLayers.forEach((layer) => {
       const { style } = layer;
       style.zIndex = this.textLayerZIndex;
-      // style.top = '0';
-      // style.left = '0';
-      // style.transform = '';
-      // style.margin = '0 auto';
     });
   };
 
   onDocumentLoadSuccess = (document) => {
     const { numPages } = document;
-    // this._pageChunks = new Array(numPages + 1).fill({
-    //   textItemArray: [],
-    // });
     this.pageText = new Array(numPages).fill('');
     this.setState({ numPages });
     this.documentRef.current = document;
-    // this.calcPageOffsets(numPages);
   };
 
   onRenderFinished = (pageNumber: number) => {
@@ -168,8 +129,8 @@ class PDFViewer extends React.Component<
     this.pagesRendered += 1;
     if (this.pagesRendered === numPages) {
       setShowLoading(false);
-      // this.setState({ pageChunks: [...this._pageChunks] });
     }
+    this.listRef.current?.forceUpdateGrid();
   };
 
   selectAllMatches = () => {
@@ -188,12 +149,7 @@ class PDFViewer extends React.Component<
 
   getMarkedText = (text: string, color: string, key: any, id: string) => {
     return (
-      <mark
-        className={key}
-        key={key}
-        id={id}
-        style={{ color, backgroundColor: color }}
-      >
+      <mark className={key} key={key} id={id} style={{ color, backgroundColor: color }}>
         {text}
       </mark>
     );
@@ -207,12 +163,7 @@ class PDFViewer extends React.Component<
     );
   };
 
-  newPattern = (
-    text: string,
-    bookmarks: any[],
-    pageNumber: number,
-    counter: number
-  ) => {
+  newPattern = (text: string, bookmarks: any[], pageNumber: number, counter: number) => {
     const result = [];
     const textEnd = counter + text.length;
     let current = counter;
@@ -253,10 +204,7 @@ class PDFViewer extends React.Component<
 
     if (current < textEnd) {
       result.push(
-        this.getUnmarkedText(
-          text.slice(current - counter, text.length),
-          `${pageNumber},${current},${index++}`
-        )
+        this.getUnmarkedText(text.slice(current - counter, text.length), `${pageNumber},${current},${index++}`)
       );
     }
 
@@ -275,15 +223,7 @@ class PDFViewer extends React.Component<
       else {
         this._totalSearchResCount += 1;
         this.setState({ totalSearchResCount: this._totalSearchResCount });
-        return [
-          item,
-          this.getMarkedText(
-            pattern,
-            'blue',
-            this._totalSearchResCount,
-            `sr${this._totalSearchResCount}`
-          ),
-        ];
+        return [item, this.getMarkedText(pattern, 'blue', this._totalSearchResCount, `sr${this._totalSearchResCount}`)];
       }
     });
 
@@ -296,15 +236,10 @@ class PDFViewer extends React.Component<
     const { currentIndexes, currentProjectFile } = this.props;
 
     const allBookmarks =
-      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
-        currentIndexes.fileIndex
-      ]?.bookmarks;
+      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[currentIndexes.fileIndex]?.bookmarks;
 
     const bookmarksFiltered = allBookmarks?.filter(
-      (v) =>
-        !v.isAreaSelection &&
-        v.selection.startPage <= pageNumber &&
-        v.selection.endPage >= pageNumber
+      (v) => !v.isAreaSelection && v.selection.startPage <= pageNumber && v.selection.endPage >= pageNumber
     );
 
     const bookmarksSorted = bookmarksFiltered
@@ -321,13 +256,6 @@ class PDFViewer extends React.Component<
       })
       .sort((a, b) => a.start - b.start);
 
-    // console.log(
-    //   '%c%s',
-    //   'color: lime; font: 1.2rem/1 Tahoma;',
-    //   'PDF_RENDERER',
-    //   pageNumber
-    // );
-
     // this is crunches. I don't know why renderer calls twice on the same textItem.
     let prevTextItem = null;
     return (textItem) => {
@@ -341,36 +269,10 @@ class PDFViewer extends React.Component<
             pattern = this.highlightPattern(textItem.str, searchPattern);
           } else {
             if (bookmarksSorted?.length > 0) {
-              pattern = this.newPattern(
-                textItem.str,
-                bookmarksSorted,
-                pageNumber,
-                textLenCounter
-              );
+              pattern = this.newPattern(textItem.str, bookmarksSorted, pageNumber, textLenCounter);
             } else {
-              pattern = this.getUnmarkedText(
-                textItem.str,
-                `${pageNumber},${textLenCounter},0`
-              );
+              pattern = this.getUnmarkedText(textItem.str, `${pageNumber},${textLenCounter},0`);
             }
-            // this._pageChunks[pageNumber].textItemArray.push({
-            //   chunks: [
-            //     {
-            //       className: `${pageNumber},${textLenCounter}`,
-            //       text: textItem.str,
-            //       id: null,
-            //       color: 'red',
-            //     },
-            //   ],
-            // });
-            // pattern = (
-            //   <TextItem
-            //     chunks={
-            //       this.state.pageChunks[pageNumber]?.textItemArray[indexCounter]
-            //         ?.chunks
-            //     }
-            //   />
-            // );
           }
           textLenCounter += textItem.str.length;
           indexCounter += 1;
@@ -384,10 +286,7 @@ class PDFViewer extends React.Component<
     if (!this.props.areaSelectionEnable.value) {
       const { setSelection } = this.props;
 
-      if (
-        this.containerRef.current === null ||
-        this.documentRef.current === null
-      ) {
+      if (this.containerRef.current === null || this.documentRef.current === null) {
         return;
       }
 
@@ -398,13 +297,7 @@ class PDFViewer extends React.Component<
       }
 
       const sel = selection.getRangeAt(0);
-      const {
-        commonAncestorContainer,
-        endContainer,
-        endOffset,
-        startContainer,
-        startOffset,
-      } = sel;
+      const { commonAncestorContainer, endContainer, endOffset, startContainer, startOffset } = sel;
 
       // Selection partially outside PDF document
       if (!this.containerRef.current.contains(commonAncestorContainer)) {
@@ -433,9 +326,6 @@ class PDFViewer extends React.Component<
   };
 
   handlePdfPageResize = (index) => (contentRect) => {
-    // console.log(
-    //   `${index}: ${contentRect?.bounds?.height} x ${contentRect?.bounds?.width}`
-    // );
     // TODO: condition is a crunch
     if (index === 0 && contentRect?.bounds?.height > 50)
       this.setState({
@@ -444,35 +334,21 @@ class PDFViewer extends React.Component<
       });
   };
 
-  rowRenderer = ({
-    key,
-    index,
-    isScrolling,
-    isVisible,
-    style,
-    parent,
-  }: any) => {
-    // console.log(`Rendered ${key} ${index}`);
+  rowRenderer = ({ key, index, isScrolling, isVisible, style, parent }: any) => {
     const { scale } = this.state;
     if (isVisible) this.setState({ currentPage: index + 1 });
 
     const { currentIndexes, currentProjectFile } = this.props;
 
     const allBookmarks =
-      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
-        currentIndexes.fileIndex
-      ]?.bookmarks;
+      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[currentIndexes.fileIndex]?.bookmarks;
 
-    const bookmarksFiltered = allBookmarks?.filter(
-      (v) => v.isAreaSelection && v.selection.page === index + 1
-    );
+    const bookmarksFiltered = allBookmarks?.filter((v) => v.isAreaSelection && v.selection.page === index + 1);
 
     return (
       <div key={key} style={style}>
         <div className="pdf-page" key={`page_${index + 1}_${key}`}>
           <AreaSelection
-            // width={600}
-            // height={600}
             width={this.state.pageWidth}
             height={this.state.pageHeight}
             page={index + 1}
@@ -482,7 +358,6 @@ class PDFViewer extends React.Component<
             {({ measureRef }) => (
               <div ref={measureRef}>
                 <Page
-                  // onRenderSuccess={}
                   scale={scale}
                   pageNumber={index + 1}
                   onLoadSuccess={this.onPageLoad}
@@ -509,22 +384,6 @@ class PDFViewer extends React.Component<
   onPrint = () => {
     const { currentPdf } = this.props;
     const { pdfData } = this.state;
-    // const decoder = new TextDecoder('utf8');
-    // const b64encoded = btoa(decoder.decode(pdfData?.data));
-
-    // const data =
-    //   'JVBERi0xLjMNCiXi48/TDQoNCjEgMCBvYmoNCjw8DQovVHlwZSAvQ2F0YWxvZw0KL091dGxpbmVzIDIgMCBSDQovUGFnZXMgMyAwIFINCj4+DQplbmRvYmoNCg0KMiAwIG9iag0KPDwNCi9UeXBlIC9PdXRsaW5lcw0KL0NvdW50IDANCj4+DQplbmRvYmoNCg0KMyAwIG9iag0KPDwNCi9UeXBlIC9QYWdlcw0KL0NvdW50IDINCi9LaWRzIFsgNCAwIFIgNiAwIFIgXSANCj4+DQplbmRvYmoNCg0KNCAwIG9iag0KPDwNCi9UeXBlIC9QYWdlDQovUGFyZW50IDMgMCBSDQovUmVzb3VyY2VzIDw8DQovRm9udCA8PA0KL0YxIDkgMCBSIA0KPj4NCi9Qcm9jU2V0IDggMCBSDQo+Pg0KL01lZGlhQm94IFswIDAgNjEyLjAwMDAgNzkyLjAwMDBdDQovQ29udGVudHMgNSAwIFINCj4+DQplbmRvYmoNCg0KNSAwIG9iag0KPDwgL0xlbmd0aCAxMDc0ID4+DQpzdHJlYW0NCjIgSg0KQlQNCjAgMCAwIHJnDQovRjEgMDAyNyBUZg0KNTcuMzc1MCA3MjIuMjgwMCBUZA0KKCBBIFNpbXBsZSBQREYgRmlsZSApIFRqDQpFVA0KQlQNCi9GMSAwMDEwIFRmDQo2OS4yNTAwIDY4OC42MDgwIFRkDQooIFRoaXMgaXMgYSBzbWFsbCBkZW1vbnN0cmF0aW9uIC5wZGYgZmlsZSAtICkgVGoNCkVUDQpCVA0KL0YxIDAwMTAgVGYNCjY5LjI1MDAgNjY0LjcwNDAgVGQNCigganVzdCBmb3IgdXNlIGluIHRoZSBWaXJ0dWFsIE1lY2hhbmljcyB0dXRvcmlhbHMuIE1vcmUgdGV4dC4gQW5kIG1vcmUgKSBUag0KRVQNCkJUDQovRjEgMDAxMCBUZg0KNjkuMjUwMCA2NTIuNzUyMCBUZA0KKCB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiApIFRqDQpFVA0KQlQNCi9GMSAwMDEwIFRmDQo2OS4yNTAwIDYyOC44NDgwIFRkDQooIEFuZCBtb3JlIHRleHQuIEFuZCBtb3JlIHRleHQuIEFuZCBtb3JlIHRleHQuIEFuZCBtb3JlIHRleHQuIEFuZCBtb3JlICkgVGoNCkVUDQpCVA0KL0YxIDAwMTAgVGYNCjY5LjI1MDAgNjE2Ljg5NjAgVGQNCiggdGV4dC4gQW5kIG1vcmUgdGV4dC4gQm9yaW5nLCB6enp6ei4gQW5kIG1vcmUgdGV4dC4gQW5kIG1vcmUgdGV4dC4gQW5kICkgVGoNCkVUDQpCVA0KL0YxIDAwMTAgVGYNCjY5LjI1MDAgNjA0Ljk0NDAgVGQNCiggbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiApIFRqDQpFVA0KQlQNCi9GMSAwMDEwIFRmDQo2OS4yNTAwIDU5Mi45OTIwIFRkDQooIEFuZCBtb3JlIHRleHQuIEFuZCBtb3JlIHRleHQuICkgVGoNCkVUDQpCVA0KL0YxIDAwMTAgVGYNCjY5LjI1MDAgNTY5LjA4ODAgVGQNCiggQW5kIG1vcmUgdGV4dC4gQW5kIG1vcmUgdGV4dC4gQW5kIG1vcmUgdGV4dC4gQW5kIG1vcmUgdGV4dC4gQW5kIG1vcmUgKSBUag0KRVQNCkJUDQovRjEgMDAxMCBUZg0KNjkuMjUwMCA1NTcuMTM2MCBUZA0KKCB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBFdmVuIG1vcmUuIENvbnRpbnVlZCBvbiBwYWdlIDIgLi4uKSBUag0KRVQNCmVuZHN0cmVhbQ0KZW5kb2JqDQoNCjYgMCBvYmoNCjw8DQovVHlwZSAvUGFnZQ0KL1BhcmVudCAzIDAgUg0KL1Jlc291cmNlcyA8PA0KL0ZvbnQgPDwNCi9GMSA5IDAgUiANCj4+DQovUHJvY1NldCA4IDAgUg0KPj4NCi9NZWRpYUJveCBbMCAwIDYxMi4wMDAwIDc5Mi4wMDAwXQ0KL0NvbnRlbnRzIDcgMCBSDQo+Pg0KZW5kb2JqDQoNCjcgMCBvYmoNCjw8IC9MZW5ndGggNjc2ID4+DQpzdHJlYW0NCjIgSg0KQlQNCjAgMCAwIHJnDQovRjEgMDAyNyBUZg0KNTcuMzc1MCA3MjIuMjgwMCBUZA0KKCBTaW1wbGUgUERGIEZpbGUgMiApIFRqDQpFVA0KQlQNCi9GMSAwMDEwIFRmDQo2OS4yNTAwIDY4OC42MDgwIFRkDQooIC4uLmNvbnRpbnVlZCBmcm9tIHBhZ2UgMS4gWWV0IG1vcmUgdGV4dC4gQW5kIG1vcmUgdGV4dC4gQW5kIG1vcmUgdGV4dC4gKSBUag0KRVQNCkJUDQovRjEgMDAxMCBUZg0KNjkuMjUwMCA2NzYuNjU2MCBUZA0KKCBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSB0ZXh0LiBBbmQgbW9yZSApIFRqDQpFVA0KQlQNCi9GMSAwMDEwIFRmDQo2OS4yNTAwIDY2NC43MDQwIFRkDQooIHRleHQuIE9oLCBob3cgYm9yaW5nIHR5cGluZyB0aGlzIHN0dWZmLiBCdXQgbm90IGFzIGJvcmluZyBhcyB3YXRjaGluZyApIFRqDQpFVA0KQlQNCi9GMSAwMDEwIFRmDQo2OS4yNTAwIDY1Mi43NTIwIFRkDQooIHBhaW50IGRyeS4gQW5kIG1vcmUgdGV4dC4gQW5kIG1vcmUgdGV4dC4gQW5kIG1vcmUgdGV4dC4gQW5kIG1vcmUgdGV4dC4gKSBUag0KRVQNCkJUDQovRjEgMDAxMCBUZg0KNjkuMjUwMCA2NDAuODAwMCBUZA0KKCBCb3JpbmcuICBNb3JlLCBhIGxpdHRsZSBtb3JlIHRleHQuIFRoZSBlbmQsIGFuZCBqdXN0IGFzIHdlbGwuICkgVGoNCkVUDQplbmRzdHJlYW0NCmVuZG9iag0KDQo4IDAgb2JqDQpbL1BERiAvVGV4dF0NCmVuZG9iag0KDQo5IDAgb2JqDQo8PA0KL1R5cGUgL0ZvbnQNCi9TdWJ0eXBlIC9UeXBlMQ0KL05hbWUgL0YxDQovQmFzZUZvbnQgL0hlbHZldGljYQ0KL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcNCj4+DQplbmRvYmoNCg0KMTAgMCBvYmoNCjw8DQovQ3JlYXRvciAoUmF2ZSBcKGh0dHA6Ly93d3cubmV2cm9uYS5jb20vcmF2ZVwpKQ0KL1Byb2R1Y2VyIChOZXZyb25hIERlc2lnbnMpDQovQ3JlYXRpb25EYXRlIChEOjIwMDYwMzAxMDcyODI2KQ0KPj4NCmVuZG9iag0KDQp4cmVmDQowIDExDQowMDAwMDAwMDAwIDY1NTM1IGYNCjAwMDAwMDAwMTkgMDAwMDAgbg0KMDAwMDAwMDA5MyAwMDAwMCBuDQowMDAwMDAwMTQ3IDAwMDAwIG4NCjAwMDAwMDAyMjIgMDAwMDAgbg0KMDAwMDAwMDM5MCAwMDAwMCBuDQowMDAwMDAxNTIyIDAwMDAwIG4NCjAwMDAwMDE2OTAgMDAwMDAgbg0KMDAwMDAwMjQyMyAwMDAwMCBuDQowMDAwMDAyNDU2IDAwMDAwIG4NCjAwMDAwMDI1NzQgMDAwMDAgbg0KDQp0cmFpbGVyDQo8PA0KL1NpemUgMTENCi9Sb290IDEgMCBSDQovSW5mbyAxMCAwIFINCj4+DQoNCnN0YXJ0eHJlZg0KMjcxNA0KJSVFT0YNCg==';
-    // const blob = new Blob([data], { type: 'application/pdf' });
-    // const url = URL.createObjectURL(blob);
-    // printJS(url);
-
-    // printJS({
-    //   printable:
-    //     'https://vadimdez.github.io/ng2-pdf-viewer/assets/pdf-test.pdf',
-    //   type: 'pdf',
-    //   showModal: true,
-    // });
-
     ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
   };
 
@@ -534,8 +393,6 @@ class PDFViewer extends React.Component<
       this.setState({
         currentSearchResNum: currentSearchResNum - 1,
       });
-      // setScrollToPage({ value: page_number });
-      // document.getElementById(element_id).scrollIntoView();
     }
   };
 
@@ -552,9 +409,7 @@ class PDFViewer extends React.Component<
   };
 
   onAreaSelectionToggle = () => {
-    const textLayers = document.querySelectorAll(
-      '.react-pdf__Page__textContent'
-    );
+    const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
     this.textLayerZIndex = this.props.areaSelectionEnable.value ? 5 : 1;
     if (this.props.areaSelectionEnable) {
       this.props.setCurrentSelection(null);
@@ -573,8 +428,6 @@ class PDFViewer extends React.Component<
       pdfData,
       numPages,
       currentPage,
-      // scale,
-      // renderTextLayer,
       pdfDocWidth,
       currentSearchResNum,
       totalSearchResCount,
@@ -582,11 +435,7 @@ class PDFViewer extends React.Component<
     } = this.state;
     this.pagesRendered = 0;
     return (
-      <div
-        className="pdf-viewer"
-        ref={this.containerRef}
-        style={{ width: pdfDocWidth }}
-      >
+      <div className="pdf-viewer" ref={this.containerRef} style={{ width: pdfDocWidth }}>
         <PdfToolBar
           pdfName={displayedPdfName}
           onSetPattern={(searchPattern: string) => {

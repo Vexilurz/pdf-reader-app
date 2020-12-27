@@ -24,7 +24,7 @@ const initialState: IPDFViewerState = {
   areaSelectionEnable: { value: false },
   editingBookmarkID: '',
   scrollToPage: { value: 0 },
-  needForceUpdate: { value: false },
+  needForceUpdate: { value: true },
 };
 
 export const pdfViewerSlice = createSlice({
