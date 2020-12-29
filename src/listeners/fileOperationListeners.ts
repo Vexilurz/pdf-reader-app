@@ -36,17 +36,44 @@ const openFile = async (event, path: string) => {
   }
 };
 
-const saveFileDialog = async (event, arg) => {
-  const response = await dialog.showSaveDialog({
-    filters: [
-      { name: 'ZIP files', extensions: ['zip'] },
-      { name: 'All files', extensions: ['*'] },
-    ],
+const canWrite = (path, callback) => {
+  fssync.access(path, fssync.W_OK, (err) => {
+    callback(null, !err);
   });
-  if (!response.canceled) {
-    event.reply(appConst.NEW_FILE_DIALOG_RESPONSE, {
-      path: response.filePath,
+};
+
+const canWritePromise = function (path) {
+  return new Promise((resolve, reject) => {
+    fssync.access(path, fssync.W_OK, (err) => {
+      resolve(!err);
     });
+  });
+};
+
+const saveFileDialog = async (event, arg) => {
+  let isWritable = false;
+  while (!isWritable) {
+    const response = await dialog.showSaveDialog({
+      filters: [
+        { name: 'ZIP files', extensions: ['zip'] },
+        { name: 'All files', extensions: ['*'] },
+      ],
+    });
+    if (!response.canceled) {
+      isWritable = await canWritePromise(pathLib.dirname(response.filePath));
+
+      if (isWritable)
+        event.reply(appConst.NEW_FILE_DIALOG_RESPONSE, {
+          path: response.filePath,
+        });
+      else {
+        // TODO: show message about write permissions
+        console.log(`can't write file!`)
+      }
+    } else {
+      // TODO: like a crunch. 
+      isWritable = true
+    }
   }
 };
 

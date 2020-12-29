@@ -15,7 +15,12 @@ import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IPDFdata } from '../../types/pdf';
 import * as DOM from 'react-dom';
-import { IBookmark, getInfSelection, getBookmarkPage, getBookmarkPageOffset } from '../../types/bookmark';
+import {
+  IBookmark,
+  getInfSelection,
+  getBookmarkPage,
+  getBookmarkPageOffset,
+} from '../../types/bookmark';
 import { splitTriple, splitDuo } from '../../utils/splitUtils';
 import { TextItem, ITextItemChunk } from './TextItem';
 import { PdfToolBar } from './PdfToolBar';
@@ -41,7 +46,10 @@ export interface IPDFViewerState {
   pageHeight: number;
 }
 
-class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDFViewerState> {
+class PDFViewer extends React.Component<
+  StatePropsType & DispatchPropsType,
+  IPDFViewerState
+> {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
   private searchRef: React.RefObject<any>;
@@ -81,7 +89,7 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     if (this.props.needForceUpdate === true) {
       this.listRef.current?.forceUpdateGrid();
       this.props.setNeedForceUpdate(false);
-      console.log('updated');
+      // console.log('updated');
     }
   }
 
@@ -109,7 +117,9 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
   };
 
   removeTextLayerOffset = () => {
-    const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
+    const textLayers = document.querySelectorAll(
+      '.react-pdf__Page__textContent'
+    );
     textLayers.forEach((layer) => {
       const { style } = layer;
       style.zIndex = this.textLayerZIndex;
@@ -121,6 +131,8 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     this.pageText = new Array(numPages).fill('');
     this.setState({ numPages });
     this.documentRef.current = document;
+    this.props.setCurrentSelection(null);
+    this.props.disableAreaSelection();
   };
 
   onRenderFinished = (pageNumber: number) => {
@@ -130,6 +142,7 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     if (this.pagesRendered === numPages) {
       setShowLoading(false);
     }
+    // Updates area-selection layer after pdf loading
     this.listRef.current?.forceUpdateGrid();
   };
 
@@ -149,7 +162,12 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
 
   getMarkedText = (text: string, color: string, key: any, id: string) => {
     return (
-      <mark className={key} key={key} id={id} style={{ color, backgroundColor: color }}>
+      <mark
+        className={key}
+        key={key}
+        id={id}
+        style={{ color, backgroundColor: color }}
+      >
         {text}
       </mark>
     );
@@ -163,7 +181,12 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     );
   };
 
-  newPattern = (text: string, bookmarks: any[], pageNumber: number, counter: number) => {
+  newPattern = (
+    text: string,
+    bookmarks: any[],
+    pageNumber: number,
+    counter: number
+  ) => {
     const result = [];
     const textEnd = counter + text.length;
     let current = counter;
@@ -186,14 +209,16 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
       if (bookmark.start <= current) {
         const start = Math.max(bookmark.start, current);
         const end = Math.min(bookmark.end, textEnd);
-        result.push(
-          this.getMarkedText(
-            text.slice(start - counter, end - counter),
-            bookmark.color,
-            `${pageNumber},${current},${index++}`,
-            `${bookmark.id}`
-          )
-        );
+        const t = text.slice(start - counter, end - counter);
+        if (t !== '')
+          result.push(
+            this.getMarkedText(
+              t,
+              bookmark.color,
+              `${pageNumber},${current},${index++}`,
+              `${bookmark.id}`
+            )
+          );
         current = end;
       }
 
@@ -204,7 +229,10 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
 
     if (current < textEnd) {
       result.push(
-        this.getUnmarkedText(text.slice(current - counter, text.length), `${pageNumber},${current},${index++}`)
+        this.getUnmarkedText(
+          text.slice(current - counter, text.length),
+          `${pageNumber},${current},${index++}`
+        )
       );
     }
 
@@ -223,7 +251,15 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
       else {
         this._totalSearchResCount += 1;
         this.setState({ totalSearchResCount: this._totalSearchResCount });
-        return [item, this.getMarkedText(pattern, 'blue', this._totalSearchResCount, `sr${this._totalSearchResCount}`)];
+        return [
+          item,
+          this.getMarkedText(
+            pattern,
+            'blue',
+            this._totalSearchResCount,
+            `sr${this._totalSearchResCount}`
+          ),
+        ];
       }
     });
 
@@ -236,10 +272,15 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     const { currentIndexes, currentProjectFile } = this.props;
 
     const allBookmarks =
-      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[currentIndexes.fileIndex]?.bookmarks;
+      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
+        currentIndexes.fileIndex
+      ]?.bookmarks;
 
     const bookmarksFiltered = allBookmarks?.filter(
-      (v) => !v.isAreaSelection && v.selection.startPage <= pageNumber && v.selection.endPage >= pageNumber
+      (v) =>
+        !v.isAreaSelection &&
+        v.selection.startPage <= pageNumber &&
+        v.selection.endPage >= pageNumber
     );
 
     const bookmarksSorted = bookmarksFiltered
@@ -269,9 +310,17 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
             pattern = this.highlightPattern(textItem.str, searchPattern);
           } else {
             if (bookmarksSorted?.length > 0) {
-              pattern = this.newPattern(textItem.str, bookmarksSorted, pageNumber, textLenCounter);
+              pattern = this.newPattern(
+                textItem.str,
+                bookmarksSorted,
+                pageNumber,
+                textLenCounter
+              );
             } else {
-              pattern = this.getUnmarkedText(textItem.str, `${pageNumber},${textLenCounter},0`);
+              pattern = this.getUnmarkedText(
+                textItem.str,
+                `${pageNumber},${textLenCounter},0`
+              );
             }
           }
           textLenCounter += textItem.str.length;
@@ -286,7 +335,10 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     if (!this.props.areaSelectionEnable.value) {
       const { setSelection } = this.props;
 
-      if (this.containerRef.current === null || this.documentRef.current === null) {
+      if (
+        this.containerRef.current === null ||
+        this.documentRef.current === null
+      ) {
         return;
       }
 
@@ -297,7 +349,13 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
       }
 
       const sel = selection.getRangeAt(0);
-      const { commonAncestorContainer, endContainer, endOffset, startContainer, startOffset } = sel;
+      const {
+        commonAncestorContainer,
+        endContainer,
+        endOffset,
+        startContainer,
+        startOffset,
+      } = sel;
 
       // Selection partially outside PDF document
       if (!this.containerRef.current.contains(commonAncestorContainer)) {
@@ -334,21 +392,33 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
       });
   };
 
-  rowRenderer = ({ key, index, isScrolling, isVisible, style, parent }: any) => {
+  rowRenderer = ({
+    key,
+    index,
+    isScrolling,
+    isVisible,
+    style,
+    parent,
+  }: any) => {
     const { scale } = this.state;
     if (isVisible) this.setState({ currentPage: index + 1 });
 
     const { currentIndexes, currentProjectFile } = this.props;
 
     const allBookmarks =
-      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[currentIndexes.fileIndex]?.bookmarks;
+      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
+        currentIndexes.fileIndex
+      ]?.bookmarks;
 
-    const bookmarksFiltered = allBookmarks?.filter((v) => v.isAreaSelection && v.selection.page === index + 1);
+    const bookmarksFiltered = allBookmarks?.filter(
+      (v) => v.isAreaSelection && v.selection.page === index + 1
+    );
 
     return (
       <div key={key} style={style}>
         <div className="pdf-page" key={`page_${index + 1}_${key}`}>
           <AreaSelection
+            key={`as${index + 1}_${key}`}
             width={this.state.pageWidth}
             height={this.state.pageHeight}
             page={index + 1}
@@ -409,7 +479,9 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
   };
 
   onAreaSelectionToggle = () => {
-    const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
+    const textLayers = document.querySelectorAll(
+      '.react-pdf__Page__textContent'
+    );
     this.textLayerZIndex = this.props.areaSelectionEnable.value ? 5 : 1;
     if (this.props.areaSelectionEnable) {
       this.props.setCurrentSelection(null);
@@ -435,7 +507,11 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     } = this.state;
     this.pagesRendered = 0;
     return (
-      <div className="pdf-viewer" ref={this.containerRef} style={{ width: pdfDocWidth }}>
+      <div
+        className="pdf-viewer"
+        ref={this.containerRef}
+        style={{ width: pdfDocWidth }}
+      >
         <PdfToolBar
           pdfName={displayedPdfName}
           onSetPattern={(searchPattern: string) => {
@@ -503,6 +579,7 @@ const mapDispatchToProps = {
   setShowLoading: appStateActions.setShowLoading,
   setScrollToPage: pdfViewerActions.setScrollToPage,
   toggleAreaSelectionEnable: pdfViewerActions.toggleAreaSelectionEnable,
+  disableAreaSelection: pdfViewerActions.disableAreaSelection,
   setCurrentSelection: pdfViewerActions.setAreaSelection,
   setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
 };

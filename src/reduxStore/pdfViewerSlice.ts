@@ -43,6 +43,9 @@ export const pdfViewerSlice = createSlice({
       const tmp = { value: !state.areaSelectionEnable.value };
       state.areaSelectionEnable = tmp;
     },
+    disableAreaSelection: (state: IPDFViewerState) => {
+      state.areaSelectionEnable = { value: false };
+    },
     setEditingBookmarkID: (state: IPDFViewerState, action: PayloadAction<string>) => {
       const { payload } = action;
       state.editingBookmarkID = payload;

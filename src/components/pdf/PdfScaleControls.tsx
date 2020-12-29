@@ -44,6 +44,7 @@ export const PdfScaleControls = ({ onSetScale }: IProps) => {
           {Array.from(new Array(16), (el, index) => {
             return (
               <Dropdown.Item
+                key={`scale${index}`}
                 onClick={() => {
                   setScaleMain(0.5 + index * 0.1);
                 }}

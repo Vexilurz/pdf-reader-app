@@ -30,12 +30,6 @@ class AreaSelection extends React.Component<
     };
   }
 
-  // componentDidUpdate() {
-  //   setInterval(() => {
-  //     this.props.setNeedForceUpdate(true);
-  //   }, 500);
-  // }
-
   handleMouseDown = (event) => {
     const {
       currentSelection,

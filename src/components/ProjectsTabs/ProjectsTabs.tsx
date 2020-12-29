@@ -39,7 +39,7 @@ class ProjectsTabs extends React.Component<
               className="nav-item project-tab"
               key={'project-tab-key' + index}
             >
-              <a
+              <p
                 className={'nav-link' + active}
                 href="#"
                 onClick={(e) => {
@@ -65,7 +65,7 @@ class ProjectsTabs extends React.Component<
                 >
                   x
                 </a>
-              </a>
+              </p>
             </li>
           );
         })}

@@ -60,6 +60,7 @@ class BookmarkItem extends React.Component<
     newBookmark.color = color;
     setEditingBookmarkID('');
     updateBookmark(newBookmark);
+    this.props.setNeedForceUpdate(true);
   };
 
   onEdit = (e) => {
@@ -165,7 +166,7 @@ class BookmarkItem extends React.Component<
                 ? bookmark.selection.page
                 : bookmark.selection.startPage;
               setScrollToPage({ value: scrollPage - 1 });
-              document.getElementById(bookmark.id).scrollIntoView();
+              document.getElementById(bookmark.id)?.scrollIntoView();
             }}
           >
             <div className="bookmark-menu">
@@ -214,6 +215,7 @@ const mapDispatchToProps = {
   deleteBookmark: projectFileActions.deleteBookmark,
   setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
   setScrollToPage: pdfViewerActions.setScrollToPage,
+  setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {
