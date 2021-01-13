@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Document } from 'react-pdf/dist/esm/entry.webpack';
-import { List, AutoSizer } from 'react-virtualized';
+
 import { IPdfSelection } from '../../types/bookmark';
 import { IPDFdata } from '../../types/pdf';
+import PageContainer from './PageContainer';
 
 interface Props {
   pdfFile?: IPDFdata;
@@ -98,20 +99,7 @@ export default class PdfDocument extends Component<Props, State> {
           inputRef={this.setContainerRef}
           onMouseUp={this.onMouseUp}
         >
-          <AutoSizer>
-            {({ height, width }: any) => (
-              <List
-                width={width}
-                rowCount={numPages}
-                height={height}
-                rowHeight={this.state.pageHeight}
-                rowRenderer={this.rowRenderer}
-                scrollToIndex={scrollToPage.value}
-                overscanRowCount={1}
-                ref={this.listRef}
-              />
-            )}
-          </AutoSizer>
+          <PageContainer />
         </Document>
       </div>
     );
