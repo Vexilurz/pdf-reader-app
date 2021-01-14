@@ -1,5 +1,9 @@
+/* eslint-disable */
 import React, { Component, CSSProperties } from 'react';
 import { List, AutoSizer } from 'react-virtualized';
+import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
+import { IProjectFileWithPath } from '../../types/projectFile';
+import AreaSelection from './AreaSelection';
 import PdfPage from './PdfPage';
 
 interface IRowRendererProps {
@@ -11,11 +15,47 @@ interface IRowRendererProps {
   parent: HTMLElement;
 }
 
-interface Props {}
-interface State {}
+interface Props {
+  numPages: number;
+  scrollToIndex: number;
+  currentProjectFile: IProjectFileWithPath;
+  currentIndexes: IEventAndFileIndex;
+  setCurrentPage(value: number): void;
+
+  scale: number;
+  setShowLoading(value: boolean): void;
+  searchPattern: string | null;
+  textLayerZIndex: number;
+}
+interface State {
+  pageWidth: number;
+  pageHeight: number;
+}
 
 export default class PageContainer extends Component<Props, State> {
-  state = {};
+  private listRef: React.RefObject<any>;
+  private pagesRendered: number;
+
+  constructor(props: State & Props) {
+    super(props);
+    this.state = {
+      pageWidth: 100,
+      pageHeight: 100,
+    };
+    this.listRef = React.createRef();
+    this.pagesRendered = 0;
+  }
+
+  pageDimensionsCallback = (width: number, height: number) => {
+    this.setState({
+      pageHeight: height,
+      pageWidth: width,
+    });
+  };
+
+  setPagesRendered = (value: number) => {
+    this.pagesRendered = value;
+  };
 
   rowRenderer = ({
     key,
@@ -23,10 +63,19 @@ export default class PageContainer extends Component<Props, State> {
     isVisible,
     style,
   }: IRowRendererProps): React.ReactNode => {
-    const { scale } = this.state;
-    if (isVisible) this.setState({ currentPage: index + 1 });
+    if (isVisible) this.props.setCurrentPage(index + 1);
 
-    const { currentIndexes, currentProjectFile } = this.props;
+    const {
+      currentIndexes,
+      currentProjectFile,
+      scale,
+      numPages,
+      setShowLoading,
+      searchPattern,
+      textLayerZIndex,
+    } = this.props;
+
+    const { pageHeight, pageWidth } = this.state;
 
     const allBookmarks =
       currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
@@ -42,28 +91,44 @@ export default class PageContainer extends Component<Props, State> {
         <div className="pdf-page" key={`page_${index + 1}_${key}`}>
           <AreaSelection
             key={`as${index + 1}_${key}`}
-            width={this.state.pageWidth}
-            height={this.state.pageHeight}
+            width={pageWidth}
+            height={pageHeight}
             page={index + 1}
             bookmarks={bookmarksFiltered}
           />
-          <PdfPage />
+          <PdfPage
+            scale={scale}
+            pageNumber={index + 1}
+            numPages={numPages}
+            setShowLoading={setShowLoading}
+            pageDimensionsCallback={this.pageDimensionsCallback}
+            listRef={this.listRef}
+            pagesRendered={this.pagesRendered}
+            setPagesRendered={this.setPagesRendered}
+            currentProjectFile={currentProjectFile}
+            currentIndexes={currentIndexes}
+            searchPattern={searchPattern}
+            textLayerZIndex={textLayerZIndex}
+          />
         </div>
       </div>
     );
   };
 
   render() {
+    const { numPages, scrollToIndex } = this.props;
+    const { pageHeight } = this.state;
+    this.pagesRendered = 0;
     return (
       <AutoSizer>
         {({ height, width }: any) => (
           <List
             width={width}
-            rowCount={numPages}
             height={height}
-            rowHeight={this.state.pageHeight}
+            rowCount={numPages}
+            rowHeight={pageHeight}
             rowRenderer={this.rowRenderer}
-            scrollToIndex={scrollToPage.value}
+            scrollToIndex={scrollToIndex}
             overscanRowCount={1}
             ref={this.listRef}
           />

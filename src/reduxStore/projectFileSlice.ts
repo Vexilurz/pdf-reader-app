@@ -13,7 +13,7 @@ interface IPdfFilePathWithEventID {
   eventID: string;
 }
 
-interface IEventAndFileIndex {
+export interface IEventAndFileIndex {
   fileIndex: number;
   eventIndex: number;
 }

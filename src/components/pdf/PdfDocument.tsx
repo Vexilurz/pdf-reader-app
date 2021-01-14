@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Document } from 'react-pdf/dist/esm/entry.webpack';
+import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
 
 import { IPdfSelection } from '../../types/bookmark';
 import { IPDFdata } from '../../types/pdf';
+import { IProjectFileWithPath } from '../../types/projectFile';
 import PageContainer from './PageContainer';
 
 interface Props {
@@ -10,6 +12,20 @@ interface Props {
   areaSelectionEnable: boolean;
   onLoadSuccess: () => void;
   setSelection: (selection: IPdfSelection) => void;
+
+  numPages: number;
+  pageHeight: number;
+  pageWidth: number;
+  scrollToIndex: number;
+  currentProjectFile: IProjectFileWithPath;
+  currentIndexes: IEventAndFileIndex;
+  setCurrentPage(value: number): void;
+
+  scale: number;
+  setShowLoading(value: boolean): void;
+  pageDimensionsCallback(width: number, height: number): void;
+  searchPattern: string | null;
+  textLayerZIndex: number;
 }
 interface State {
   numPages: number;
@@ -89,7 +105,17 @@ export default class PdfDocument extends Component<Props, State> {
   };
 
   render(): React.ReactNode {
-    const { pdfFile } = this.props;
+    const {
+      pdfFile,
+      scrollToIndex,
+      currentProjectFile,
+      currentIndexes,
+      setCurrentPage,
+      scale,
+      setShowLoading,
+      searchPattern,
+      textLayerZIndex,
+    } = this.props;
     const { numPages } = this.state;
     return (
       <div className="pdf-document">
@@ -99,7 +125,17 @@ export default class PdfDocument extends Component<Props, State> {
           inputRef={this.setContainerRef}
           onMouseUp={this.onMouseUp}
         >
-          <PageContainer />
+          <PageContainer
+            numPages={numPages}
+            scrollToIndex={scrollToIndex}
+            currentProjectFile={currentProjectFile}
+            currentIndexes={currentIndexes}
+            setCurrentPage={setCurrentPage}
+            scale={scale}
+            setShowLoading={setShowLoading}
+            searchPattern={searchPattern}
+            textLayerZIndex={textLayerZIndex}
+          />
         </Document>
       </div>
     );

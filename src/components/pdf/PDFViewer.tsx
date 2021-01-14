@@ -35,12 +35,15 @@ export interface IPDFViewerState {
   pageHeight: number;
 }
 
-class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDFViewerState> {
+class PDFViewer extends React.Component<
+  StatePropsType & DispatchPropsType,
+  IPDFViewerState
+> {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
   private searchRef: React.RefObject<any>;
   private listRef: React.RefObject<any>;
-  private pagesRendered: number;
+
   private pageText: string[];
   private _totalSearchResCount: number;
   private textLayerZIndex: number;
@@ -65,7 +68,6 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     this.documentRef = React.createRef();
     this.searchRef = React.createRef();
     this.listRef = React.createRef();
-    this.pagesRendered = 0;
     this.pageText = [];
     this._totalSearchResCount = 0;
     this.textLayerZIndex = 5;
@@ -97,18 +99,6 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     this.checkForceUpdate();
   }
 
-  onPageLoad = async (page) => {
-    this.removeTextLayerOffset();
-  };
-
-  removeTextLayerOffset = () => {
-    const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
-    textLayers.forEach((layer) => {
-      const { style } = layer;
-      style.zIndex = this.textLayerZIndex;
-    });
-  };
-
   onDocumentLoadSuccess = (document) => {
     const { numPages } = document;
     this.pageText = new Array(numPages).fill('');
@@ -118,15 +108,13 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     this.props.disableAreaSelection();
   };
 
-  onRenderFinished = (pageNumber: number) => {
-    const { numPages } = this.state;
-    const { setShowLoading } = this.props;
-    this.pagesRendered += 1;
-    if (this.pagesRendered === numPages) {
-      setShowLoading(false);
-    }
-    // Updates area-selection layer after pdf loading
-    this.listRef.current?.forceUpdateGrid();
+  onLoadSuccess = () => {
+    const { numPages } = document;
+    this.pageText = new Array(numPages).fill('');
+    this.setState({ numPages });
+    this.documentRef.current = document;
+    this.props.setCurrentSelection(null);
+    this.props.disableAreaSelection();
   };
 
   selectAllMatches = () => {
@@ -141,226 +129,6 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
     range.setStart(qwe[0], 0);
     range.setEnd(qwe[0], 1);
     selection?.addRange(range);
-  };
-
-  getMarkedText = (text: string, color: string, key: any, id: string) => {
-    return (
-      <mark className={key} key={key} id={id} style={{ color, backgroundColor: color }}>
-        {text}
-      </mark>
-    );
-  };
-
-  getUnmarkedText = (text: string, key: any) => {
-    return (
-      <span className={key} key={key}>
-        {text}
-      </span>
-    );
-  };
-
-  newPattern = (text: string, bookmarks: any[], pageNumber: number, counter: number) => {
-    const result = [];
-    const textEnd = counter + text.length;
-    let current = counter;
-    let index = 0;
-    for (const bookmark of bookmarks) {
-      if (bookmark.end < current) {
-        continue;
-      }
-
-      if (bookmark.start > current) {
-        result.push(
-          this.getUnmarkedText(
-            text.slice(current - counter, bookmark.start - counter),
-            `${pageNumber},${current},${index++}`
-          )
-        );
-        current = Math.min(bookmark.start, textEnd);
-      }
-
-      if (bookmark.start <= current) {
-        const start = Math.max(bookmark.start, current);
-        const end = Math.min(bookmark.end, textEnd);
-        const t = text.slice(start - counter, end - counter);
-        if (t !== '')
-          result.push(this.getMarkedText(t, bookmark.color, `${pageNumber},${current},${index++}`, `${bookmark.id}`));
-        current = end;
-      }
-
-      if (current === textEnd) {
-        break;
-      }
-    }
-
-    if (current < textEnd) {
-      result.push(
-        this.getUnmarkedText(text.slice(current - counter, text.length), `${pageNumber},${current},${index++}`)
-      );
-    }
-
-    return result;
-  };
-
-  highlightPattern = (text: string, pattern: string) => {
-    const splitText = text.toLowerCase().split(pattern);
-
-    if (splitText.length <= 1) {
-      return text;
-    }
-
-    const tmp = splitText.map((item, index) => {
-      if (index == splitText.length - 1) return item;
-      else {
-        this._totalSearchResCount += 1;
-        this.setState({ totalSearchResCount: this._totalSearchResCount });
-        return [item, this.getMarkedText(pattern, 'blue', this._totalSearchResCount, `sr${this._totalSearchResCount}`)];
-      }
-    });
-
-    return tmp;
-  };
-
-  pdfRenderer = (pageNumber: number) => {
-    let textLenCounter = 0;
-    let indexCounter = 0;
-    const { currentIndexes, currentProjectFile } = this.props;
-
-    const allBookmarks =
-      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[currentIndexes.fileIndex]?.bookmarks;
-
-    const bookmarksFiltered = allBookmarks?.filter(
-      (v) => !v.isAreaSelection && v.selection.startPage <= pageNumber && v.selection.endPage >= pageNumber
-    );
-
-    const bookmarksSorted = bookmarksFiltered
-      ?.map((v) => {
-        let start = v.selection.startOffset;
-        let end = v.selection.endOffset;
-        if (pageNumber > v.selection.startPage) {
-          start = 0;
-        }
-        if (pageNumber < v.selection.endPage) {
-          end = Infinity;
-        }
-        return { start, end, color: v.color, id: v.id };
-      })
-      .sort((a, b) => a.start - b.start);
-
-    // this is crunches. I don't know why renderer calls twice on the same textItem.
-    let prevTextItem = null;
-    return (textItem) => {
-      if (prevTextItem !== textItem) {
-        prevTextItem = textItem;
-        let pattern = '';
-        if (textItem.str) {
-          this.pageText[pageNumber - 1] += textItem.str;
-          const { searchPattern } = this.state;
-          if (searchPattern) {
-            pattern = this.highlightPattern(textItem.str, searchPattern);
-          } else {
-            if (bookmarksSorted?.length > 0) {
-              pattern = this.newPattern(textItem.str, bookmarksSorted, pageNumber, textLenCounter);
-            } else {
-              pattern = this.getUnmarkedText(textItem.str, `${pageNumber},${textLenCounter},0`);
-            }
-          }
-          textLenCounter += textItem.str.length;
-          indexCounter += 1;
-        }
-        return pattern;
-      }
-    };
-  };
-
-  onMouseUp = async () => {
-    if (!this.props.areaSelectionEnable.value) {
-      const { setSelection } = this.props;
-
-      if (this.containerRef.current === null || this.documentRef.current === null) {
-        return;
-      }
-
-      const selection = window.getSelection();
-
-      if (selection?.toString() === '') {
-        return;
-      }
-
-      const sel = selection.getRangeAt(0);
-      const { commonAncestorContainer, endContainer, endOffset, startContainer, startOffset } = sel;
-
-      // Selection partially outside PDF document
-      if (!this.containerRef.current.contains(commonAncestorContainer)) {
-        return;
-      }
-
-      const startIdSplit = startContainer?.parentNode?.className.split(',');
-      const endIdSplit = endContainer?.parentNode?.className.split(',');
-
-      const start = parseInt(startIdSplit[1], 10) + startOffset;
-      const startPage = parseInt(startIdSplit[0], 10);
-      const end = parseInt(endIdSplit[1], 10) + endOffset;
-      const endPage = parseInt(endIdSplit[0], 10);
-
-      setSelection({
-        startPage,
-        startOffset: start,
-        endPage,
-        endOffset: end,
-      });
-    }
-  };
-
-  handlePdfPageResize = (index) => (contentRect) => {
-    // TODO: condition is a crunch
-    if (index === 0 && contentRect?.bounds?.height > 50)
-      this.setState({
-        pageHeight: contentRect?.bounds?.height,
-        pageWidth: contentRect?.bounds?.width,
-      });
-  };
-
-  rowRenderer = ({ key, index, isScrolling, isVisible, style, parent }: any) => {
-    const { scale } = this.state;
-    if (isVisible) this.setState({ currentPage: index + 1 });
-
-    const { currentIndexes, currentProjectFile } = this.props;
-
-    const allBookmarks =
-      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[currentIndexes.fileIndex]?.bookmarks;
-
-    const bookmarksFiltered = allBookmarks?.filter((v) => v.isAreaSelection && v.selection.page === index + 1);
-
-    return (
-      <div key={key} style={style}>
-        <div className="pdf-page" key={`page_${index + 1}_${key}`}>
-          <AreaSelection
-            key={`as${index + 1}_${key}`}
-            width={this.state.pageWidth}
-            height={this.state.pageHeight}
-            page={index + 1}
-            bookmarks={bookmarksFiltered}
-          />
-          <Measure bounds onResize={this.handlePdfPageResize(index)}>
-            {({ measureRef }) => (
-              <div ref={measureRef}>
-                <Page
-                  scale={scale}
-                  pageNumber={index + 1}
-                  onLoadSuccess={this.onPageLoad}
-                  customTextRenderer={this.pdfRenderer(index + 1)}
-                  // renderTextLayer={renderTextLayer}
-                  onGetTextSuccess={() => {
-                    this.onRenderFinished(index + 1);
-                  }}
-                />
-              </div>
-            )}
-          </Measure>
-        </div>
-      </div>
-    );
   };
 
   setPageNumber = (pageNumber: number) => {
@@ -397,7 +165,9 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
   };
 
   onAreaSelectionToggle = () => {
-    const textLayers = document.querySelectorAll('.react-pdf__Page__textContent');
+    const textLayers = document.querySelectorAll(
+      '.react-pdf__Page__textContent'
+    );
     this.textLayerZIndex = this.props.areaSelectionEnable.value ? 5 : 1;
     if (this.props.areaSelectionEnable) {
       this.props.setCurrentSelection(null);
@@ -412,10 +182,21 @@ class PDFViewer extends React.Component<StatePropsType & DispatchPropsType, IPDF
 
   render(): React.ReactElement {
     const { pdfLoading, scrollToPage } = this.props;
-    const { pdfData, numPages, currentPage, currentSearchResNum, totalSearchResCount, displayedPdfName } = this.state;
-    this.pagesRendered = 0;
+    const {
+      pdfData,
+      numPages,
+      currentPage,
+      currentSearchResNum,
+      totalSearchResCount,
+      displayedPdfName,
+    } = this.state;
+
     return (
-      <div className="pdf-viewer" ref={this.containerRef} style={{ width: '100%' }}>
+      <div
+        className="pdf-viewer"
+        ref={this.containerRef}
+        style={{ width: '100%' }}
+      >
         <PdfToolBar
           pdfName={displayedPdfName}
           onSetPattern={(searchPattern: string) => {
