@@ -15,6 +15,7 @@ import * as appConst from '../../types/textConstants';
 import { IPDFdata } from '../../types/pdf';
 import { PdfToolBar } from './PdfToolBar';
 import AreaSelection from './AreaSelection';
+import PdfDocument from './PdfDocument';
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
@@ -99,20 +100,17 @@ class PDFViewer extends React.Component<
     this.checkForceUpdate();
   }
 
-  onDocumentLoadSuccess = (document) => {
-    const { numPages } = document;
-    this.pageText = new Array(numPages).fill('');
-    this.setState({ numPages });
-    this.documentRef.current = document;
-    this.props.setCurrentSelection(null);
-    this.props.disableAreaSelection();
-  };
+  // onDocumentLoadSuccess = (document) => {
+  //   const { numPages } = document;
+  //   this.pageText = new Array(numPages).fill('');
+  //   this.setState({ numPages });
+  //   this.documentRef.current = document;
+  //   this.props.setCurrentSelection(null);
+  //   this.props.disableAreaSelection();
+  // };
 
-  onLoadSuccess = () => {
-    const { numPages } = document;
-    this.pageText = new Array(numPages).fill('');
+  onLoadSuccessCallback = (numPages: number) => {
     this.setState({ numPages });
-    this.documentRef.current = document;
     this.props.setCurrentSelection(null);
     this.props.disableAreaSelection();
   };
@@ -222,29 +220,22 @@ class PDFViewer extends React.Component<
           areaSelectionEnable={this.props.areaSelectionEnable.value}
         />
         {pdfData ? (
-          <div className="pdf-document">
-            <Document
-              file={pdfData}
-              onLoadSuccess={this.onDocumentLoadSuccess}
-              inputRef={(ref) => (this.containerRef.current = ref)}
-              onMouseUp={this.onMouseUp}
-            >
-              <AutoSizer>
-                {({ height, width }: any) => (
-                  <List
-                    width={width}
-                    rowCount={numPages}
-                    height={height}
-                    rowHeight={this.state.pageHeight}
-                    rowRenderer={this.rowRenderer}
-                    scrollToIndex={scrollToPage.value}
-                    overscanRowCount={1}
-                    ref={this.listRef}
-                  />
-                )}
-              </AutoSizer>
-            </Document>
-          </div>
+          <PdfDocument
+            pdfFile={pdfData}
+            areaSelectionEnable={this.props.areaSelectionEnable.value}
+            onLoadSuccessCallback={this.onLoadSuccessCallback}
+            setSelection={this.props.setSelection}
+            scrollToIndex={scrollToPage.value}
+            currentProjectFile={this.props.currentProjectFile}
+            currentIndexes={this.props.currentIndexes}
+            setCurrentPage={(value: number) => {
+              this.setState({ currentPage: value });
+            }}
+            scale={this.state.scale}
+            setShowLoading={this.props.setShowLoading}
+            searchPattern={this.state.searchPattern}
+            textLayerZIndex={this.textLayerZIndex}
+          />
         ) : null}
       </div>
     );

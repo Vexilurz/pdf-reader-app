@@ -10,12 +10,9 @@ import PageContainer from './PageContainer';
 interface Props {
   pdfFile?: IPDFdata;
   areaSelectionEnable: boolean;
-  onLoadSuccess: () => void;
+  onLoadSuccessCallback: (numPages: number) => void;
   setSelection: (selection: IPdfSelection) => void;
 
-  numPages: number;
-  pageHeight: number;
-  pageWidth: number;
   scrollToIndex: number;
   currentProjectFile: IProjectFileWithPath;
   currentIndexes: IEventAndFileIndex;
@@ -23,7 +20,6 @@ interface Props {
 
   scale: number;
   setShowLoading(value: boolean): void;
-  pageDimensionsCallback(width: number, height: number): void;
   searchPattern: string | null;
   textLayerZIndex: number;
 }
@@ -47,9 +43,9 @@ export default class PdfDocument extends Component<Props, State> {
   };
 
   onDocumentLoadSuccess = ({ numPages }): void => {
-    const { onLoadSuccess } = this.props;
+    const { onLoadSuccessCallback } = this.props;
     this.setState({ numPages });
-    onLoadSuccess();
+    onLoadSuccessCallback(numPages);
   };
 
   onMouseUp = async (): Promise<void> => {
