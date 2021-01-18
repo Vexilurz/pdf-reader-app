@@ -3,6 +3,7 @@ import {
   faPrint,
   faFolderOpen,
   faVectorSquare,
+  faCommentAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ipcRenderer } from 'electron';
@@ -27,6 +28,7 @@ export interface IProps {
   onPrint(): void;
   onAreaSelectionToggle(): void;
   areaSelectionEnable: boolean;
+  onAddBookmark(): void;
 }
 export interface IState {}
 
@@ -48,6 +50,7 @@ export class PdfToolBar extends React.Component<IProps, IState> {
       onPrint,
       onAreaSelectionToggle,
       areaSelectionEnable,
+      onAddBookmark,
     } = this.props;
     const areaSelectionToggleStyle = areaSelectionEnable
       ? 'secondary'
@@ -78,6 +81,14 @@ export class PdfToolBar extends React.Component<IProps, IState> {
             onClick={onAreaSelectionToggle}
           >
             <FontAwesomeIcon icon={faVectorSquare} />
+          </Button>
+          <Button
+            variant="outline-secondary"
+            onClick={(e) => {
+              onAddBookmark();
+            }}
+          >
+            <FontAwesomeIcon icon={faCommentAlt} />
           </Button>
           <Button
             variant="outline-secondary"

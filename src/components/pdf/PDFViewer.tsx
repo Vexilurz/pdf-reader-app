@@ -16,6 +16,7 @@ import { IPDFdata } from '../../types/pdf';
 import { PdfToolBar } from './PdfToolBar';
 import AreaSelection from './AreaSelection';
 import PdfDocument from './PdfDocument';
+import { createBookmark } from '../../types/bookmark';
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
@@ -178,6 +179,29 @@ class PDFViewer extends React.Component<
     this.props.setNeedForceUpdate(true);
   };
 
+  onAddBookmark = () => {
+    const {
+      addBookmark,
+      textSelection,
+      areaSelection,
+      setEditingBookmarkID,
+    } = this.props;
+    let newBookmark = null;
+    if (areaSelection) {
+      newBookmark = createBookmark('', true, areaSelection, '#cce5ff');
+    } else if (
+      textSelection.startOffset !== Infinity &&
+      textSelection.endOffset !== Infinity
+    ) {
+      newBookmark = createBookmark('', false, textSelection, '#cce5ff');
+    }
+    if (newBookmark) {
+      addBookmark(newBookmark);
+      setEditingBookmarkID(newBookmark.id);
+    }
+    this.props.setNeedForceUpdate(true);
+  };
+
   render(): React.ReactElement {
     const { pdfLoading, scrollToPage } = this.props;
     const {
@@ -218,6 +242,7 @@ class PDFViewer extends React.Component<
           onPrint={this.onPrint}
           onAreaSelectionToggle={this.onAreaSelectionToggle}
           areaSelectionEnable={this.props.areaSelectionEnable.value}
+          onAddBookmark={this.onAddBookmark}
         />
         {pdfData ? (
           <PdfDocument
@@ -243,6 +268,7 @@ class PDFViewer extends React.Component<
 }
 
 const mapDispatchToProps = {
+  addBookmark: projectFileActions.addBookmark,
   setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setSelection: pdfViewerActions.setSelection,
@@ -252,6 +278,7 @@ const mapDispatchToProps = {
   disableAreaSelection: pdfViewerActions.disableAreaSelection,
   setCurrentSelection: pdfViewerActions.setAreaSelection,
   setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
+  setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
@@ -264,6 +291,8 @@ const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
     pdfLoading: state.appState.showLoading,
     scrollToPage: state.pdfViewer.scrollToPage,
     areaSelectionEnable: state.pdfViewer.areaSelectionEnable,
+    textSelection: state.pdfViewer.pdfSelection,
+    areaSelection: state.pdfViewer.areaSelection,
   };
 };
 

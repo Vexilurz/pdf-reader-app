@@ -21,29 +21,6 @@ class BookmarksArea extends React.Component<
 > {
   componentDidMount() {}
 
-  onAddBookmark = () => {
-    const {
-      addBookmark,
-      textSelection,
-      areaSelection,
-      setEditingBookmarkID,
-    } = this.props;
-    let newBookmark = null;
-    if (areaSelection) {
-      newBookmark = createBookmark('', true, areaSelection, '#cce5ff');
-    } else if (
-      textSelection.startOffset !== Infinity &&
-      textSelection.endOffset !== Infinity
-    ) {
-      newBookmark = createBookmark('', false, textSelection, '#cce5ff');
-    }
-    if (newBookmark) {
-      addBookmark(newBookmark);
-      setEditingBookmarkID(newBookmark.id);
-    }
-    this.props.setNeedForceUpdate(true);
-  };
-
   render(): React.ReactElement {
     const { projectFile, indexes, setEditingBookmarkID } = this.props;
     return (
@@ -54,17 +31,6 @@ class BookmarksArea extends React.Component<
         }}
       >
         Bookmarks area
-        <div className="bookmarks-toolbar">
-          <Button
-            variant="outline-secondary"
-            onClick={(e) => {
-              e.stopPropagation();
-              this.onAddBookmark();
-            }}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-          </Button>
-        </div>
         <div className="bookmarks-list">
           {projectFile.events[indexes.eventIndex]?.files[
             indexes.fileIndex
@@ -83,7 +49,6 @@ class BookmarksArea extends React.Component<
 }
 
 const mapDispatchToProps = {
-  addBookmark: projectFileActions.addBookmark,
   setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
   setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
 };
@@ -92,8 +57,6 @@ const mapStateToProps = (state: StoreType, ownProps: IBookmarksAreaProps) => {
   return {
     projectFile: state.projectFile.currentProjectFile.content,
     indexes: state.projectFile.currentIndexes,
-    textSelection: state.pdfViewer.pdfSelection,
-    areaSelection: state.pdfViewer.areaSelection,
   };
 };
 
