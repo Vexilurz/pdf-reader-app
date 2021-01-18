@@ -29,6 +29,7 @@ export interface IProps {
   onAreaSelectionToggle(): void;
   areaSelectionEnable: boolean;
   onAddBookmark(): void;
+  onOpenPDFinExternal(): void;
 }
 export interface IState {}
 
@@ -51,6 +52,7 @@ export class PdfToolBar extends React.Component<IProps, IState> {
       onAreaSelectionToggle,
       areaSelectionEnable,
       onAddBookmark,
+      onOpenPDFinExternal,
     } = this.props;
     const areaSelectionToggleStyle = areaSelectionEnable
       ? 'secondary'
@@ -93,7 +95,8 @@ export class PdfToolBar extends React.Component<IProps, IState> {
           <Button
             variant="outline-secondary"
             onClick={() => {
-              ipcRenderer.send(appConst.OPEN_EXTERNAL_PDF);
+              // ipcRenderer.send(appConst.OPEN_EXTERNAL_PDF);
+              onOpenPDFinExternal();
             }}
           >
             <FontAwesomeIcon icon={faFolderOpen} />

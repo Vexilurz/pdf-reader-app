@@ -11,6 +11,7 @@ const loadPdfFile = async (event, payload) => {
   event.reply(appConst.PDF_FILE_CONTENT_RESPONSE, { data, path, external });
 };
 
+// TODO: deprecated (and "external" feature too).
 const openExternalPdf = async (event) => {
   const response = await dialog.showOpenDialog({
     properties: ['openFile'],

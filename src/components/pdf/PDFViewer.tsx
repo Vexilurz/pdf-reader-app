@@ -2,7 +2,7 @@
 import './pdf.scss';
 import * as pathLib from 'path';
 import * as React from 'react';
-import electron, { ipcRenderer } from 'electron';
+import electron, { ipcRenderer, shell } from 'electron';
 import { connect } from 'react-redux';
 import { List, AutoSizer } from 'react-virtualized';
 import Measure from 'react-measure';
@@ -202,6 +202,10 @@ class PDFViewer extends React.Component<
     this.props.setNeedForceUpdate(true);
   };
 
+  onOpenPDFinExternal = () => {
+    shell.openPath(this.props.currentPdf.path);
+  };
+
   render(): React.ReactElement {
     const { pdfLoading, scrollToPage } = this.props;
     const {
@@ -243,6 +247,7 @@ class PDFViewer extends React.Component<
           onAreaSelectionToggle={this.onAreaSelectionToggle}
           areaSelectionEnable={this.props.areaSelectionEnable.value}
           onAddBookmark={this.onAddBookmark}
+          onOpenPDFinExternal={this.onOpenPDFinExternal}
         />
         {pdfData ? (
           <PdfDocument
