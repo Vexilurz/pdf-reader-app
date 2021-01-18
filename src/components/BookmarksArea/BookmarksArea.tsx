@@ -1,3 +1,4 @@
+/* eslint-disable */
 import './bookmarks-area.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
@@ -14,15 +15,26 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 export interface IBookmarksAreaProps {}
 export interface IBookmarksAreaState {}
 
-class BookmarksArea extends React.Component<StatePropsType & DispatchPropsType, IBookmarksAreaState> {
+class BookmarksArea extends React.Component<
+  StatePropsType & DispatchPropsType,
+  IBookmarksAreaState
+> {
   componentDidMount() {}
 
   onAddBookmark = () => {
-    const { addBookmark, textSelection, areaSelection, setEditingBookmarkID } = this.props;
+    const {
+      addBookmark,
+      textSelection,
+      areaSelection,
+      setEditingBookmarkID,
+    } = this.props;
     let newBookmark = null;
     if (areaSelection) {
       newBookmark = createBookmark('', true, areaSelection, '#cce5ff');
-    } else if (textSelection.startOffset !== Infinity && textSelection.endOffset !== Infinity) {
+    } else if (
+      textSelection.startOffset !== Infinity &&
+      textSelection.endOffset !== Infinity
+    ) {
       newBookmark = createBookmark('', false, textSelection, '#cce5ff');
     }
     if (newBookmark) {
@@ -54,8 +66,15 @@ class BookmarksArea extends React.Component<StatePropsType & DispatchPropsType, 
           </Button>
         </div>
         <div className="bookmarks-list">
-          {projectFile.events[indexes.eventIndex]?.files[indexes.fileIndex]?.bookmarks.map((bookmark, index) => {
-            return <BookmarkItem bookmark={bookmark} key={'bookmark-item-key' + index} />;
+          {projectFile.events[indexes.eventIndex]?.files[
+            indexes.fileIndex
+          ]?.bookmarks.map((bookmark, index) => {
+            return (
+              <BookmarkItem
+                bookmark={bookmark}
+                key={'bookmark-item-key' + index}
+              />
+            );
           })}
         </div>
       </div>
