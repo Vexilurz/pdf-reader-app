@@ -2,6 +2,7 @@
 import React, { Component, CSSProperties } from 'react';
 import { List, AutoSizer } from 'react-virtualized';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
+import { IAreaSelection } from '../../types/bookmark';
 import { IProjectFileWithPath } from '../../types/projectFile';
 import AreaSelection from './AreaSelection';
 import PdfPage from './PdfPage';
@@ -26,6 +27,7 @@ interface Props {
   setShowLoading(value: boolean): void;
   searchPattern: string | null;
   textLayerZIndex: number;
+  newAreaSelectionCallback(area: IAreaSelection): void;
 }
 interface State {
   pageWidth: number;
@@ -73,6 +75,7 @@ export default class PageContainer extends Component<Props, State> {
       setShowLoading,
       searchPattern,
       textLayerZIndex,
+      newAreaSelectionCallback,
     } = this.props;
 
     const { pageHeight, pageWidth } = this.state;
@@ -95,6 +98,7 @@ export default class PageContainer extends Component<Props, State> {
             height={pageHeight}
             page={index + 1}
             bookmarks={bookmarksFiltered}
+            newSelectionCallback={newAreaSelectionCallback}
           />
           <PdfPage
             scale={scale}

@@ -13,6 +13,7 @@ export interface IProps {
   width: number;
   page: number;
   bookmarks: IBookmark[];
+  newSelectionCallback(area: IAreaSelection): void;
 }
 
 export interface IState {
@@ -80,14 +81,17 @@ class AreaSelection extends React.Component<
         const sx = newSelection.x;
         const sy = newSelection.y;
         const { x, y } = event.target.getStage().getPointerPosition();
-        if (Math.abs(x - sx) >= 1 && Math.abs(y - sy) >= 1)
-          setCurrentSelection({
+        if (Math.abs(x - sx) >= 1 && Math.abs(y - sy) >= 1) {
+          const area = {
             x: sx,
             y: sy,
             width: x - sx,
             height: y - sy,
             page,
-          });
+          };
+          setCurrentSelection(area);
+          this.props.newSelectionCallback(area);
+        }
         this.setState({ newSelection: null });
       }
     }
@@ -157,6 +161,7 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state: StoreType, ownProps: IProps) => {
   return {
+    newSelectionCallback: ownProps.newSelectionCallback,
     width: ownProps.width,
     height: ownProps.height,
     page: ownProps.page,

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Document } from 'react-pdf/dist/esm/entry.webpack';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
 
-import { IPdfSelection } from '../../types/bookmark';
+import { IAreaSelection, IPdfSelection } from '../../types/bookmark';
 import { IPDFdata } from '../../types/pdf';
 import { IProjectFileWithPath } from '../../types/projectFile';
 import PageContainer from './PageContainer';
@@ -22,6 +22,7 @@ interface Props {
   setShowLoading(value: boolean): void;
   searchPattern: string | null;
   textLayerZIndex: number;
+  newAreaSelectionCallback(area: IAreaSelection): void;
 }
 interface State {
   numPages: number;
@@ -112,6 +113,7 @@ export default class PdfDocument extends Component<Props, State> {
       setShowLoading,
       searchPattern,
       textLayerZIndex,
+      newAreaSelectionCallback,
     } = this.props;
     const { numPages } = this.state;
     return (
@@ -132,6 +134,7 @@ export default class PdfDocument extends Component<Props, State> {
             setShowLoading={setShowLoading}
             searchPattern={searchPattern}
             textLayerZIndex={textLayerZIndex}
+            newAreaSelectionCallback={newAreaSelectionCallback}
           />
         </Document>
       </div>

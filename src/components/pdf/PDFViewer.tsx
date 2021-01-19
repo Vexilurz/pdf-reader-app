@@ -16,7 +16,7 @@ import { IPDFdata } from '../../types/pdf';
 import { PdfToolBar } from './PdfToolBar';
 import AreaSelection from './AreaSelection';
 import PdfDocument from './PdfDocument';
-import { createBookmark } from '../../types/bookmark';
+import { createBookmark, IAreaSelection } from '../../types/bookmark';
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
@@ -179,6 +179,27 @@ class PDFViewer extends React.Component<
     this.props.setNeedForceUpdate(true);
   };
 
+  newAreaSelectionCallback = (area: IAreaSelection) => {
+    const {
+      addBookmark,
+      setEditingBookmarkID,
+      setCurrentSelection,
+    } = this.props;
+    let newBookmark = null;
+    console.log(area);
+    if (area) {
+      newBookmark = createBookmark('', true, area, '#cce5ff');
+    }
+    if (newBookmark) {
+      addBookmark(newBookmark);
+      setEditingBookmarkID(newBookmark.id);
+      setCurrentSelection(null);
+    }
+    setInterval(() => {
+      this.props.setNeedForceUpdate(true); // TODO: this thing do not help or work there
+    }, 200);
+  };
+
   onAddBookmark = () => {
     const {
       addBookmark,
@@ -187,9 +208,10 @@ class PDFViewer extends React.Component<
       setEditingBookmarkID,
     } = this.props;
     let newBookmark = null;
-    if (areaSelection) {
-      newBookmark = createBookmark('', true, areaSelection, '#cce5ff');
-    } else if (
+    if (
+      !areaSelection && //) {
+      //   newBookmark = createBookmark('', true, areaSelection, '#cce5ff');
+      // } else if (
       textSelection.startOffset !== Infinity &&
       textSelection.endOffset !== Infinity
     ) {
@@ -265,6 +287,7 @@ class PDFViewer extends React.Component<
             setShowLoading={this.props.setShowLoading}
             searchPattern={this.state.searchPattern}
             textLayerZIndex={this.textLayerZIndex}
+            newAreaSelectionCallback={this.newAreaSelectionCallback}
           />
         ) : null}
       </div>
