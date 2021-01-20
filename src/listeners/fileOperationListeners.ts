@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IProjectFile } from '../types/projectFile';
 import { IEvent } from '../types/event';
 import { zipDirectory, unzipFile } from '../utils/zip';
+import chmodr from '../utils/chmodr';
 
 // https://www.electronjs.org/docs/api/dialog
 
@@ -24,7 +25,10 @@ const openFile = async (event, path: string) => {
     const destPath = pathLib.join(appConst.CACHE_PATH, newID);
     try {
       await unzipFile(ourPath, destPath);
-      const content = await fs.readFile(pathLib.join(destPath, appConst.PROJECT_FILE_NAME));
+      const contentFileName = pathLib.join(destPath, appConst.PROJECT_FILE_NAME);
+      const content = await fs.readFile(contentFileName);
+      chmodr.sync(destPath, 0o444);
+      fssync.chmodSync(contentFileName, 0o777);
       event.reply(appConst.OPEN_FILE_DIALOG_RESPONSE, {
         id: newID,
         path: ourPath,

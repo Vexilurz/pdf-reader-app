@@ -10,6 +10,7 @@ import MiddleSpace from '../MiddleSpace/MiddleSpace';
 import { StoreType } from '../../../reduxStore/store';
 import { actions as appStateActions } from '../../../reduxStore/appStateSlice';
 import * as appConst from '../../../types/textConstants';
+import chmodr from '../../../utils/chmodr';
 
 export interface IMainLayoutProps {}
 export interface IMainLayoutState {}
@@ -20,6 +21,7 @@ class MainLayout extends React.Component<
 > {
   componentDidMount() {
     // TODO: move that to app start loading point
+    chmodr.sync(appConst.CACHE_PATH, 0o777);
     ipcRenderer.send(appConst.CLEAR_CACHE);
   }
 
