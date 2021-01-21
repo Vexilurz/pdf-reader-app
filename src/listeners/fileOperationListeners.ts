@@ -97,6 +97,7 @@ const saveCurrentProject = async (event, currentProject) => {
 
 const deleteFolderFromCache = async (event, folder: string) => {
   const path = pathLib.join(appConst.CACHE_PATH, folder);
+  chmodr.sync(path, 0o777);
   await fs.rmdir(path + pathLib.sep, { recursive: true });
 };
 
@@ -126,7 +127,9 @@ const updateEventInCache = async (e, payload) => {
     }
   });
   existingFilesOnDisk.forEach((pdf) => {
-    fssync.unlinkSync(pathLib.join(path, pdf));
+    const pathToPdf = pathLib.join(path, pdf);
+    fssync.chmodSync(pathToPdf, 0o777);
+    fssync.unlinkSync(pathToPdf);
   });
 
   // copy new files and change file paths
