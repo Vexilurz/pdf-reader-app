@@ -75,13 +75,6 @@ class PDFViewer extends React.Component<
     this.textLayerZIndex = 5;
   }
 
-  checkForceUpdate() {
-    if (this.props.needForceUpdate === true) {
-      this.listRef.current?.forceUpdateGrid();
-      this.props.setNeedForceUpdate(false);
-    }
-  }
-
   componentDidMount(): void {
     ipcRenderer.on(appConst.PDF_FILE_CONTENT_RESPONSE, (event, payload) => {
       const { data, path, external } = payload;
@@ -96,19 +89,6 @@ class PDFViewer extends React.Component<
       }
     });
   }
-
-  componentDidUpdate(prevProps) {
-    this.checkForceUpdate();
-  }
-
-  // onDocumentLoadSuccess = (document) => {
-  //   const { numPages } = document;
-  //   this.pageText = new Array(numPages).fill('');
-  //   this.setState({ numPages });
-  //   this.documentRef.current = document;
-  //   this.props.setCurrentSelection(null);
-  //   this.props.disableAreaSelection();
-  // };
 
   onLoadSuccessCallback = (numPages: number) => {
     this.setState({ numPages });
@@ -288,6 +268,9 @@ class PDFViewer extends React.Component<
             searchPattern={this.state.searchPattern}
             textLayerZIndex={this.textLayerZIndex}
             newAreaSelectionCallback={this.newAreaSelectionCallback}
+            // tmp
+            needForceUpdate={this.props.needForceUpdate}
+            setNeedForceUpdate={this.props.setNeedForceUpdate}
           />
         ) : null}
       </div>

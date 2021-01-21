@@ -28,6 +28,10 @@ interface Props {
   searchPattern: string | null;
   textLayerZIndex: number;
   newAreaSelectionCallback(area: IAreaSelection): void;
+
+  // tmp
+  needForceUpdate: boolean;
+  setNeedForceUpdate(value: boolean): void;
 }
 interface State {
   pageWidth: number;
@@ -41,11 +45,22 @@ export default class PageContainer extends Component<Props, State> {
   constructor(props: State & Props) {
     super(props);
     this.state = {
-      pageWidth: 100,
-      pageHeight: 100,
+      pageWidth: 900,
+      pageHeight: 900,
     };
     this.listRef = React.createRef();
     this.pagesRendered = 0;
+  }
+
+  componentDidUpdate(prevProps) {
+    this.checkForceUpdate();
+  }
+
+  checkForceUpdate() {
+    if (this.props.needForceUpdate === true) {
+      this.listRef.current?.forceUpdateGrid();
+      this.props.setNeedForceUpdate(false);
+    }
   }
 
   pageDimensionsCallback = (width: number, height: number) => {

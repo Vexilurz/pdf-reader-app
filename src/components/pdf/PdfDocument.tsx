@@ -23,6 +23,9 @@ interface Props {
   searchPattern: string | null;
   textLayerZIndex: number;
   newAreaSelectionCallback(area: IAreaSelection): void;
+  // tmp
+  needForceUpdate: boolean;
+  setNeedForceUpdate(value: boolean): void;
 }
 interface State {
   numPages: number;
@@ -114,6 +117,9 @@ export default class PdfDocument extends Component<Props, State> {
       searchPattern,
       textLayerZIndex,
       newAreaSelectionCallback,
+      // tmp
+      needForceUpdate,
+      setNeedForceUpdate,
     } = this.props;
     const { numPages } = this.state;
     return (
@@ -135,6 +141,8 @@ export default class PdfDocument extends Component<Props, State> {
             searchPattern={searchPattern}
             textLayerZIndex={textLayerZIndex}
             newAreaSelectionCallback={newAreaSelectionCallback}
+            needForceUpdate={needForceUpdate}
+            setNeedForceUpdate={setNeedForceUpdate}
           />
         </Document>
       </div>
