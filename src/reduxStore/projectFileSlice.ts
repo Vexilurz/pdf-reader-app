@@ -72,6 +72,13 @@ export const projectFileSlice = createSlice({
       state.currentProjectFile = payload;
       state.currentPdf = { path: '', eventID: '' };
     },
+    setCurrentFileHaveChanges: (
+      state: IProjectFileState,
+      action: PayloadAction<boolean>
+    ) => {
+      const { payload } = action;
+      state.currentProjectFile.haveChanges = payload;
+    },
     setCurrentPdf: (
       state: IProjectFileState,
       action: PayloadAction<IPdfFilePathWithEventID>
@@ -88,6 +95,22 @@ export const projectFileSlice = createSlice({
           path: state.currentProjectFile.path,
           content: JSON.stringify(state.currentProjectFile.content),
         });
+        state.currentProjectFile.haveChanges = false;
+      }
+    },
+    saveProjectByID: (state: IProjectFileState, action: PayloadAction<string>) => {
+      const { payload } = action;
+      const prj = state.openedProjectFiles.find((item) => item.id === payload);
+      if (prj) {
+        const { path } = prj;
+        if (path !== '') {
+          ipcRenderer.send(appConst.SAVE_CURRENT_PROJECT, {
+            id: prj.id,
+            path: prj.path,
+            content: JSON.stringify(prj.content),
+          });
+          // prj.haveChanges = false;
+        }
       }
     },
     saveCurrentProjectTemporary: (state: IProjectFileState) => {

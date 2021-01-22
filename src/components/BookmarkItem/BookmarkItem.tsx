@@ -75,8 +75,9 @@ class BookmarkItem extends React.Component<
 
   onDelete = (e) => {
     e.stopPropagation();
-    const { bookmark, deleteBookmark } = this.props;
+    const { bookmark, deleteBookmark, setCurrentFileHaveChanges } = this.props;
     deleteBookmark(bookmark);
+    setCurrentFileHaveChanges(true);
   };
 
   render(): React.ReactElement {
@@ -216,6 +217,7 @@ const mapDispatchToProps = {
   setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
   setScrollToPage: pdfViewerActions.setScrollToPage,
   setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
+  setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {

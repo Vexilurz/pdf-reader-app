@@ -1,3 +1,4 @@
+/* eslint-disable */
 import './projects-tabs.scss';
 import * as pathLib from 'path';
 import * as React from 'react';
@@ -7,6 +8,7 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
 import { getNewFileWithPath } from '../../types/projectFile';
+import { remote } from 'electron';
 
 export interface IProjectsTabsProps {}
 export interface IProjectsTabsState {}
@@ -24,6 +26,8 @@ class ProjectsTabs extends React.Component<
       setAppState,
       setCurrentFile,
       saveCurrentProjectTemporary,
+      saveCurrentProject,
+      saveProjectByID,
       deleteFileFromOpened,
       currentAppState,
     } = this.props;
@@ -51,16 +55,41 @@ class ProjectsTabs extends React.Component<
                   }
                 }}
               >
+                {/* {project.haveChanges ? '* ' : ''} */}
                 {project.content?.name} ({pathLib.basename(project.path)}){' '}
                 <a
                   // class="nav-link"
                   href="#"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
-                    if (currentProjectFile.id === project.id) {
-                      setAppState(appConst.START_PAGE);
-                    }
-                    deleteFileFromOpened(project.id);
+
+                    let response = -1;
+                    const closePrj = () => {
+                      if (response !== 2) {
+                        if (currentProjectFile.id === project.id) {
+                          setAppState(appConst.START_PAGE);
+                        }
+                        deleteFileFromOpened(project.id);
+                      }
+                    };
+
+                    if (project.haveChanges) {
+                      const res = await remote.dialog.showMessageBox({
+                        message: `Save changes in "${project.path}"?`,
+                        title: 'Question',
+                        type: 'question',
+                        buttons: ['Yes', 'No', 'Cancel'],
+                      });
+                      response = res.response;
+                      if (response === 0) {
+                        if (currentProjectFile.id === project.id) {
+                          saveCurrentProject();
+                        } else {
+                          saveProjectByID(project.id);
+                        }
+                      }
+                      closePrj();
+                    } else closePrj();
                   }}
                 >
                   x
@@ -90,6 +119,8 @@ class ProjectsTabs extends React.Component<
 const mapDispatchToProps = {
   setCurrentFile: projectFileActions.setCurrentFile,
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
+  saveCurrentProject: projectFileActions.saveCurrentProject,
+  saveProjectByID: projectFileActions.saveProjectByID,
   deleteFileFromOpened: projectFileActions.deleteFileFromOpened,
   setAppState: appStateActions.setAppState,
 };

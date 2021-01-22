@@ -45,8 +45,8 @@ export default class PageContainer extends Component<Props, State> {
   constructor(props: State & Props) {
     super(props);
     this.state = {
-      pageWidth: 900,
-      pageHeight: 900,
+      pageWidth: 700,
+      pageHeight: 700,
     };
     this.listRef = React.createRef();
     this.pagesRendered = 0;

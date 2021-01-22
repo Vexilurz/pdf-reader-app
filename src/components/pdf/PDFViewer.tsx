@@ -164,6 +164,7 @@ class PDFViewer extends React.Component<
       addBookmark,
       setEditingBookmarkID,
       setCurrentSelection,
+      setCurrentFileHaveChanges,
     } = this.props;
     let newBookmark = null;
     console.log(area);
@@ -174,6 +175,7 @@ class PDFViewer extends React.Component<
       addBookmark(newBookmark);
       setEditingBookmarkID(newBookmark.id);
       setCurrentSelection(null);
+      setCurrentFileHaveChanges(true);
     }
     setInterval(() => {
       this.props.setNeedForceUpdate(true); // TODO: this thing do not help or work there
@@ -186,6 +188,7 @@ class PDFViewer extends React.Component<
       textSelection,
       areaSelection,
       setEditingBookmarkID,
+      setCurrentFileHaveChanges,
     } = this.props;
     let newBookmark = null;
     if (
@@ -200,6 +203,7 @@ class PDFViewer extends React.Component<
     if (newBookmark) {
       addBookmark(newBookmark);
       setEditingBookmarkID(newBookmark.id);
+      setCurrentFileHaveChanges(true);
     }
     this.props.setNeedForceUpdate(true);
   };
@@ -290,6 +294,7 @@ const mapDispatchToProps = {
   setCurrentSelection: pdfViewerActions.setAreaSelection,
   setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
   setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
+  setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {

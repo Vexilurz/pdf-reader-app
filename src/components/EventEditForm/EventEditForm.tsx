@@ -46,12 +46,17 @@ class EventEditForm extends React.Component<
   };
 
   onSetEventClick = (): void => {
-    const { editingEvent, currentProjectFile } = this.props;
+    const {
+      editingEvent,
+      currentProjectFile,
+      setCurrentFileHaveChanges,
+    } = this.props;
     this.setState({ updating: true });
     ipcRenderer.send(appConst.UPDATE_EVENT_IN_CACHE, {
       projectID: currentProjectFile.id,
       event: JSON.stringify(editingEvent),
     });
+    setCurrentFileHaveChanges(true);
   };
 
   onCancelClick = (): void => {
@@ -65,6 +70,7 @@ class EventEditForm extends React.Component<
       deleteEvent,
       editingEvent,
       currentProjectFile,
+      setCurrentFileHaveChanges,
     } = this.props;
     ipcRenderer.send(
       appConst.DELETE_FOLDER_FROM_CACHE,
@@ -72,6 +78,7 @@ class EventEditForm extends React.Component<
     );
     deleteEvent(editingEvent);
     setAppState(appConst.EMTPY_SCREEN);
+    setCurrentFileHaveChanges(true);
   };
 
   // todo: find type of acceptedFiles of Dropzone.onDrop
@@ -217,6 +224,7 @@ const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
   deleteEvent: projectFileActions.deleteEvent,
+  setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {
