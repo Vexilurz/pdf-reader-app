@@ -93,6 +93,12 @@ const saveCurrentProject = async (event, currentProject) => {
 
   // todo: listen to this event in renderer to display success message
   event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
+  dialog.showMessageBox({
+    message: `Project saved.`,
+    title: 'Information',
+    type: 'info',
+    buttons: ['Ok'],
+  });
 };
 
 const deleteFolderFromCache = async (event, folder: string) => {
