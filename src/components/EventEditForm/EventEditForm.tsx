@@ -50,6 +50,7 @@ class EventEditForm extends React.Component<
       editingEvent,
       currentProjectFile,
       setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
     } = this.props;
     this.setState({ updating: true });
     ipcRenderer.send(appConst.UPDATE_EVENT_IN_CACHE, {
@@ -57,6 +58,7 @@ class EventEditForm extends React.Component<
       event: JSON.stringify(editingEvent),
     });
     setCurrentFileHaveChanges(true);
+    saveCurrentProjectTemporary();
   };
 
   onCancelClick = (): void => {
@@ -225,6 +227,7 @@ const mapDispatchToProps = {
   setEditingEvent: editingEventActions.setEditingEvent,
   deleteEvent: projectFileActions.deleteEvent,
   setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
+  saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {

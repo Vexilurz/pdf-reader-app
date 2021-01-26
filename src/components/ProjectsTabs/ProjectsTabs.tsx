@@ -8,16 +8,40 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
 import { getNewFileWithPath } from '../../types/projectFile';
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
+import { waitForDebugger } from 'inspector';
 
 export interface IProjectsTabsProps {}
 export interface IProjectsTabsState {}
+
+const waitFor = (test, expectedValue, msec, callback) => {
+  // Check if condition met. If not, re-check later (msec).
+  while (test() !== expectedValue) {
+    setTimeout(() => {
+      waitFor(test, expectedValue, msec, callback);
+    }, msec);
+    return;
+  }
+  // Condition finally met. callback() can be executed.
+  callback();
+};
 
 class ProjectsTabs extends React.Component<
   StatePropsType & DispatchPropsType,
   IProjectsTabsState
 > {
-  componentDidMount() {}
+  private prjSaved: boolean;
+
+  constructor(props: StatePropsType & DispatchPropsType) {
+    super(props);
+    this.prjSaved = true;
+  }
+
+  componentDidMount() {
+    ipcRenderer.on(appConst.SAVE_CURRENT_PROJECT_DONE, (event, payload) => {
+      this.prjSaved = true;
+    });
+  }
 
   render(): React.ReactElement {
     const {
@@ -65,12 +89,21 @@ class ProjectsTabs extends React.Component<
 
                     let response = -1;
                     const closePrj = () => {
-                      if (response !== 2) {
-                        if (currentProjectFile.id === project.id) {
-                          setAppState(appConst.START_PAGE);
+                      waitFor(
+                        () => {
+                          return this.prjSaved;
+                        },
+                        true,
+                        100,
+                        () => {
+                          if (response !== 2) {
+                            if (currentProjectFile.id === project.id) {
+                              setAppState(appConst.START_PAGE);
+                            }
+                            deleteFileFromOpened(project.id);
+                          }
                         }
-                        deleteFileFromOpened(project.id);
-                      }
+                      );
                     };
 
                     if (project.haveChanges) {
@@ -82,6 +115,7 @@ class ProjectsTabs extends React.Component<
                       });
                       response = res.response;
                       if (response === 0) {
+                        this.prjSaved = false;
                         if (currentProjectFile.id === project.id) {
                           saveCurrentProject();
                         } else {

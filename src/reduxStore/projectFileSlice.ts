@@ -59,6 +59,16 @@ const sortEventsByDate = (events: IEvent[]) => {
   });
 };
 
+const _saveCurrentProjectTemporary = (state: IProjectFileState) => {
+  const { id } = state.currentProjectFile;
+  const index = state.openedProjectFiles.findIndex(
+    (item) => item.id === id
+  );
+  if (index > -1) {
+    state.openedProjectFiles[index] = state.currentProjectFile;
+  }
+}
+
 export const projectFileSlice = createSlice({
   name: 'projectFile',
   initialState,
@@ -96,6 +106,7 @@ export const projectFileSlice = createSlice({
           content: JSON.stringify(state.currentProjectFile.content),
         });
         state.currentProjectFile.haveChanges = false;
+        _saveCurrentProjectTemporary(state);
       }
     },
     saveProjectByID: (state: IProjectFileState, action: PayloadAction<string>) => {
@@ -114,13 +125,7 @@ export const projectFileSlice = createSlice({
       }
     },
     saveCurrentProjectTemporary: (state: IProjectFileState) => {
-      const { id } = state.currentProjectFile;
-      const index = state.openedProjectFiles.findIndex(
-        (item) => item.id === id
-      );
-      if (index > -1) {
-        state.openedProjectFiles[index] = state.currentProjectFile;
-      }
+      _saveCurrentProjectTemporary(state);
     },
     addFileToOpened: (
       state: IProjectFileState,
