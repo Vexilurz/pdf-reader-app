@@ -10,6 +10,13 @@ import * as appConst from '../../types/textConstants';
 import { getNewFileWithPath } from '../../types/projectFile';
 import { remote, ipcRenderer } from 'electron';
 import { waitForDebugger } from 'inspector';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCircle,
+  faCross,
+  faPlus,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 
 export interface IProjectsTabsProps {}
 export interface IProjectsTabsState {}
@@ -79,7 +86,11 @@ class ProjectsTabs extends React.Component<
                   }
                 }}
               >
-                {/* {project.haveChanges ? '* ' : ''} */}
+                {project.haveChanges ? (
+                  <FontAwesomeIcon color={'grey'} size={'xs'} icon={faCircle} />
+                ) : (
+                  ''
+                )}{' '}
                 {project.content?.name} ({pathLib.basename(project.path)}){' '}
                 <a
                   // class="nav-link"
@@ -126,7 +137,7 @@ class ProjectsTabs extends React.Component<
                     } else closePrj();
                   }}
                 >
-                  x
+                  <FontAwesomeIcon color={'grey'} size={'xs'} icon={faTimes} />
                 </a>
               </p>
             </li>
@@ -142,7 +153,7 @@ class ProjectsTabs extends React.Component<
               setAppState(appConst.START_PAGE);
             }}
           >
-            +
+            <FontAwesomeIcon color={'grey'} size={'xs'} icon={faPlus} />
           </a>
         </li>
       </ul>
