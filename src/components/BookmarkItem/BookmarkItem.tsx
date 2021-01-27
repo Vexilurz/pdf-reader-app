@@ -53,7 +53,13 @@ class BookmarkItem extends React.Component<
 
   onSave = (e) => {
     e.stopPropagation();
-    const { bookmark, updateBookmark, setEditingBookmarkID } = this.props;
+    const {
+      bookmark,
+      updateBookmark,
+      setEditingBookmarkID,
+      setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
+    } = this.props;
     const { comment, color } = this.state;
     const newBookmark = { ...bookmark };
     newBookmark.comment = comment;
@@ -61,6 +67,14 @@ class BookmarkItem extends React.Component<
     setEditingBookmarkID('');
     updateBookmark(newBookmark);
     this.props.setNeedForceUpdate(true);
+    setCurrentFileHaveChanges(true);
+    saveCurrentProjectTemporary();
+  };
+
+  onCancelEdit = (e) => {
+    e.stopPropagation();
+    const { setEditingBookmarkID } = this.props;
+    setEditingBookmarkID('');
   };
 
   onEdit = (e) => {
@@ -75,9 +89,15 @@ class BookmarkItem extends React.Component<
 
   onDelete = (e) => {
     e.stopPropagation();
-    const { bookmark, deleteBookmark, setCurrentFileHaveChanges } = this.props;
+    const {
+      bookmark,
+      deleteBookmark,
+      setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
+    } = this.props;
     deleteBookmark(bookmark);
     setCurrentFileHaveChanges(true);
+    saveCurrentProjectTemporary();
   };
 
   render(): React.ReactElement {
@@ -147,6 +167,13 @@ class BookmarkItem extends React.Component<
                 onClick={this.onSave}
               >
                 Save
+              </button>
+              <button
+                type="button"
+                className="cancel-edit-bookmark-button btn btn-primary"
+                onClick={this.onCancelEdit}
+              >
+                Cancel
               </button>
               {/* <button
                 type="button"
@@ -218,6 +245,7 @@ const mapDispatchToProps = {
   setScrollToPage: pdfViewerActions.setScrollToPage,
   setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
   setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
+  saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {

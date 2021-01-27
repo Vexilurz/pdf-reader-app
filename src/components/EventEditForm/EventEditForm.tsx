@@ -73,6 +73,7 @@ class EventEditForm extends React.Component<
       editingEvent,
       currentProjectFile,
       setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
     } = this.props;
     ipcRenderer.send(
       appConst.DELETE_FOLDER_FROM_CACHE,
@@ -81,6 +82,7 @@ class EventEditForm extends React.Component<
     deleteEvent(editingEvent);
     setAppState(appConst.EMTPY_SCREEN);
     setCurrentFileHaveChanges(true);
+    saveCurrentProjectTemporary();
   };
 
   // todo: find type of acceptedFiles of Dropzone.onDrop
