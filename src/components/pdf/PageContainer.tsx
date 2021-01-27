@@ -113,6 +113,7 @@ export default class PageContainer extends Component<Props, State> {
             height={pageHeight}
             page={index + 1}
             bookmarks={bookmarksFiltered}
+            scale={scale}
             newSelectionCallback={newAreaSelectionCallback}
           />
           <PdfPage

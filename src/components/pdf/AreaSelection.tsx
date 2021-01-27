@@ -13,6 +13,7 @@ export interface IProps {
   width: number;
   page: number;
   bookmarks: IBookmark[];
+  scale: number;
   newSelectionCallback(area: IAreaSelection): void;
 }
 
@@ -105,6 +106,7 @@ class AreaSelection extends React.Component<
       page,
       bookmarks,
       areaSelectionEnable,
+      scale,
     } = this.props;
     const { newSelection } = this.state;
     const zIndex = areaSelectionEnable.value ? 5 : 1;
@@ -125,10 +127,10 @@ class AreaSelection extends React.Component<
             const sel = bookmark.selection as IAreaSelection;
             return (
               <Rect
-                x={sel.x}
-                y={sel.y}
-                width={sel.width}
-                height={sel.height}
+                x={sel.x * scale}
+                y={sel.y * scale}
+                width={sel.width * scale}
+                height={sel.height * scale}
                 fill={`${bookmark.color}44`}
                 stroke={bookmark.color}
               />
