@@ -49,6 +49,14 @@ const canWrite = (path, callback) => {
 const canWritePromise = function (path) {
   return new Promise((resolve, reject) => {
     fssync.access(path, fssync.W_OK, (err) => {
+      if (err) {
+        dialog.showMessageBox({
+          message: `Can't save project to "${path}"!`,
+          title: 'Information',
+          type: 'error',
+          buttons: ['Ok'],
+        });
+      }
       resolve(!err);
     });
   });
@@ -86,19 +94,23 @@ const saveCurrentProject = async (event, currentProject) => {
   // fssync.mkdirSync(path, { recursive: true });
   const res = fssync.writeFileSync(pathLib.join(path, appConst.PROJECT_FILE_NAME), currentProject.content);
 
-  if (fssync.existsSync(currentProject.path))
-    fssync.unlinkSync(currentProject.path);
+  const isWritable = await canWritePromise(pathLib.dirname(currentProject.path));
 
-  await zipDirectory(path, currentProject.path);
+  if (isWritable) {
+    if (fssync.existsSync(currentProject.path))
+      fssync.unlinkSync(currentProject.path);
 
-  // todo: listen to this event in renderer to display success message
-  event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
-  dialog.showMessageBox({
-    message: `Project saved.`,
-    title: 'Information',
-    type: 'info',
-    buttons: ['Ok'],
-  });
+    await zipDirectory(path, currentProject.path);
+
+    // todo: listen to this event in renderer to display success message
+    event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
+    dialog.showMessageBox({
+      message: `Project saved.`,
+      title: 'Information',
+      type: 'info',
+      buttons: ['Ok'],
+    });
+  }
 };
 
 const deleteFolderFromCache = async (event, folder: string) => {
