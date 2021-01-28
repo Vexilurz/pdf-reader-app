@@ -8,6 +8,7 @@ import EventEditForm from '../../EventEditForm/EventEditForm';
 import { StoreType } from '../../../reduxStore/store';
 import * as appConst from '../../../types/textConstants';
 import os from 'os';
+import { ipcRenderer } from 'electron';
 
 export interface IMiddleSpaceProps {}
 export interface IMiddleSpaceState {}
@@ -23,7 +24,12 @@ class MiddleSpace extends React.Component<
     this.containerRef = React.createRef();
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    ipcRenderer.on(appConst.APP_CLOSING, () => {
+      // TODO: check for unsaved projects
+      ipcRenderer.send(appConst.APP_CLOSING_PERMISSION_GRANTED);
+    });
+  }
 
   render(): React.ReactElement {
     const {
