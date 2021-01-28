@@ -7,7 +7,10 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import * as appConst from '../../types/textConstants';
-import { getNewFileWithPath } from '../../types/projectFile';
+import {
+  getNewFileWithPath,
+  IProjectFileWithPath,
+} from '../../types/projectFile';
 import { remote, ipcRenderer } from 'electron';
 import { waitForDebugger } from 'inspector';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -44,11 +47,84 @@ class ProjectsTabs extends React.Component<
     this.prjSaved = true;
   }
 
+  getOpenedProjects = () => {
+    const { openedProjectFiles } = this.props;
+    return openedProjectFiles;
+  };
+
   componentDidMount() {
     ipcRenderer.on(appConst.SAVE_CURRENT_PROJECT_DONE, (event, payload) => {
       this.prjSaved = true;
     });
+    ipcRenderer.on(appConst.APP_CLOSING, async () => {
+      // const tmp = this.getOpenedProjects().map((project) =>
+      //   this.closeProject(project)
+      // );
+      this.getOpenedProjects()
+        .reduce(
+          (prevPromise, project) =>
+            prevPromise.then(() => {
+              console.log(`closing ${project.path}`);
+              return this.closeProject(project);
+            }),
+          Promise.resolve()
+        )
+        .then(() => ipcRenderer.send(appConst.APP_CLOSING_PERMISSION_GRANTED));
+    });
   }
+
+  closeProject = (project: IProjectFileWithPath) => {
+    return new Promise((resolve, reject) => {
+      const {
+        currentProjectFile,
+        setAppState,
+        saveCurrentProject,
+        saveProjectByID,
+        deleteFileFromOpened,
+      } = this.props;
+      let response = -1;
+      const close = () => {
+        waitFor(
+          () => {
+            return this.prjSaved;
+          },
+          true,
+          100,
+          () => {
+            if (response !== 2) {
+              if (currentProjectFile.id === project.id) {
+                setAppState(appConst.START_PAGE);
+              }
+              deleteFileFromOpened(project.id);
+            }
+            resolve(null);
+          }
+        );
+      };
+
+      if (project.haveChanges) {
+        remote.dialog
+          .showMessageBox({
+            message: `Save changes in "${project.path}"?`,
+            title: 'Question',
+            type: 'question',
+            buttons: ['Yes', 'No', 'Cancel'],
+          })
+          .then((res) => {
+            response = res.response;
+            if (response === 0) {
+              this.prjSaved = false;
+              if (currentProjectFile.id === project.id) {
+                saveCurrentProject();
+              } else {
+                saveProjectByID(project.id);
+              }
+            }
+            close();
+          });
+      } else close();
+    });
+  };
 
   render(): React.ReactElement {
     const {
@@ -57,9 +133,6 @@ class ProjectsTabs extends React.Component<
       setAppState,
       setCurrentFile,
       saveCurrentProjectTemporary,
-      saveCurrentProject,
-      saveProjectByID,
-      deleteFileFromOpened,
       currentAppState,
     } = this.props;
     const ACTIVE = ' active';
@@ -97,44 +170,7 @@ class ProjectsTabs extends React.Component<
                   href="#"
                   onClick={async (e) => {
                     e.stopPropagation();
-
-                    let response = -1;
-                    const closePrj = () => {
-                      waitFor(
-                        () => {
-                          return this.prjSaved;
-                        },
-                        true,
-                        100,
-                        () => {
-                          if (response !== 2) {
-                            if (currentProjectFile.id === project.id) {
-                              setAppState(appConst.START_PAGE);
-                            }
-                            deleteFileFromOpened(project.id);
-                          }
-                        }
-                      );
-                    };
-
-                    if (project.haveChanges) {
-                      const res = await remote.dialog.showMessageBox({
-                        message: `Save changes in "${project.path}"?`,
-                        title: 'Question',
-                        type: 'question',
-                        buttons: ['Yes', 'No', 'Cancel'],
-                      });
-                      response = res.response;
-                      if (response === 0) {
-                        this.prjSaved = false;
-                        if (currentProjectFile.id === project.id) {
-                          saveCurrentProject();
-                        } else {
-                          saveProjectByID(project.id);
-                        }
-                      }
-                      closePrj();
-                    } else closePrj();
+                    await this.closeProject(project);
                   }}
                 >
                   <FontAwesomeIcon color={'grey'} size={'xs'} icon={faTimes} />
