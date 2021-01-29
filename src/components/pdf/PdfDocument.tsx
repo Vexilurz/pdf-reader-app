@@ -23,6 +23,7 @@ interface Props {
   searchPattern: string | null;
   textLayerZIndex: number;
   newAreaSelectionCallback(area: IAreaSelection): void;
+  rotateInDeg: number;
   // tmp
   needForceUpdate: boolean;
   setNeedForceUpdate(value: boolean): void;
@@ -120,6 +121,7 @@ export default class PdfDocument extends Component<Props, State> {
       // tmp
       needForceUpdate,
       setNeedForceUpdate,
+      rotateInDeg,
     } = this.props;
     const { numPages } = this.state;
     return (
@@ -143,6 +145,7 @@ export default class PdfDocument extends Component<Props, State> {
             newAreaSelectionCallback={newAreaSelectionCallback}
             needForceUpdate={needForceUpdate}
             setNeedForceUpdate={setNeedForceUpdate}
+            rotateInDeg={rotateInDeg}
           />
         </Document>
       </div>

@@ -4,6 +4,7 @@ import {
   faFolderOpen,
   faVectorSquare,
   faCommentAlt,
+  faRedo,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ipcRenderer } from 'electron';
@@ -30,6 +31,7 @@ export interface IProps {
   areaSelectionEnable: boolean;
   onAddBookmark(): void;
   onOpenPDFinExternal(): void;
+  onRotatePdf(): void;
 }
 export interface IState {}
 
@@ -53,6 +55,7 @@ export class PdfToolBar extends React.Component<IProps, IState> {
       areaSelectionEnable,
       onAddBookmark,
       onOpenPDFinExternal,
+      onRotatePdf,
     } = this.props;
     const areaSelectionToggleStyle = areaSelectionEnable
       ? 'secondary'
@@ -78,6 +81,9 @@ export class PdfToolBar extends React.Component<IProps, IState> {
             currentPage={currentPage}
           />
           <PdfScaleControls onSetScale={onSetScale} />
+          <Button variant="outline-secondary" onClick={onRotatePdf}>
+            <FontAwesomeIcon icon={faRedo} />
+          </Button>
           <Button
             variant={areaSelectionToggleStyle}
             onClick={onAreaSelectionToggle}

@@ -28,6 +28,7 @@ interface Props {
   searchPattern: string | null;
   textLayerZIndex: number;
   newAreaSelectionCallback(area: IAreaSelection): void;
+  rotateInDeg: number;
 
   // tmp
   needForceUpdate: boolean;
@@ -91,6 +92,7 @@ export default class PageContainer extends Component<Props, State> {
       searchPattern,
       textLayerZIndex,
       newAreaSelectionCallback,
+      rotateInDeg,
     } = this.props;
 
     const { pageHeight, pageWidth } = this.state;
@@ -106,7 +108,11 @@ export default class PageContainer extends Component<Props, State> {
 
     return (
       <div key={key} style={style}>
-        <div className="pdf-page" key={`page_${index + 1}_${key}`}>
+        <div
+          className="pdf-page"
+          key={`page_${index + 1}_${key}`}
+          style={{ transform: `rotate(${rotateInDeg}deg)` }}
+        >
           <AreaSelection
             key={`as${index + 1}_${key}`}
             width={pageWidth}

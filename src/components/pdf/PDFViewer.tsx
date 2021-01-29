@@ -35,6 +35,7 @@ export interface IPDFViewerState {
   displayedPdfName: string;
   pageWidth: number;
   pageHeight: number;
+  rotateIndex: number;
 }
 
 class PDFViewer extends React.Component<
@@ -65,6 +66,7 @@ class PDFViewer extends React.Component<
       displayedPdfName: '',
       pageWidth: 100,
       pageHeight: 100,
+      rotateIndex: 0,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
@@ -216,6 +218,12 @@ class PDFViewer extends React.Component<
     shell.openPath(this.props.currentPdf.path);
   };
 
+  onRotatePdf = () => {
+    const { rotateIndex } = this.state;
+    if (rotateIndex == 3) this.setState({ rotateIndex: 0 });
+    else this.setState({ rotateIndex: rotateIndex + 1 });
+  };
+
   render(): React.ReactElement {
     const { pdfLoading, scrollToPage } = this.props;
     const {
@@ -258,6 +266,7 @@ class PDFViewer extends React.Component<
           areaSelectionEnable={this.props.areaSelectionEnable.value}
           onAddBookmark={this.onAddBookmark}
           onOpenPDFinExternal={this.onOpenPDFinExternal}
+          onRotatePdf={this.onRotatePdf}
         />
         {pdfData ? (
           <PdfDocument
@@ -276,6 +285,7 @@ class PDFViewer extends React.Component<
             searchPattern={this.state.searchPattern}
             textLayerZIndex={this.textLayerZIndex}
             newAreaSelectionCallback={this.newAreaSelectionCallback}
+            rotateInDeg={this.state.rotateIndex * 90}
             // tmp
             needForceUpdate={this.props.needForceUpdate}
             setNeedForceUpdate={this.props.setNeedForceUpdate}
