@@ -21,7 +21,6 @@ class MainLayout extends React.Component<
 > {
   componentDidMount() {
     // TODO: move that to app start loading point
-    chmodr.sync(appConst.CACHE_PATH, 0o777);
     ipcRenderer.send(appConst.CLEAR_CACHE);
   }
 

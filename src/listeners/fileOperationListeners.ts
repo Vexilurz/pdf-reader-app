@@ -126,6 +126,7 @@ const createFolderInCache = async (event, folder: string) => {
 
 const clearCache = async (event) => {
   const path = appConst.CACHE_PATH;
+  chmodr.sync(path, 0o777);
   fssync.rmdirSync(path + pathLib.sep, { recursive: true });
   await fs.mkdir(path, { recursive: true });
 };
