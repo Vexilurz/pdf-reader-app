@@ -81,12 +81,17 @@ export class PdfToolBar extends React.Component<IProps, IState> {
             currentPage={currentPage}
           />
           <PdfScaleControls onSetScale={onSetScale} />
-          <Button variant="outline-secondary" onClick={onRotatePdf}>
+          <Button
+            variant="outline-secondary"
+            onClick={onRotatePdf}
+            title="Rotate"
+          >
             <FontAwesomeIcon icon={faRedo} />
           </Button>
           <Button
             variant={areaSelectionToggleStyle}
             onClick={onAreaSelectionToggle}
+            title="Area selection"
           >
             <FontAwesomeIcon icon={faVectorSquare} />
           </Button>
@@ -95,6 +100,7 @@ export class PdfToolBar extends React.Component<IProps, IState> {
             onClick={(e) => {
               onAddBookmark();
             }}
+            title="Comment text selection"
           >
             <FontAwesomeIcon icon={faCommentAlt} />
           </Button>
@@ -104,10 +110,11 @@ export class PdfToolBar extends React.Component<IProps, IState> {
               // ipcRenderer.send(appConst.OPEN_EXTERNAL_PDF);
               onOpenPDFinExternal();
             }}
+            title="Open current PDF in external viewer"
           >
             <FontAwesomeIcon icon={faFolderOpen} />
           </Button>
-          <Button variant="outline-secondary" onClick={onPrint}>
+          <Button variant="outline-secondary" onClick={onPrint} title="Print">
             <FontAwesomeIcon icon={faPrint} />
           </Button>
         </div>

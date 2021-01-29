@@ -68,6 +68,7 @@ class EventsArea extends React.Component<
           <Button
             variant="outline-secondary"
             onClick={this.saveCurrentProjectClick}
+            title="Save current project"
           >
             <FontAwesomeIcon icon={faSave} />
           </Button>
@@ -76,12 +77,14 @@ class EventsArea extends React.Component<
             onClick={() => {
               setAppState(appConst.PROJECT_EDIT_FORM);
             }}
+            title="Open project settings"
           >
             <FontAwesomeIcon icon={faCog} />
           </Button>
           <Button
             variant="outline-secondary"
             onClick={this.onCreateNewEventClick}
+            title="Create new event"
           >
             <FontAwesomeIcon icon={faPlus} />
           </Button>
