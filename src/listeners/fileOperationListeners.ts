@@ -51,8 +51,8 @@ const canWritePromise = function (path) {
     fssync.access(path, fssync.W_OK, (err) => {
       if (err) {
         dialog.showMessageBox({
-          message: `Can't save project to "${path}"!`,
-          title: 'Information',
+          message: `Can't write to "${path}"!`,
+          title: 'Error',
           type: 'error',
           buttons: ['Ok'],
         });
@@ -92,7 +92,9 @@ const saveFileDialog = async (event, arg) => {
 const saveCurrentProject = async (event, currentProject) => {
   const path = pathLib.join(appConst.CACHE_PATH, currentProject.id);
   // fssync.mkdirSync(path, { recursive: true });
-  const res = fssync.writeFileSync(pathLib.join(path, appConst.PROJECT_FILE_NAME), currentProject.content);
+  const tmpPath = pathLib.join(path, appConst.PROJECT_FILE_NAME);
+  fssync.chmodSync(tmpPath, 0o777);
+  const res = fssync.writeFileSync(tmpPath, currentProject.content);
 
   const isWritable = await canWritePromise(pathLib.dirname(currentProject.path));
 
@@ -135,6 +137,7 @@ const updateEventInCache = async (e, payload) => {
   const { projectID } = payload;
   const event: IEvent = JSON.parse(payload.event);
   const path = pathLib.join(appConst.CACHE_PATH, projectID, event.id);
+  chmodr.sync(appConst.CACHE_PATH, 0o777);
   fssync.mkdirSync(path, { recursive: true });
 
   // delete deleted files:
@@ -172,6 +175,7 @@ const updateEventInCache = async (e, payload) => {
     return { ...file, path: newFileName };
   });
 
+  chmodr.sync(appConst.CACHE_PATH, 0o444);
   e.reply(appConst.UPDATE_EVENT_IN_CACHE_COMPLETE, JSON.stringify(event));
 };
 
