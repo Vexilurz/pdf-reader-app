@@ -77,6 +77,12 @@ class PDFViewer extends React.Component<
     this.textLayerZIndex = 5;
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.scale !== this.state.scale) {
+      this.props.setNeedForceUpdate(true);
+    }
+  }
+
   componentDidMount(): void {
     ipcRenderer.on(appConst.PDF_FILE_CONTENT_RESPONSE, (event, payload) => {
       const { data, path, external } = payload;

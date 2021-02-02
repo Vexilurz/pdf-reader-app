@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { Component } from 'react';
+import React, { Component, Ref } from 'react';
 import { Page } from 'react-pdf/dist/esm/entry.webpack';
 import Measure from 'react-measure';
 import { IProjectFileWithPath } from '../../types/projectFile';
@@ -18,10 +18,18 @@ interface Props {
   currentIndexes: IEventAndFileIndex;
   searchPattern: string | null;
   textLayerZIndex: number;
+  height: number;
+  width: number;
 }
 interface State {}
 
 export default class PdfPage extends Component<Props, State> {
+  private canvasRef = React.createRef<HTMLDivElement>();
+
+  componentDidUpdate(prevProps) {
+    console.log(prevProps);
+  }
+
   handlePdfPageResize = (pageNumber) => (contentRect) => {
     // TODO: condition is a crunch
     if (pageNumber === 1 && contentRect?.bounds?.height > 50)
@@ -241,6 +249,8 @@ export default class PdfPage extends Component<Props, State> {
         {({ measureRef }) => (
           <div ref={measureRef}>
             <Page
+              width={this.props.width}
+              height={this.props.height}
               scale={scale}
               pageNumber={pageNumber}
               onLoadSuccess={this.onPageLoad}

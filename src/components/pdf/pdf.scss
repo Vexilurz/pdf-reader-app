@@ -103,13 +103,15 @@
 //   white-space: pre;
 // }
 
-.konvajs-content {
-  // width: 100% !important;
-  // height: 100% !important;
-  // z-index: 9999 !important;
+.area-selection-container {
+  width: 100%;
+  position: absolute;
 }
 
-.area-selection-container {
-  position: absolute;
-  // z-index: 9999 !important;
+.area-selection-stage {
+  position: relative;
+}
+
+.konvajs-content {
+  margin: 0 auto;
 }

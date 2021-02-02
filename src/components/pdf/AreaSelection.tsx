@@ -113,45 +113,47 @@ class AreaSelection extends React.Component<
     const annotationsToDraw = [currentSelection, newSelection];
 
     return (
-      <Stage
-        onMouseDown={this.handleMouseDown}
-        onMouseUp={this.handleMouseUp}
-        onMouseMove={this.handleMouseMove}
-        width={width}
-        height={height}
-        className={'area-selection-container'}
-        style={{ zIndex }}
-      >
-        <Layer>
-          {bookmarks.map((bookmark) => {
-            const sel = bookmark.selection as IAreaSelection;
-            return (
-              <Rect
-                x={sel.x * scale}
-                y={sel.y * scale}
-                width={sel.width * scale}
-                height={sel.height * scale}
-                fill={`${bookmark.color}44`}
-                stroke={bookmark.color}
-              />
-            );
-          })}
-          {annotationsToDraw.map((value) => {
-            const res =
-              value && value?.page === page ? (
+      <div className={'area-selection-container'}>
+        <Stage
+          onMouseDown={this.handleMouseDown}
+          onMouseUp={this.handleMouseUp}
+          onMouseMove={this.handleMouseMove}
+          width={width}
+          height={height}
+          className={'area-selection-stage'}
+          style={{ zIndex }}
+        >
+          <Layer>
+            {bookmarks.map((bookmark) => {
+              const sel = bookmark.selection as IAreaSelection;
+              return (
                 <Rect
-                  x={value.x}
-                  y={value.y}
-                  width={value.width}
-                  height={value.height}
-                  fill="transparent"
-                  stroke="blue"
+                  x={sel.x * scale}
+                  y={sel.y * scale}
+                  width={sel.width * scale}
+                  height={sel.height * scale}
+                  fill={`${bookmark.color}44`}
+                  stroke={bookmark.color}
                 />
-              ) : null;
-            return res;
-          })}
-        </Layer>
-      </Stage>
+              );
+            })}
+            {annotationsToDraw.map((value) => {
+              const res =
+                value && value?.page === page ? (
+                  <Rect
+                    x={value.x}
+                    y={value.y}
+                    width={value.width}
+                    height={value.height}
+                    fill="transparent"
+                    stroke="blue"
+                  />
+                ) : null;
+              return res;
+            })}
+          </Layer>
+        </Stage>
+      </div>
     );
   }
 }

@@ -45,6 +45,7 @@ export default class PageContainer extends Component<Props, State> {
 
   constructor(props: State & Props) {
     super(props);
+    // Refactor this
     this.state = {
       pageWidth: 700,
       pageHeight: 700,
@@ -69,6 +70,7 @@ export default class PageContainer extends Component<Props, State> {
       pageHeight: height,
       pageWidth: width,
     });
+    this.listRef.current?.forceUpdateGrid();
   };
 
   setPagesRendered = (value: number) => {
@@ -105,7 +107,6 @@ export default class PageContainer extends Component<Props, State> {
     const bookmarksFiltered = allBookmarks?.filter(
       (v) => v.isAreaSelection && v.selection.page === index + 1
     );
-
     return (
       <div key={key} style={style}>
         <div
@@ -115,7 +116,7 @@ export default class PageContainer extends Component<Props, State> {
         >
           <AreaSelection
             key={`as${index + 1}_${key}`}
-            width={pageWidth}
+            width={pageWidth * scale}
             height={pageHeight}
             page={index + 1}
             bookmarks={bookmarksFiltered}
@@ -123,6 +124,8 @@ export default class PageContainer extends Component<Props, State> {
             newSelectionCallback={newAreaSelectionCallback}
           />
           <PdfPage
+            width={pageWidth}
+            height={pageHeight}
             scale={scale}
             pageNumber={index + 1}
             numPages={numPages}
@@ -152,7 +155,7 @@ export default class PageContainer extends Component<Props, State> {
             width={width}
             height={height}
             rowCount={numPages}
-            rowHeight={pageHeight}
+            rowHeight={pageHeight + 10}
             rowRenderer={this.rowRenderer}
             scrollToIndex={scrollToIndex}
             overscanRowCount={1}
