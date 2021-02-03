@@ -24,8 +24,6 @@ interface Props {
 interface State {}
 
 export default class PdfPage extends Component<Props, State> {
-  private canvasRef = React.createRef<HTMLDivElement>();
-
   componentDidUpdate(prevProps) {
     console.log(prevProps);
   }
@@ -249,6 +247,7 @@ export default class PdfPage extends Component<Props, State> {
         {({ measureRef }) => (
           <div ref={measureRef}>
             <Page
+              canvasRef={measureRef}
               width={this.props.width}
               height={this.props.height}
               scale={scale}

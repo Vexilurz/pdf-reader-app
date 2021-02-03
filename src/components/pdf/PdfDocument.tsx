@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Document } from 'react-pdf/dist/esm/entry.webpack';
+import Measure from 'react-measure';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
-
 import { IAreaSelection, IPdfSelection } from '../../types/bookmark';
 import { IPDFdata } from '../../types/pdf';
 import { IProjectFileWithPath } from '../../types/projectFile';
@@ -30,6 +30,8 @@ interface Props {
 }
 interface State {
   numPages: number;
+  listWidth: number;
+  listHeight: number;
 }
 
 export default class PdfDocument extends Component<Props, State> {
@@ -39,6 +41,8 @@ export default class PdfDocument extends Component<Props, State> {
     super(props);
     this.state = {
       numPages: 0,
+      listWidth: 0,
+      listHeight: 0,
     };
     this.containerRef = React.createRef();
   }
@@ -125,30 +129,44 @@ export default class PdfDocument extends Component<Props, State> {
     } = this.props;
     const { numPages } = this.state;
     return (
-      <div className="pdf-document">
-        <Document
-          file={pdfFile}
-          onLoadSuccess={this.onDocumentLoadSuccess}
-          inputRef={this.setContainerRef}
-          onMouseUp={this.onMouseUp}
-        >
-          <PageContainer
-            numPages={numPages}
-            scrollToIndex={scrollToIndex}
-            currentProjectFile={currentProjectFile}
-            currentIndexes={currentIndexes}
-            setCurrentPage={setCurrentPage}
-            scale={scale}
-            setShowLoading={setShowLoading}
-            searchPattern={searchPattern}
-            textLayerZIndex={textLayerZIndex}
-            newAreaSelectionCallback={newAreaSelectionCallback}
-            needForceUpdate={needForceUpdate}
-            setNeedForceUpdate={setNeedForceUpdate}
-            rotateInDeg={rotateInDeg}
-          />
-        </Document>
-      </div>
+      <Measure
+        bounds
+        onResize={(contentRect) => {
+          this.setState({
+            listHeight: contentRect?.bounds?.height,
+            listWidth: contentRect?.bounds?.width,
+          });
+        }}
+      >
+        {({ measureRef }) => (
+          <div className="pdf-document" ref={measureRef}>
+            <Document
+              file={pdfFile}
+              onLoadSuccess={this.onDocumentLoadSuccess}
+              inputRef={this.setContainerRef}
+              onMouseUp={this.onMouseUp}
+            >
+              <PageContainer
+                listHeight={this.state.listHeight}
+                listWidth={this.state.listWidth}
+                numPages={numPages}
+                scrollToIndex={scrollToIndex}
+                currentProjectFile={currentProjectFile}
+                currentIndexes={currentIndexes}
+                setCurrentPage={setCurrentPage}
+                scale={scale}
+                setShowLoading={setShowLoading}
+                searchPattern={searchPattern}
+                textLayerZIndex={textLayerZIndex}
+                newAreaSelectionCallback={newAreaSelectionCallback}
+                needForceUpdate={needForceUpdate}
+                setNeedForceUpdate={setNeedForceUpdate}
+                rotateInDeg={rotateInDeg}
+              />
+            </Document>
+          </div>
+        )}
+      </Measure>
     );
   }
 }

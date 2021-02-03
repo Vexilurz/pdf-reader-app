@@ -33,6 +33,8 @@ interface Props {
   // tmp
   needForceUpdate: boolean;
   setNeedForceUpdate(value: boolean): void;
+  listWidth: number;
+  listHeight: number;
 }
 interface State {
   pageWidth: number;
@@ -70,7 +72,7 @@ export default class PageContainer extends Component<Props, State> {
       pageHeight: height,
       pageWidth: width,
     });
-    this.listRef.current?.forceUpdateGrid();
+    // this.listRef.current?.forceUpdateGrid();
   };
 
   setPagesRendered = (value: number) => {
@@ -116,7 +118,7 @@ export default class PageContainer extends Component<Props, State> {
         >
           <AreaSelection
             key={`as${index + 1}_${key}`}
-            width={pageWidth * scale}
+            width={pageWidth}
             height={pageHeight}
             page={index + 1}
             bookmarks={bookmarksFiltered}
@@ -124,7 +126,8 @@ export default class PageContainer extends Component<Props, State> {
             newSelectionCallback={newAreaSelectionCallback}
           />
           <PdfPage
-            width={pageWidth}
+            // Magic number: width of scroll bar
+            width={this.props.listWidth - 20}
             height={pageHeight}
             scale={scale}
             pageNumber={index + 1}
@@ -149,20 +152,16 @@ export default class PageContainer extends Component<Props, State> {
     const { pageHeight } = this.state;
     this.pagesRendered = 0;
     return (
-      <AutoSizer>
-        {({ height, width }: any) => (
-          <List
-            width={width}
-            height={height}
-            rowCount={numPages}
-            rowHeight={pageHeight + 10}
-            rowRenderer={this.rowRenderer}
-            scrollToIndex={scrollToIndex}
-            overscanRowCount={1}
-            ref={this.listRef}
-          />
-        )}
-      </AutoSizer>
+      <List
+        width={this.props.listWidth}
+        height={this.props.listHeight}
+        rowCount={numPages}
+        rowHeight={pageHeight + 10}
+        rowRenderer={this.rowRenderer}
+        scrollToIndex={scrollToIndex}
+        overscanRowCount={1}
+        ref={this.listRef}
+      />
     );
   }
 }
