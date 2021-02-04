@@ -182,10 +182,18 @@ class PDFViewer extends React.Component<
       setCurrentFileHaveChanges,
       saveCurrentProjectTemporary,
     } = this.props;
+    const { scale } = this.state;
     let newBookmark = null;
     console.log(area);
     if (area) {
-      newBookmark = createBookmark('', true, area, '#cce5ff');
+      let scaledArea = {
+        ...area,
+        x: area.x / scale,
+        y: area.y / scale,
+        width: area.width / scale,
+        height: area.height / scale,
+      };
+      newBookmark = createBookmark('', true, scaledArea, '#cce5ff');
     }
     if (newBookmark) {
       addBookmark(newBookmark);
