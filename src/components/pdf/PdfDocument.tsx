@@ -27,6 +27,7 @@ interface Props {
   // tmp
   needForceUpdate: boolean;
   setNeedForceUpdate(value: boolean): void;
+  currentPage: number;
 }
 interface State {
   numPages: number;
@@ -149,6 +150,7 @@ export default class PdfDocument extends Component<Props, State> {
               <PageContainer
                 listHeight={this.state.listHeight}
                 listWidth={this.state.listWidth}
+                currentPage={this.props.currentPage}
                 numPages={numPages}
                 scrollToIndex={scrollToIndex}
                 currentProjectFile={currentProjectFile}

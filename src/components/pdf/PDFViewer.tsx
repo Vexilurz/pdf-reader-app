@@ -125,9 +125,11 @@ class PDFViewer extends React.Component<
   };
 
   onPrint = () => {
-    const { currentPdf } = this.props;
-    const { pdfData } = this.state;
-    ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
+    // const { currentPdf } = this.props;
+    // const { pdfData } = this.state;
+    // ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
+    this.props.setNeedForceUpdate(true);
+    console.log('updated');
   };
 
   prevSearchRes = () => {
@@ -262,7 +264,11 @@ class PDFViewer extends React.Component<
           currentSearchResNum={currentSearchResNum}
           totalSearchResCount={totalSearchResCount}
           onSetScale={(scale: number) => {
-            this.setState({ scale });
+            this.setState({ scale }, () => {
+              console.log('after set state');
+
+              this.props.setNeedForceUpdate(true);
+            });
           }}
           onSetPageNumber={this.setPageNumber}
           numPages={numPages}
@@ -276,6 +282,7 @@ class PDFViewer extends React.Component<
         />
         {pdfData ? (
           <PdfDocument
+            currentPage={currentPage}
             pdfFile={pdfData}
             areaSelectionEnable={this.props.areaSelectionEnable.value}
             onLoadSuccessCallback={this.onLoadSuccessCallback}

@@ -35,6 +35,7 @@ interface Props {
   setNeedForceUpdate(value: boolean): void;
   listWidth: number;
   listHeight: number;
+  currentPage: number;
 }
 interface State {
   pageWidth: number;
@@ -62,7 +63,8 @@ export default class PageContainer extends Component<Props, State> {
 
   checkForceUpdate() {
     if (this.props.needForceUpdate === true) {
-      this.listRef.current?.forceUpdateGrid();
+      // this.listRef.current?.forceUpdateGrid();
+      this.listRef.current?.recomputeRowHeights(this.props.currentPage);
       this.props.setNeedForceUpdate(false);
     }
   }
@@ -128,7 +130,7 @@ export default class PageContainer extends Component<Props, State> {
           <PdfPage
             // Magic number: width of scroll bar
             width={this.props.listWidth - 20}
-            height={pageHeight}
+            height={this.props.listHeight}
             scale={scale}
             pageNumber={index + 1}
             numPages={numPages}
@@ -141,6 +143,7 @@ export default class PageContainer extends Component<Props, State> {
             currentIndexes={currentIndexes}
             searchPattern={searchPattern}
             textLayerZIndex={textLayerZIndex}
+            setNeedForceUpdate={this.props.setNeedForceUpdate}
           />
         </div>
       </div>
@@ -159,6 +162,7 @@ export default class PageContainer extends Component<Props, State> {
         rowHeight={pageHeight + 10}
         rowRenderer={this.rowRenderer}
         scrollToIndex={scrollToIndex}
+        scrollToAlignment={'start'}
         overscanRowCount={1}
         ref={this.listRef}
       />
