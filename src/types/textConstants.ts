@@ -37,7 +37,7 @@ export const APP_CLOSING_PERMISSION_GRANTED = 'app-closing-permission-granted';
 
 
 // other:
-const APP_FOLDER = pathLib.join(os.homedir(), 'documentsApp' + pathLib.sep);
+export const APP_FOLDER = pathLib.join(os.homedir(), 'documentsApp' + pathLib.sep);
 export const CACHE_PATH = pathLib.join(APP_FOLDER, '.documentsAppCache' + pathLib.sep);
 export const RECENT_PROJECTS_FILENAME = pathLib.join(APP_FOLDER, 'recent.json');
 export const PROJECT_FILE_NAME = 'project.json';

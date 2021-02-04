@@ -27,8 +27,8 @@ const openFile = async (event, path: string) => {
       await unzipFile(ourPath, destPath);
       const contentFileName = pathLib.join(destPath, appConst.PROJECT_FILE_NAME);
       const content = await fs.readFile(contentFileName);
-      chmodr.sync(destPath, 0o444);
-      fssync.chmodSync(contentFileName, 0o777);
+      // chmodr.sync(destPath, 0o444);
+      // fssync.chmodSync(contentFileName, 0o777);
       event.reply(appConst.OPEN_FILE_DIALOG_RESPONSE, {
         id: newID,
         path: ourPath,
@@ -93,7 +93,7 @@ const saveCurrentProject = async (event, currentProject) => {
   const path = pathLib.join(appConst.CACHE_PATH, currentProject.id);
   // fssync.mkdirSync(path, { recursive: true });
   const tmpPath = pathLib.join(path, appConst.PROJECT_FILE_NAME);
-  fssync.chmodSync(tmpPath, 0o777);
+  // fssync.chmodSync(tmpPath, 0o777);
   const res = fssync.writeFileSync(tmpPath, currentProject.content);
 
   const isWritable = await canWritePromise(pathLib.dirname(currentProject.path));
@@ -117,7 +117,7 @@ const saveCurrentProject = async (event, currentProject) => {
 
 const deleteFolderFromCache = async (event, folder: string) => {
   const path = pathLib.join(appConst.CACHE_PATH, folder);
-  chmodr.sync(path, 0o777);
+  // chmodr.sync(path, 0o777);
   await fs.rmdir(path + pathLib.sep, { recursive: true });
 };
 
@@ -128,7 +128,7 @@ const createFolderInCache = async (event, folder: string) => {
 
 const clearCache = async (event) => {
   const path = appConst.CACHE_PATH;
-  chmodr.sync(path, 0o777);
+  // chmodr.sync(appConst.APP_FOLDER, 0o777);
   fssync.rmdirSync(path + pathLib.sep, { recursive: true });
   await fs.mkdir(path, { recursive: true });
 };
@@ -137,7 +137,7 @@ const updateEventInCache = async (e, payload) => {
   const { projectID } = payload;
   const event: IEvent = JSON.parse(payload.event);
   const path = pathLib.join(appConst.CACHE_PATH, projectID, event.id);
-  chmodr.sync(appConst.CACHE_PATH, 0o777);
+  // chmodr.sync(appConst.CACHE_PATH, 0o777);
   fssync.mkdirSync(path, { recursive: true });
 
   // delete deleted files:
@@ -150,7 +150,7 @@ const updateEventInCache = async (e, payload) => {
   });
   existingFilesOnDisk.forEach((pdf) => {
     const pathToPdf = pathLib.join(path, pdf);
-    fssync.chmodSync(pathToPdf, 0o777);
+    // fssync.chmodSync(pathToPdf, 0o777);
     fssync.unlinkSync(pathToPdf);
   });
 
@@ -175,7 +175,7 @@ const updateEventInCache = async (e, payload) => {
     return { ...file, path: newFileName };
   });
 
-  chmodr.sync(appConst.CACHE_PATH, 0o444);
+  // chmodr.sync(appConst.CACHE_PATH, 0o444);
   e.reply(appConst.UPDATE_EVENT_IN_CACHE_COMPLETE, JSON.stringify(event));
 };
 
