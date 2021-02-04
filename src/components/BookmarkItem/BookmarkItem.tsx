@@ -66,7 +66,7 @@ class BookmarkItem extends React.Component<
     newBookmark.color = color;
     setEditingBookmarkID('');
     updateBookmark(newBookmark);
-    this.props.setNeedForceUpdate(true);
+    this.props.setNeedForceUpdate({ value: true, tip: 'onSaveBookmark' });
     setCurrentFileHaveChanges(true);
     saveCurrentProjectTemporary();
   };

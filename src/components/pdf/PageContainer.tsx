@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React, { Component, CSSProperties } from 'react';
 import { List, AutoSizer } from 'react-virtualized';
+import { IBoolValue } from '../../reduxStore/pdfViewerSlice';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
 import { IAreaSelection } from '../../types/bookmark';
 import { IProjectFileWithPath } from '../../types/projectFile';
@@ -32,7 +33,7 @@ interface Props {
 
   // tmp
   needForceUpdate: boolean;
-  setNeedForceUpdate(value: boolean): void;
+  setNeedForceUpdate(value: IBoolValue): void;
   listWidth: number;
   listHeight: number;
   currentPage: number;
@@ -65,7 +66,7 @@ export default class PageContainer extends Component<Props, State> {
     if (this.props.needForceUpdate === true) {
       // this.listRef.current?.forceUpdateGrid();
       this.listRef.current?.recomputeRowHeights(this.props.currentPage);
-      this.props.setNeedForceUpdate(false);
+      this.props.setNeedForceUpdate({ value: false, tip: '...set to false' });
     }
   }
 
@@ -143,7 +144,7 @@ export default class PageContainer extends Component<Props, State> {
             currentIndexes={currentIndexes}
             searchPattern={searchPattern}
             textLayerZIndex={textLayerZIndex}
-            setNeedForceUpdate={this.props.setNeedForceUpdate}
+            // setNeedForceUpdate={this.props.setNeedForceUpdate}
           />
         </div>
       </div>

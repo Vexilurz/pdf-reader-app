@@ -50,7 +50,6 @@ class BookmarksArea extends React.Component<
 
 const mapDispatchToProps = {
   setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
-  setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarksAreaProps) => {

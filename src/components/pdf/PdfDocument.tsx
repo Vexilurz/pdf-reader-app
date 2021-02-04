@@ -6,6 +6,7 @@ import { IAreaSelection, IPdfSelection } from '../../types/bookmark';
 import { IPDFdata } from '../../types/pdf';
 import { IProjectFileWithPath } from '../../types/projectFile';
 import PageContainer from './PageContainer';
+import { IBoolValue } from '../../reduxStore/pdfViewerSlice';
 
 interface Props {
   pdfFile?: IPDFdata;
@@ -26,7 +27,7 @@ interface Props {
   rotateInDeg: number;
   // tmp
   needForceUpdate: boolean;
-  setNeedForceUpdate(value: boolean): void;
+  setNeedForceUpdate(value: IBoolValue): void;
   currentPage: number;
 }
 interface State {

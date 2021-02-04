@@ -79,7 +79,10 @@ class PDFViewer extends React.Component<
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.scale !== this.state.scale) {
-      this.props.setNeedForceUpdate(true);
+      this.props.setNeedForceUpdate({
+        value: true,
+        tip: 'PDFViewer did update',
+      });
     }
   }
 
@@ -128,8 +131,7 @@ class PDFViewer extends React.Component<
     // const { currentPdf } = this.props;
     // const { pdfData } = this.state;
     // ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
-    this.props.setNeedForceUpdate(true);
-    console.log('updated');
+    this.props.setNeedForceUpdate({ value: true, tip: 'onPrint update' });
   };
 
   prevSearchRes = () => {
@@ -166,7 +168,10 @@ class PDFViewer extends React.Component<
       const { style } = layer;
       style.zIndex = this.textLayerZIndex;
     });
-    this.props.setNeedForceUpdate(true);
+    this.props.setNeedForceUpdate({
+      value: true,
+      tip: 'onAreaSelectionToggle',
+    });
   };
 
   newAreaSelectionCallback = (area: IAreaSelection) => {
@@ -189,8 +194,11 @@ class PDFViewer extends React.Component<
       setCurrentFileHaveChanges(true);
       saveCurrentProjectTemporary();
     }
-    setInterval(() => {
-      this.props.setNeedForceUpdate(true); // TODO: this thing do not help or work there
+    setTimeout(() => {
+      this.props.setNeedForceUpdate({
+        value: true,
+        tip: 'newAreaSelectionCallback',
+      }); // TODO: this thing do not help or work there
     }, 200);
   };
 
@@ -219,7 +227,7 @@ class PDFViewer extends React.Component<
       setCurrentFileHaveChanges(true);
       saveCurrentProjectTemporary();
     }
-    this.props.setNeedForceUpdate(true);
+    this.props.setNeedForceUpdate({ value: true, tip: 'onAddBookmark' });
   };
 
   onOpenPDFinExternal = () => {
@@ -265,9 +273,10 @@ class PDFViewer extends React.Component<
           totalSearchResCount={totalSearchResCount}
           onSetScale={(scale: number) => {
             this.setState({ scale }, () => {
-              console.log('after set state');
-
-              this.props.setNeedForceUpdate(true);
+              this.props.setNeedForceUpdate({
+                value: true,
+                tip: 'After scale setState',
+              });
             });
           }}
           onSetPageNumber={this.setPageNumber}

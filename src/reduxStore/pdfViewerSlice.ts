@@ -5,8 +5,9 @@ interface IScrollToIndex {
   value: number;
 }
 
-interface IBoolValue {
+export interface IBoolValue {
   value: boolean;
+  tip?: any;
 }
 
 export interface IPDFViewerState {
@@ -54,9 +55,10 @@ export const pdfViewerSlice = createSlice({
       const { payload } = action;
       state.scrollToPage = payload;
     },
-    setNeedForceUpdate: (state: IPDFViewerState, action: PayloadAction<boolean>) => {
+    setNeedForceUpdate: (state: IPDFViewerState, action: PayloadAction<IBoolValue>) => {
       const { payload } = action;
-      state.needForceUpdate = { value: payload };
+      console.log('setNeedForceUpdate tip: ', payload.tip);
+      state.needForceUpdate = { value: payload.value };
     },
   },
 });

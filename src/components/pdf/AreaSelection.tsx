@@ -160,12 +160,12 @@ class AreaSelection extends React.Component<
 
 const mapDispatchToProps = {
   setCurrentSelection: pdfViewerActions.setAreaSelection,
-  setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IProps) => {
   return {
     newSelectionCallback: ownProps.newSelectionCallback,
+    scale: ownProps.scale,
     width: ownProps.width,
     height: ownProps.height,
     page: ownProps.page,
