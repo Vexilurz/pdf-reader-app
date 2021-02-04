@@ -10,7 +10,6 @@ import MiddleSpace from '../MiddleSpace/MiddleSpace';
 import { StoreType } from '../../../reduxStore/store';
 import { actions as appStateActions } from '../../../reduxStore/appStateSlice';
 import * as appConst from '../../../types/textConstants';
-import chmodr from '../../../utils/chmodr';
 
 export interface IMainLayoutProps {}
 export interface IMainLayoutState {}
