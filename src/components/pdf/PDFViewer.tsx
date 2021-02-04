@@ -194,12 +194,12 @@ class PDFViewer extends React.Component<
       setCurrentFileHaveChanges(true);
       saveCurrentProjectTemporary();
     }
-    setTimeout(() => {
-      this.props.setNeedForceUpdate({
-        value: true,
-        tip: 'newAreaSelectionCallback',
-      }); // TODO: this thing do not help or work there
-    }, 200);
+    // setTimeout(() => {
+    this.props.setNeedForceUpdate({
+      value: true,
+      tip: 'newAreaSelectionCallback',
+    }); // TODO: this thing do not help or work there
+    // }, 200);
   };
 
   onAddBookmark = () => {
@@ -273,10 +273,12 @@ class PDFViewer extends React.Component<
           totalSearchResCount={totalSearchResCount}
           onSetScale={(scale: number) => {
             this.setState({ scale }, () => {
+              // setTimeout(() => {
               this.props.setNeedForceUpdate({
                 value: true,
                 tip: 'After scale setState',
               });
+              // }, 200);
             });
           }}
           onSetPageNumber={this.setPageNumber}
