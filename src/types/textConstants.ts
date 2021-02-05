@@ -27,6 +27,7 @@ export const APP_CLOSING = 'app-closing';
 // renderer process listeners:
 export const OPEN_FILE_DIALOG_RESPONSE = 'open-file-dialog-response';
 export const NEW_FILE_DIALOG_RESPONSE = 'new-file-dialog-response';
+export const NEW_FILE_DIALOG_RESPONSE_2 = 'new-file-dialog-response-2';
 export const PDF_FILE_CONTENT_RESPONSE = 'pdf-file-content-response';
 export const SAVE_CURRENT_PROJECT_DONE = 'save-current-project-done';
 export const ADD_TO_RECENT_PROJECTS_DONE = 'add-to-recent-projects-done';

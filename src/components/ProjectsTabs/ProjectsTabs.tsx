@@ -41,10 +41,16 @@ class ProjectsTabs extends React.Component<
   IProjectsTabsState
 > {
   private prjSaved: boolean;
+  private isPathGetted: boolean;
+  private gettedPath: string;
+  private addToRecentDone: boolean;
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     this.prjSaved = true;
+    this.isPathGetted = true;
+    this.gettedPath = '';
+    this.addToRecentDone = true;
   }
 
   getOpenedProjects = () => {
@@ -55,6 +61,7 @@ class ProjectsTabs extends React.Component<
   componentDidMount() {
     ipcRenderer.on(appConst.SAVE_CURRENT_PROJECT_DONE, (event, payload) => {
       this.prjSaved = true;
+      console.log('!!!!!');
     });
     ipcRenderer.on(appConst.APP_CLOSING, async () => {
       // const tmp = this.getOpenedProjects().map((project) =>
@@ -71,6 +78,13 @@ class ProjectsTabs extends React.Component<
         )
         .then(() => ipcRenderer.send(appConst.APP_CLOSING_PERMISSION_GRANTED));
     });
+    ipcRenderer.on(appConst.NEW_FILE_DIALOG_RESPONSE_2, (event, response) => {
+      this.gettedPath = response.path;
+      this.isPathGetted = true;
+    });
+    ipcRenderer.on(appConst.ADD_TO_RECENT_PROJECTS_DONE, (event, response) => {
+      this.addToRecentDone = true;
+    });
   }
 
   closeProject = (project: IProjectFileWithPath) => {
@@ -78,9 +92,10 @@ class ProjectsTabs extends React.Component<
       const {
         currentProjectFile,
         setAppState,
-        saveCurrentProject,
+        saveCurrentProjectTemporary,
         saveProjectByID,
         deleteFileFromOpened,
+        setProjectPathByID,
       } = this.props;
       let response = -1;
       const close = () => {
@@ -105,7 +120,7 @@ class ProjectsTabs extends React.Component<
       if (project.haveChanges) {
         remote.dialog
           .showMessageBox({
-            message: `Save changes in "${project.path}"?`,
+            message: `Save changes in "${project.content?.name}" (path: "${project.path}")?`,
             title: 'Question',
             type: 'question',
             buttons: ['Yes', 'No', 'Cancel'],
@@ -115,10 +130,42 @@ class ProjectsTabs extends React.Component<
             if (response === 0) {
               this.prjSaved = false;
               if (currentProjectFile.id === project.id) {
-                saveCurrentProject();
-              } else {
-                saveProjectByID(project.id);
+                saveCurrentProjectTemporary();
               }
+              if (project.path === '') {
+                this.isPathGetted = false;
+                ipcRenderer.send(
+                  appConst.SHOW_SAVE_FILE_DIALOG,
+                  'projectTabsClosing'
+                );
+                waitFor(
+                  () => {
+                    return this.isPathGetted;
+                  },
+                  true,
+                  100,
+                  () => {
+                    setProjectPathByID({
+                      ID: project.id,
+                      path: this.gettedPath,
+                    });
+                    saveProjectByID(project.id);
+                    this.addToRecentDone = false;
+                    ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, {
+                      ...project,
+                      path: this.gettedPath,
+                    });
+                    waitFor(
+                      () => {
+                        return this.addToRecentDone;
+                      },
+                      true,
+                      100,
+                      () => {}
+                    );
+                  }
+                );
+              } else saveProjectByID(project.id);
             }
             close();
           });
@@ -202,6 +249,7 @@ const mapDispatchToProps = {
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
   saveCurrentProject: projectFileActions.saveCurrentProject,
   saveProjectByID: projectFileActions.saveProjectByID,
+  setProjectPathByID: projectFileActions.setProjectPathByID,
   deleteFileFromOpened: projectFileActions.deleteFileFromOpened,
   setAppState: appStateActions.setAppState,
 };

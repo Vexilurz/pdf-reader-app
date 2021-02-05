@@ -18,6 +18,11 @@ export interface IEventAndFileIndex {
   eventIndex: number;
 }
 
+export interface IPathWithProjectID {
+  ID: string;
+  path: string;
+}
+
 export interface IProjectFileState {
   currentProjectFile: IProjectFileWithPath;
   openedProjectFiles: IProjectFileWithPath[];
@@ -110,7 +115,7 @@ export const projectFileSlice = createSlice({
       }
     },
     saveProjectByID: (state: IProjectFileState, action: PayloadAction<string>) => {
-      const { payload } = action;
+      const { payload } = action; // id
       const prj = state.openedProjectFiles.find((item) => item.id === payload);
       if (prj) {
         const { path } = prj;
@@ -122,6 +127,15 @@ export const projectFileSlice = createSlice({
           });
           // prj.haveChanges = false;
         }
+      }
+    },
+    setProjectPathByID: (state: IProjectFileState, action: PayloadAction<IPathWithProjectID>) => {
+      const { payload } = action;
+      const { ID, path } = payload;
+      const prjIndex = state.openedProjectFiles.findIndex((item) => item.id === ID);
+      if (prjIndex !== -1) {
+        const prj = { ...state.openedProjectFiles[prjIndex], path };
+        state.openedProjectFiles[prjIndex] = prj;
       }
     },
     saveCurrentProjectTemporary: (state: IProjectFileState) => {

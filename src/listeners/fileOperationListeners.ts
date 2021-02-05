@@ -74,17 +74,23 @@ const saveFileDialog = async (event, arg) => {
     if (!response.canceled) {
       isWritable = await canWritePromise(pathLib.dirname(response.filePath));
 
-      if (isWritable)
-        event.reply(appConst.NEW_FILE_DIALOG_RESPONSE, {
-          path: response.filePath,
-        });
-      else {
-        // TODO: show message about write permissions
-        console.log(`can't write file!`)
+      if (isWritable) {
+        if (arg === 'saveCurrentProjectClick')
+          event.reply(appConst.NEW_FILE_DIALOG_RESPONSE, {
+            path: response.filePath,
+          });
+        else if (arg === 'projectTabsClosing')
+          event.reply(appConst.NEW_FILE_DIALOG_RESPONSE_2, {
+            path: response.filePath,
+          });
       }
     } else {
       // TODO: like a crunch. 
       isWritable = true
+      if (arg === 'projectTabsClosing')
+        event.reply(appConst.NEW_FILE_DIALOG_RESPONSE_2, {
+          path: '',
+        });
     }
   }
 };
