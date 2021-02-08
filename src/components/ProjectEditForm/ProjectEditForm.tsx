@@ -36,6 +36,8 @@ class ProjectEditForm extends React.Component<
       setAppState,
       addFileToOpened,
       currentProjectFile,
+      setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
     } = this.props;
     const newFile: IProjectFileWithPath = {
       ...currentProjectFile,
@@ -45,6 +47,8 @@ class ProjectEditForm extends React.Component<
     setCurrentFile(newFile);
     addFileToOpened(newFile);
     setAppState(appConst.PDF_VIEWER);
+    setCurrentFileHaveChanges(true);
+    saveCurrentProjectTemporary();
   };
 
   render(): React.ReactElement {
@@ -91,6 +95,8 @@ const mapDispatchToProps = {
   setCurrentFile: projectFileActions.setCurrentFile,
   addFileToOpened: projectFileActions.addFileToOpened,
   setAppState: appStateActions.setAppState,
+  setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
+  saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IProjectEditFormProps) => {

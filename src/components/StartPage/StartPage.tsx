@@ -11,6 +11,8 @@ import {
   IProjectFileWithPath,
   getNewFileWithPath,
 } from '../../types/projectFile';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 export interface IStartPageProps {}
 export interface IStartPageState {
@@ -87,7 +89,7 @@ class StartPage extends React.Component<
           Recent projects
           {recent?.map((item, index) => {
             return (
-              <div key={'recent-item' + index}>
+              <div key={'recent-item' + index} className="recent-item">
                 <button
                   type="button"
                   className="recent-project-button btn btn-link"
@@ -101,7 +103,8 @@ class StartPage extends React.Component<
                 </button>
                 <button
                   type="button"
-                  className="delete-recent-project-button btn btn-danger"
+                  // className="delete-recent-project-button btn btn-danger"
+                  className="delete-recent-project-button btn-icon"
                   key={'delete-recent-key' + index}
                   onClick={() => {
                     ipcRenderer.send(
@@ -110,7 +113,7 @@ class StartPage extends React.Component<
                     );
                   }}
                 >
-                  X
+                  <FontAwesomeIcon color={'red'} icon={faTimes} />
                 </button>
               </div>
             );

@@ -1,9 +1,10 @@
+import { BrowserWindow } from 'electron';
 import initFileOperationListeners from './fileOperationListeners';
 import initPdfViewerListeners from './pdfViewerListeners';
 import initProjectFileListeners from './projectFileListeners';
 
-export default (): void => {
+export default (win: BrowserWindow | null): void => {
   initFileOperationListeners();
-  initPdfViewerListeners();
+  initPdfViewerListeners(win);
   initProjectFileListeners();
 };

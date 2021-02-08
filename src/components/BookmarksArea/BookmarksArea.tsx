@@ -1,3 +1,4 @@
+/* eslint-disable */
 import './bookmarks-area.scss';
 import * as React from 'react';
 import { ipcRenderer } from 'electron';
@@ -7,6 +8,9 @@ import { actions as projectFileActions } from '../../reduxStore/projectFileSlice
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { createBookmark } from '../../types/bookmark';
 import BookmarkItem from '../BookmarkItem/BookmarkItem';
+import { Button } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export interface IBookmarksAreaProps {}
 export interface IBookmarksAreaState {}
@@ -16,15 +20,6 @@ class BookmarksArea extends React.Component<
   IBookmarksAreaState
 > {
   componentDidMount() {}
-
-  onAddBookmark = () => {
-    const { addBookmark, selection, setEditingBookmarkID } = this.props;
-    if (selection.start !== Infinity && selection.end !== Infinity) {
-      const newBookmark = createBookmark('', selection, '#cce5ff');
-      addBookmark(newBookmark);
-      setEditingBookmarkID(newBookmark.id);
-    }
-  };
 
   render(): React.ReactElement {
     const { projectFile, indexes, setEditingBookmarkID } = this.props;
@@ -48,23 +43,12 @@ class BookmarksArea extends React.Component<
             );
           })}
         </div>
-        <button
-          type="button"
-          className="add-bookmark-button btn btn-primary"
-          onClick={(e) => {
-            e.stopPropagation();
-            this.onAddBookmark();
-          }}
-        >
-          Add bookmark
-        </button>
       </div>
     );
   }
 }
 
 const mapDispatchToProps = {
-  addBookmark: projectFileActions.addBookmark,
   setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
 };
 
@@ -72,7 +56,6 @@ const mapStateToProps = (state: StoreType, ownProps: IBookmarksAreaProps) => {
   return {
     projectFile: state.projectFile.currentProjectFile.content,
     indexes: state.projectFile.currentIndexes,
-    selection: state.pdfViewer.pdfSelection,
   };
 };
 

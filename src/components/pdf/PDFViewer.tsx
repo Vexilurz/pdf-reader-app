@@ -2,30 +2,40 @@
 import './pdf.scss';
 import * as pathLib from 'path';
 import * as React from 'react';
-import { ipcRenderer } from 'electron';
+import electron, { ipcRenderer, shell } from 'electron';
 import { connect } from 'react-redux';
+import { List, AutoSizer } from 'react-virtualized';
 import Measure from 'react-measure';
-// import { CircularProgress } from '@material-ui/core';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 import { StoreType } from '../../reduxStore/store';
+import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IPDFdata } from '../../types/pdf';
-import * as DOM from 'react-dom';
-import { IBookmark, getInfSelection } from '../../types/bookmark';
-import { splitTriple, splitDuo } from '../../utils/splitUtils';
+import { PdfToolBar } from './PdfToolBar';
+import AreaSelection from './AreaSelection';
+import PdfDocument from './PdfDocument';
+import { createBookmark, IAreaSelection } from '../../types/bookmark';
 
 export interface IPDFViewerProps {
   parentRef: React.RefObject<any>;
+  needForceUpdate: boolean;
 }
 export interface IPDFViewerState {
   pdfData: IPDFdata | null;
   numPages: number;
+  currentPage: number;
   scale: number;
-  pagesRendered: any;
   renderTextLayer: boolean;
   pdfDocWidth: number;
+  searchPattern: string | null;
+  currentSearchResNum: number;
+  totalSearchResCount: number;
+  displayedPdfName: string;
+  pageWidth: number;
+  pageHeight: number;
+  rotateIndex: number;
 }
 
 class PDFViewer extends React.Component<
@@ -34,393 +44,284 @@ class PDFViewer extends React.Component<
 > {
   private containerRef: React.RefObject<any>;
   private documentRef: React.RefObject<any>;
-  private newPatternWorkResult: boolean;
-  private pagesOffsets: number[];
-  private loadedPagesCounter: number;
+  private searchRef: React.RefObject<any>;
+  private listRef: React.RefObject<any>;
+
+  private pageText: string[];
+  private _totalSearchResCount: number;
+  private textLayerZIndex: number;
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     this.state = {
       pdfData: null,
       numPages: 0,
+      currentPage: 1,
       scale: 1.0,
-      pagesRendered: null,
       renderTextLayer: false,
       pdfDocWidth: 1000,
+      searchPattern: null,
+      currentSearchResNum: 0,
+      totalSearchResCount: 0,
+      displayedPdfName: '',
+      pageWidth: 100,
+      pageHeight: 100,
+      rotateIndex: 0,
     };
     this.containerRef = React.createRef();
     this.documentRef = React.createRef();
-    this.newPatternWorkResult = false;
-    this.pagesOffsets = [];
-    this.loadedPagesCounter = 0;
+    this.searchRef = React.createRef();
+    this.listRef = React.createRef();
+    this.pageText = [];
+    this._totalSearchResCount = 0;
+    this.textLayerZIndex = 5;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.scale !== this.state.scale) {
+      this.props.setNeedForceUpdate({
+        value: true,
+        tip: 'PDFViewer did update',
+      });
+    }
   }
 
   componentDidMount(): void {
-    ipcRenderer.on(
-      appConst.PDF_FILE_CONTENT_RESPONSE,
-      (event, data: Uint8Array) => {
-        this.loadedPagesCounter = 0;
-        this.setState({ renderTextLayer: false, pdfData: { data } });
+    ipcRenderer.on(appConst.PDF_FILE_CONTENT_RESPONSE, (event, payload) => {
+      const { data, path, external } = payload;
+      const { setCurrentPdf, setAppState } = this.props;
+      this.setState({
+        renderTextLayer: false,
+        pdfData: { data },
+        displayedPdfName: pathLib.basename(path),
+      });
+      if (external) {
+        setCurrentPdf({ path, eventID: '' });
       }
-    );
+    });
   }
 
-  // shouldComponentUpdate()
+  onLoadSuccessCallback = (numPages: number) => {
+    this.setState({ numPages });
+    this.props.setCurrentSelection(null);
+    this.props.disableAreaSelection();
+  };
 
-  calcScale = (page) => {
-    const parent = this.props.parentRef.current;
-    if (parent) {
-      const pageScale = (parent.clientWidth * 0.984) / page.originalWidth;
-      if (this.state.scale !== pageScale) {
-        this.setState({ scale: pageScale });
-      }
+  selectAllMatches = () => {
+    const searchPattern = this.searchRef.current.value;
+    let matchIndex = -1;
+    matchIndex = this.pageText[0].indexOf(searchPattern);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+
+    const range = new Range();
+    const qwe = document.getElementsByClassName('1,2674,0');
+    range.setStart(qwe[0], 0);
+    range.setEnd(qwe[0], 1);
+    selection?.addRange(range);
+  };
+
+  setPageNumber = (pageNumber: number) => {
+    const { setScrollToPage } = this.props;
+    this.setState({ currentPage: pageNumber });
+    setScrollToPage({ value: pageNumber - 1 });
+  };
+
+  onPrint = () => {
+    // const { currentPdf } = this.props;
+    // const { pdfData } = this.state;
+    // ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
+    this.props.setNeedForceUpdate({ value: true, tip: 'onPrint update' });
+  };
+
+  prevSearchRes = () => {
+    const { currentSearchResNum } = this.state;
+    if (currentSearchResNum > 1) {
+      this.setState({
+        currentSearchResNum: currentSearchResNum - 1,
+      });
     }
   };
 
-  onPageLoad = async (page) => {
-    this.removeTextLayerOffset();
-    this.calcScale(page);
-    const { numPages } = this.state;
-    this.loadedPagesCounter += 1;
-    if (this.loadedPagesCounter >= numPages) {
-      this.setState({ renderTextLayer: true });
+  nextSearchRes = () => {
+    const { currentSearchResNum, totalSearchResCount } = this.state;
+    if (currentSearchResNum < totalSearchResCount) {
+      this.setState({
+        currentSearchResNum: currentSearchResNum + 1,
+      });
+      // TODO:
+      // setScrollToPage({ value: page_number });
+      // document.getElementById(element_id).scrollIntoView();
     }
   };
 
-  removeTextLayerOffset = () => {
+  onAreaSelectionToggle = () => {
     const textLayers = document.querySelectorAll(
       '.react-pdf__Page__textContent'
     );
+    this.textLayerZIndex = this.props.areaSelectionEnable.value ? 5 : 1;
+    if (this.props.areaSelectionEnable) {
+      this.props.setCurrentSelection(null);
+    }
+    this.props.toggleAreaSelectionEnable();
     textLayers.forEach((layer) => {
       const { style } = layer;
-      style.top = '0';
-      style.left = '0';
-      style.transform = '';
+      style.zIndex = this.textLayerZIndex;
+    });
+    this.props.setNeedForceUpdate({
+      value: true,
+      tip: 'onAreaSelectionToggle',
     });
   };
 
-  calcPageOffsets = (numPages) => {
-    this.pagesOffsets = [];
-    for (let i = 0; i < numPages; i += 1) {
-      this.getPageOffset(i + 1).then((pageOffset) =>
-        this.pagesOffsets.push(pageOffset)
-      );
-    }
-  };
-
-  onDocumentLoadSuccess = (document) => {
-    const { numPages } = document;
-    this.setState({ numPages, pagesRendered: 0 });
-    this.documentRef.current = document;
-    this.calcPageOffsets(numPages);
-  };
-
-  onRenderSuccess = () => {
-    this.setState((prevState) => ({
-      pagesRendered: prevState.pagesRendered + 1,
-    }));
-  };
-
-  onRenderFinished = (pageNumber: number) => {
-    const { numPages } = this.state;
-    const { setShowLoading } = this.props;
-    if (pageNumber === numPages) {
-      setShowLoading(false);
-    }
-  };
-
-  getItemOffset = async (pageNumber: number, itemIndex = Infinity) => {
-    const page = await this.documentRef.current.getPage(pageNumber);
-    const textContent = await page.getTextContent();
-    // console.log('getItemOffset', itemIndex, textContent);
-    return textContent.items
-      .slice(0, itemIndex)
-      .reduce((acc: number, item) => acc + item.str.length, 0);
-  };
-
-  // Calculates total length of all previous pages
-  getPageOffset = async (pageNumber: number) => {
-    const pageLengths = await Promise.all(
-      Array.from({ length: pageNumber - 1 }, (_, index) =>
-        this.getItemOffset(index + 1)
-      )
-    );
-    return pageLengths.reduce((acc, pageLength) => acc + pageLength, 0);
-  };
-
-  getItemIndex = (item) => {
-    let index = 0;
-    while ((item = item.previousSibling) !== null) {
-      index += 1;
-    }
-    return index;
-  };
-
-  getTotalOffset = async (container, offset) => {
-    const textLayerItem = container.parentNode.parentNode;
-    const textLayer = textLayerItem.parentNode;
-    const page = textLayer.parentNode;
-    const pageNumber = parseInt(page.dataset.pageNumber, 10);
-    const itemIndex = this.getItemIndex(textLayerItem);
-    const [itemOffset] = await Promise.all([
-      // this.getPageOffset(pageNumber),
-      this.getItemOffset(pageNumber, itemIndex),
-    ]);
-
-    // console.log('getTotalOffset', pageOffset, itemOffset, offset);
-
-    return this.pagesOffsets[pageNumber - 1] + itemOffset + offset;
-  };
-
-  getMarkedText = (text: string, color: string, key: any) => {
-    return (
-      <mark id={key} key={key} style={{ color, backgroundColor: color }}>
-        {text}
-      </mark>
-    );
-  };
-
-  getUnmarkedText = (text: string, key: any) => {
-    return (
-      <span id={key} key={key}>
-        {text}
-      </span>
-    );
-  };
-
-  newPattern = (text: string, bookmark: IBookmark, counter: number) => {
-    // console.log(counter, bookmark.selection.start, bookmark.selection.end, text);
-    let result = this.getUnmarkedText(text, '0k' + counter);
-    // let result = text;
-    let dbg = 'unmarked:';
-    const { length } = text;
-    if (
-      counter >= bookmark.selection.start &&
-      counter + length <= bookmark.selection.end
-    ) {
-      // mark all text
-      dbg = 'mark all text:';
-      result = this.getMarkedText(text, bookmark.color, '0k' + counter);
-      this.newPatternWorkResult = true;
-    } else if (
-      counter >= bookmark.selection.start &&
-      counter < bookmark.selection.end
-    ) {
-      // mark left part
-      dbg = 'mark left part:';
-      result = splitDuo(bookmark.selection.end - counter)(text);
-      result[0] = this.getMarkedText(result[0], bookmark.color, '0k' + counter);
-      result[1] = this.getUnmarkedText(result[1], '1k' + counter);
-      this.newPatternWorkResult = true;
-    } else if (
-      counter + length > bookmark.selection.start &&
-      counter + length <= bookmark.selection.end
-    ) {
-      // mark right part
-      dbg = 'mark right part:';
-      result = splitDuo(bookmark.selection.start - counter)(text);
-      result[0] = this.getUnmarkedText(result[0], '0k' + counter);
-      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
-      this.newPatternWorkResult = true;
-    } else if (
-      counter < bookmark.selection.start &&
-      counter + length > bookmark.selection.end
-    ) {
-      // mark middle
-      dbg = 'mark middle:';
-      result = splitTriple(
-        bookmark.selection.start - counter,
-        bookmark.selection.end - counter
-      )(text);
-      result[0] = this.getUnmarkedText(result[0], '0k' + counter);
-      result[1] = this.getMarkedText(result[1], bookmark.color, '1k' + counter);
-      result[2] = this.getUnmarkedText(result[2], '2k' + counter);
-      this.newPatternWorkResult = true;
-    }
-    // console.log(dbg, result);
-    return result;
-  };
-
-  pdfRenderer = (pageNumber: number) => {
-    const { currentIndexes, currentProjectFile } = this.props;
-    // const { numPages } = this.state;
-
-    const bookmarks =
-      currentProjectFile.content.events[currentIndexes.eventIndex]?.files[
-        currentIndexes.fileIndex
-      ]?.bookmarks;
-
-    let counter = this.pagesOffsets[pageNumber - 1];
-    // this is crunches. I don't know why renderer calls twice on the same textItem.
-    // that cause counter wrong calculation.
-    let prevTextItem = null;
-    // let prevPattern = null;
-    console.log('%c%s', 'color: lime; font: 1.2rem/1 Tahoma;', 'PDF_RENDERER');
-    return (textItem) => {
-      if (prevTextItem !== textItem) {
-        console.log(pageNumber);
-        //   console.log('prev');
-        //   return prevPattern;
-        // } else {
-        prevTextItem = textItem;
-        let pattern = '';
-        if (textItem.str) {
-          this.newPatternWorkResult = false;
-          if (bookmarks?.length > 0) {
-            let index = 0;
-            while (!this.newPatternWorkResult && index < bookmarks.length) {
-              pattern = this.newPattern(
-                textItem.str,
-                bookmarks[index],
-                counter
-              );
-              index += 1;
-            }
-          } else {
-            pattern = this.getUnmarkedText(textItem.str, '0k' + counter);
-          }
-          counter += textItem.str.length;
-        }
-        // prevPattern = pattern;
-        return pattern;
-      }
-    };
-  };
-
-  clearSelection = () => {
-    const { setSelection } = this.props;
-    setSelection(getInfSelection());
-  };
-
-  onMouseUp = async () => {
-    const { setSelection } = this.props;
-
-    if (
-      this.containerRef.current === null ||
-      this.documentRef.current === null
-    ) {
-      return;
-    }
-
-    const selection = window.getSelection();
-
-    if (selection?.toString() === '') {
-      return;
-    }
-
-    const sel = selection.getRangeAt(0);
-
+  newAreaSelectionCallback = (area: IAreaSelection) => {
     const {
-      commonAncestorContainer,
-      endContainer,
-      endOffset,
-      startContainer,
-      startOffset,
-    } = sel;
-
-    // console.log(startContainer.parentNode.id);
-
-    // selection?.empty(); // important!
-
-    // Selection partially outside PDF document
-    if (!this.containerRef.current.contains(commonAncestorContainer)) {
-      return;
+      addBookmark,
+      setEditingBookmarkID,
+      setCurrentSelection,
+      setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
+    } = this.props;
+    const { scale } = this.state;
+    let newBookmark = null;
+    console.log(area);
+    if (area) {
+      let scaledArea = {
+        ...area,
+        x: area.x / scale,
+        y: area.y / scale,
+        width: area.width / scale,
+        height: area.height / scale,
+      };
+      newBookmark = createBookmark('', true, scaledArea, '#cce5ff');
     }
-
-    const [startTotalOffset, endTotalOffset] = await Promise.all([
-      this.getTotalOffset(startContainer, startOffset),
-      this.getTotalOffset(endContainer, endOffset),
-    ]);
-
-    setSelection({
-      start: startTotalOffset,
-      end: endTotalOffset,
-      startContainerID: startContainer?.parentNode?.id,
-    });
+    if (newBookmark) {
+      addBookmark(newBookmark);
+      setEditingBookmarkID(newBookmark.id);
+      setCurrentSelection(null);
+      setCurrentFileHaveChanges(true);
+      saveCurrentProjectTemporary();
+    }
+    // setTimeout(() => {
+    this.props.setNeedForceUpdate({
+      value: true,
+      tip: 'newAreaSelectionCallback',
+    }); // TODO: this thing do not help or work there
+    // }, 200);
   };
 
-  onMouseDown = async () => {
-    this.clearSelection();
+  onAddBookmark = () => {
+    const {
+      addBookmark,
+      textSelection,
+      areaSelection,
+      setEditingBookmarkID,
+      setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
+    } = this.props;
+    let newBookmark = null;
+    if (
+      !areaSelection && //) {
+      //   newBookmark = createBookmark('', true, areaSelection, '#cce5ff');
+      // } else if (
+      textSelection.startOffset !== Infinity &&
+      textSelection.endOffset !== Infinity
+    ) {
+      newBookmark = createBookmark('', false, textSelection, '#cce5ff');
+    }
+    if (newBookmark) {
+      addBookmark(newBookmark);
+      setEditingBookmarkID(newBookmark.id);
+      setCurrentFileHaveChanges(true);
+      saveCurrentProjectTemporary();
+    }
+    this.props.setNeedForceUpdate({ value: true, tip: 'onAddBookmark' });
   };
 
-  handlePdfDocResize = (contentRect) => {
-    this.setState({ pdfDocWidth: contentRect?.bounds?.width });
+  onOpenPDFinExternal = () => {
+    shell.openPath(this.props.currentPdf.path);
+  };
+
+  onRotatePdf = () => {
+    const { rotateIndex } = this.state;
+    if (rotateIndex == 3) this.setState({ rotateIndex: 0 });
+    else this.setState({ rotateIndex: rotateIndex + 1 });
   };
 
   render(): React.ReactElement {
-    const { currentPdf, pdfLoading } = this.props;
+    const { pdfLoading, scrollToPage } = this.props;
     const {
       pdfData,
       numPages,
-      pagesRendered,
-      // scale,
-      renderTextLayer,
-      pdfDocWidth,
+      currentPage,
+      currentSearchResNum,
+      totalSearchResCount,
+      displayedPdfName,
     } = this.state;
-
-    /**
-     * The amount of pages we want to render now. Always 1 more than already rendered,
-     * no more than total amount of pages in the document.
-     */
-    const pagesRenderedPlusOne = Math.min(pagesRendered + 1, numPages);
 
     return (
       <div
         className="pdf-viewer"
         ref={this.containerRef}
-        style={{ width: pdfDocWidth }}
+        style={{ width: '100%' }}
       >
-        {pathLib.basename(currentPdf.path)}
-        {pdfLoading ? (
-          <div className="loading-container">
-            {/* <CircularProgress size={'200px'} /> */}
-            <img src="./public/loading.gif" alt="Loading..." />
-          </div>
-        ) : null}
+        <PdfToolBar
+          pdfName={displayedPdfName}
+          onSetPattern={(searchPattern: string) => {
+            this._totalSearchResCount = 0;
+            this.setState({
+              searchPattern,
+              totalSearchResCount: 0,
+              currentSearchResNum: 0,
+            });
+          }}
+          prevSearchRes={this.prevSearchRes}
+          nextSearchRes={this.nextSearchRes}
+          currentSearchResNum={currentSearchResNum}
+          totalSearchResCount={totalSearchResCount}
+          onSetScale={(scale: number) => {
+            this.setState({ scale }, () => {
+              // setTimeout(() => {
+              this.props.setNeedForceUpdate({
+                value: true,
+                tip: 'After scale setState',
+              });
+              // }, 200);
+            });
+          }}
+          onSetPageNumber={this.setPageNumber}
+          numPages={numPages}
+          currentPage={currentPage}
+          onPrint={this.onPrint}
+          onAreaSelectionToggle={this.onAreaSelectionToggle}
+          areaSelectionEnable={this.props.areaSelectionEnable.value}
+          onAddBookmark={this.onAddBookmark}
+          onOpenPDFinExternal={this.onOpenPDFinExternal}
+          onRotatePdf={this.onRotatePdf}
+        />
         {pdfData ? (
-          <Measure bounds onResize={this.handlePdfDocResize}>
-            {({ measureRef }) => (
-              <div className="pdf-document" ref={measureRef}>
-                <Document
-                  file={pdfData}
-                  onLoadSuccess={this.onDocumentLoadSuccess}
-                  inputRef={(ref) => (this.containerRef.current = ref)}
-                  onMouseUp={this.onMouseUp}
-                  // onMouseDown={this.onMouseDown}
-                >
-                  {Array.from(new Array(pagesRenderedPlusOne), (el, index) => {
-                    const isCurrentlyRendering =
-                      pagesRenderedPlusOne === index + 1;
-                    const isLastPage = numPages === index + 1;
-                    const needsCallbackToRenderNextPage =
-                      isCurrentlyRendering && !isLastPage;
-
-                    return (
-                      <div className="pdf-page">
-                        <Page
-                          key={`page_${index + 1}`}
-                          onRenderSuccess={
-                            needsCallbackToRenderNextPage
-                              ? this.onRenderSuccess
-                              : null
-                          }
-                          scale={1.3}
-                          // scale={scale}
-                          pageNumber={index + 1}
-                          onLoadSuccess={this.onPageLoad}
-                          customTextRenderer={this.pdfRenderer(index + 1)}
-                          renderTextLayer={renderTextLayer}
-                          onGetTextSuccess={() => {
-                            this.onRenderFinished(index + 1);
-                          }}
-                        />
-                      </div>
-                    );
-                  })}
-                </Document>
-              </div>
-            )}
-          </Measure>
+          <PdfDocument
+            currentPage={currentPage}
+            pdfFile={pdfData}
+            areaSelectionEnable={this.props.areaSelectionEnable.value}
+            onLoadSuccessCallback={this.onLoadSuccessCallback}
+            setSelection={this.props.setSelection}
+            scrollToIndex={scrollToPage.value}
+            currentProjectFile={this.props.currentProjectFile}
+            currentIndexes={this.props.currentIndexes}
+            setCurrentPage={(value: number) => {
+              this.setState({ currentPage: value });
+            }}
+            scale={this.state.scale}
+            setShowLoading={this.props.setShowLoading}
+            searchPattern={this.state.searchPattern}
+            textLayerZIndex={this.textLayerZIndex}
+            newAreaSelectionCallback={this.newAreaSelectionCallback}
+            rotateInDeg={this.state.rotateIndex * 90}
+            // tmp
+            needForceUpdate={this.props.needForceUpdate}
+            setNeedForceUpdate={this.props.setNeedForceUpdate}
+          />
         ) : null}
       </div>
     );
@@ -428,19 +329,33 @@ class PDFViewer extends React.Component<
 }
 
 const mapDispatchToProps = {
+  addBookmark: projectFileActions.addBookmark,
+  setCurrentPdf: projectFileActions.setCurrentPdf,
   setAppState: appStateActions.setAppState,
   setSelection: pdfViewerActions.setSelection,
   setShowLoading: appStateActions.setShowLoading,
+  setScrollToPage: pdfViewerActions.setScrollToPage,
+  toggleAreaSelectionEnable: pdfViewerActions.toggleAreaSelectionEnable,
+  disableAreaSelection: pdfViewerActions.disableAreaSelection,
+  setCurrentSelection: pdfViewerActions.setAreaSelection,
+  setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
+  setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
+  setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
+  saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
   return {
     currentPdf: state.projectFile.currentPdf,
-    // pdfSelection: state.pdfViewer.pdfSelection,
     parentRef: ownProps.parentRef,
+    needForceUpdate: ownProps.needForceUpdate,
     currentProjectFile: state.projectFile.currentProjectFile,
     currentIndexes: state.projectFile.currentIndexes,
     pdfLoading: state.appState.showLoading,
+    scrollToPage: state.pdfViewer.scrollToPage,
+    areaSelectionEnable: state.pdfViewer.areaSelectionEnable,
+    textSelection: state.pdfViewer.pdfSelection,
+    areaSelection: state.pdfViewer.areaSelection,
   };
 };
 

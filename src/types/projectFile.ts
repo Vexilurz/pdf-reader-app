@@ -10,6 +10,7 @@ export interface IProjectFileWithPath {
   id: string;
   path: string;
   content: IProjectFile;
+  haveChanges?: boolean;
 }
 
 export const getNewFile = (name: string): IProjectFile => {

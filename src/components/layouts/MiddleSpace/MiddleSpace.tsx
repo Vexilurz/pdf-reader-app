@@ -7,7 +7,6 @@ import ProjectEditForm from '../../ProjectEditForm/ProjectEditForm';
 import EventEditForm from '../../EventEditForm/EventEditForm';
 import { StoreType } from '../../../reduxStore/store';
 import * as appConst from '../../../types/textConstants';
-import os from 'os';
 
 export interface IMiddleSpaceProps {}
 export interface IMiddleSpaceState {}
@@ -31,6 +30,7 @@ class MiddleSpace extends React.Component<
       leftSidebarWidth,
       rightSidebarWidth,
       mainContainerWidth,
+      needForceUpdate,
     } = this.props;
 
     let pageContent = <div>ERROR: Wrong appState current value</div>;
@@ -45,7 +45,12 @@ class MiddleSpace extends React.Component<
     } else if (currentAppState === appConst.PROJECT_EDIT_FORM) {
       pageContent = <ProjectEditForm />;
     } else if (currentAppState === appConst.PDF_VIEWER) {
-      pageContent = <PDFViewer parentRef={this.containerRef} />;
+      pageContent = (
+        <PDFViewer
+          parentRef={this.containerRef}
+          needForceUpdate={needForceUpdate.value}
+        />
+      );
     } else if (currentAppState === appConst.EVENT_FORM) {
       pageContent = <EventEditForm />;
     }
@@ -75,6 +80,7 @@ const mapStateToProps = (state: StoreType, ownProps: IMiddleSpaceProps) => {
     leftSidebarWidth: state.appState.leftSidebarWidth,
     rightSidebarWidth: state.appState.rightSidebarWidth,
     mainContainerWidth: state.appState.mainContainerWidth,
+    needForceUpdate: state.pdfViewer.needForceUpdate,
   };
 };
 

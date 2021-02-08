@@ -1,35 +1,30 @@
 .pdf-viewer {
-  // overflow: auto;
   position: relative;
   height: 100%;
   width: 30%;
-  // max-width: 100%;
-  max-height: 100%;
+  // max-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  // justify-content: space-around;
   width: 2000px;
   min-width: 795px !important;
   margin: 0 auto;
-  // left: 50%;
-  // margin-right: -50%;
-  // transform: translate(-50%, -50%);
 }
 
 .pdf-document {
-  // overflow: auto;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  // min-width: 100%;
-  // width: 1000px !important;
-  // height: auto !important;
-  min-width: 795px !important;
+  min-width: 830px !important;
+  height: 100%;
 }
 
-.pdf-page {
-  margin-top: 15px;
+.pdf-search {
+  margin: 4px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  max-height: 30px;
 }
 
 .loading-container {
@@ -46,17 +41,35 @@
   align-items: center;
 }
 
-.react-pdf__Page.pdf-page {
-  display: inline-block;
-  justify-content: center;
+.pdf-page {
+  margin-top: 15px;
+  position: relative;
+  // transform: rotate(0deg);
 }
 
 .react-pdf__Document {
   line-height: 1;
+  height: 100%;
 }
 
-.react-pdf__Page__textContent span {
+.react-pdf__Page {
+  position: relative;
+}
+
+.react-pdf__Page__textContent {
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  transform: unset !important;
+  pointer-events: auto !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.react-pdf__Page__textContent > span {
   opacity: 0.5;
+  position: relative;
+  left: -50%;
 }
 
 .react-pdf__Page__textContent span::selection {
@@ -67,11 +80,19 @@
 }
 
 .react-pdf__Page__canvas {
-  max-width: 100%;
+  margin: 0 auto;
 }
 
 .react-pdf__Document {
   line-height: initial;
+}
+
+.ReactVirtualized__Grid__innerScrollContainer {
+  overflow: initial !important;
+  // display: flex !important;
+  // justify-content: center !important;
+  // div {
+  // }
 }
 
 // mark {
@@ -81,3 +102,16 @@
 //   color: transparent;
 //   white-space: pre;
 // }
+
+.area-selection-container {
+  width: 100%;
+  position: absolute;
+}
+
+.area-selection-stage {
+  position: relative;
+}
+
+.konvajs-content {
+  margin: 0 auto;
+}

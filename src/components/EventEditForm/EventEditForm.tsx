@@ -46,12 +46,19 @@ class EventEditForm extends React.Component<
   };
 
   onSetEventClick = (): void => {
-    const { editingEvent, currentProjectFile } = this.props;
+    const {
+      editingEvent,
+      currentProjectFile,
+      setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
+    } = this.props;
     this.setState({ updating: true });
     ipcRenderer.send(appConst.UPDATE_EVENT_IN_CACHE, {
       projectID: currentProjectFile.id,
       event: JSON.stringify(editingEvent),
     });
+    setCurrentFileHaveChanges(true);
+    saveCurrentProjectTemporary();
   };
 
   onCancelClick = (): void => {
@@ -65,6 +72,8 @@ class EventEditForm extends React.Component<
       deleteEvent,
       editingEvent,
       currentProjectFile,
+      setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
     } = this.props;
     ipcRenderer.send(
       appConst.DELETE_FOLDER_FROM_CACHE,
@@ -72,6 +81,8 @@ class EventEditForm extends React.Component<
     );
     deleteEvent(editingEvent);
     setAppState(appConst.EMTPY_SCREEN);
+    setCurrentFileHaveChanges(true);
+    saveCurrentProjectTemporary();
   };
 
   // todo: find type of acceptedFiles of Dropzone.onDrop
@@ -134,13 +145,13 @@ class EventEditForm extends React.Component<
         </div>
         <div className="description-label">Description:</div>
         <div className="event-description">
-          <input
+          <textarea
             className="event-description-area"
-            type="textarea"
-            style={{
-              width: '400px',
-              height: '150px',
-            }}
+            // type="textarea"
+            // style={{
+            //   width: '400px',
+            //   height: '150px',
+            // }}
             value={editingEvent.description}
             onChange={(e) => {
               const updatedEvent = { ...editingEvent };
@@ -217,6 +228,8 @@ const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
   setEditingEvent: editingEventActions.setEditingEvent,
   deleteEvent: projectFileActions.deleteEvent,
+  setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
+  saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {

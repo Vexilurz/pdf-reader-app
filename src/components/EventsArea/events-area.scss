@@ -47,3 +47,9 @@ ul.events-list > li:before {
   height: 20px;
   z-index: 400;
 }
+
+.events-toolbar {
+  display: flex;
+  justify-content: space-around;
+  margin: 8px;
+}

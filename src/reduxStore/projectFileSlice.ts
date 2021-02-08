@@ -13,9 +13,14 @@ interface IPdfFilePathWithEventID {
   eventID: string;
 }
 
-interface IEventAndFileIndex {
+export interface IEventAndFileIndex {
   fileIndex: number;
   eventIndex: number;
+}
+
+export interface IPathWithProjectID {
+  ID: string;
+  path: string;
 }
 
 export interface IProjectFileState {
@@ -55,9 +60,19 @@ const getBookmarkIndex = (state: IProjectFileState, bookmark: IBookmark): number
 
 const sortEventsByDate = (events: IEvent[]) => {
   events.sort((a, b) => {
-    return new Date(a.date) - new Date(b.date);
+    return new Date(b.date) - new Date(a.date);
   });
 };
+
+const _saveCurrentProjectTemporary = (state: IProjectFileState) => {
+  const { id } = state.currentProjectFile;
+  const index = state.openedProjectFiles.findIndex(
+    (item) => item.id === id
+  );
+  if (index > -1) {
+    state.openedProjectFiles[index] = state.currentProjectFile;
+  }
+}
 
 export const projectFileSlice = createSlice({
   name: 'projectFile',
@@ -71,6 +86,13 @@ export const projectFileSlice = createSlice({
       ipcRenderer.send(appConst.CREATE_FOLDER_IN_CACHE, payload.id);
       state.currentProjectFile = payload;
       state.currentPdf = { path: '', eventID: '' };
+    },
+    setCurrentFileHaveChanges: (
+      state: IProjectFileState,
+      action: PayloadAction<boolean>
+    ) => {
+      const { payload } = action;
+      state.currentProjectFile.haveChanges = payload;
     },
     setCurrentPdf: (
       state: IProjectFileState,
@@ -88,16 +110,36 @@ export const projectFileSlice = createSlice({
           path: state.currentProjectFile.path,
           content: JSON.stringify(state.currentProjectFile.content),
         });
+        state.currentProjectFile.haveChanges = false;
+        _saveCurrentProjectTemporary(state);
+      }
+    },
+    saveProjectByID: (state: IProjectFileState, action: PayloadAction<string>) => {
+      const { payload } = action; // id
+      const prj = state.openedProjectFiles.find((item) => item.id === payload);
+      if (prj) {
+        const { path } = prj;
+        if (path !== '') {
+          ipcRenderer.send(appConst.SAVE_CURRENT_PROJECT, {
+            id: prj.id,
+            path: prj.path,
+            content: JSON.stringify(prj.content),
+          });
+          // prj.haveChanges = false;
+        }
+      }
+    },
+    setProjectPathByID: (state: IProjectFileState, action: PayloadAction<IPathWithProjectID>) => {
+      const { payload } = action;
+      const { ID, path } = payload;
+      const prjIndex = state.openedProjectFiles.findIndex((item) => item.id === ID);
+      if (prjIndex !== -1) {
+        const prj = { ...state.openedProjectFiles[prjIndex], path };
+        state.openedProjectFiles[prjIndex] = prj;
       }
     },
     saveCurrentProjectTemporary: (state: IProjectFileState) => {
-      const { id } = state.currentProjectFile;
-      const index = state.openedProjectFiles.findIndex(
-        (item) => item.id === id
-      );
-      if (index > -1) {
-        state.openedProjectFiles[index] = state.currentProjectFile;
-      }
+      _saveCurrentProjectTemporary(state);
     },
     addFileToOpened: (
       state: IProjectFileState,

@@ -6,7 +6,24 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
-import { IBookmark } from '../../types/bookmark';
+import { IAreaSelection, IBookmark, IPdfSelection } from '../../types/bookmark';
+import { Button, Dropdown } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
+
+const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
+  <Button
+    variant="outline-secondary"
+    ref={ref}
+    onClick={(e) => {
+      e.preventDefault();
+      onClick(e);
+    }}
+  >
+    {children}
+    {/* &#x25bc; */}
+  </Button>
+));
 
 export interface IBookmarkItemProps {
   bookmark: IBookmark;
@@ -36,13 +53,28 @@ class BookmarkItem extends React.Component<
 
   onSave = (e) => {
     e.stopPropagation();
-    const { bookmark, updateBookmark, setEditingBookmarkID } = this.props;
+    const {
+      bookmark,
+      updateBookmark,
+      setEditingBookmarkID,
+      setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
+    } = this.props;
     const { comment, color } = this.state;
     const newBookmark = { ...bookmark };
     newBookmark.comment = comment;
     newBookmark.color = color;
     setEditingBookmarkID('');
     updateBookmark(newBookmark);
+    this.props.setNeedForceUpdate({ value: true, tip: 'onSaveBookmark' });
+    setCurrentFileHaveChanges(true);
+    saveCurrentProjectTemporary();
+  };
+
+  onCancelEdit = (e) => {
+    e.stopPropagation();
+    const { setEditingBookmarkID } = this.props;
+    setEditingBookmarkID('');
   };
 
   onEdit = (e) => {
@@ -57,13 +89,39 @@ class BookmarkItem extends React.Component<
 
   onDelete = (e) => {
     e.stopPropagation();
-    const { bookmark, deleteBookmark } = this.props;
+    const {
+      bookmark,
+      deleteBookmark,
+      setCurrentFileHaveChanges,
+      saveCurrentProjectTemporary,
+    } = this.props;
     deleteBookmark(bookmark);
+    setCurrentFileHaveChanges(true);
+    saveCurrentProjectTemporary();
   };
 
   render(): React.ReactElement {
-    const { bookmark, editingBookmarkID } = this.props;
+    const { bookmark, editingBookmarkID, setScrollToPage } = this.props;
     const { comment, color } = this.state;
+    let info = '';
+    if (bookmark.isAreaSelection) {
+      const {
+        page,
+        x,
+        y,
+        width,
+        height,
+      } = bookmark.selection as IAreaSelection;
+      info = `A ${page} ${x}:${y} ${width}:${height}`;
+    } else {
+      const {
+        startOffset,
+        endOffset,
+        startPage,
+        endPage,
+      } = bookmark.selection as IPdfSelection;
+      info = `T ${startPage}:${startOffset} .. ${endPage}:${endOffset}`;
+    }
     const needToEdit = editingBookmarkID === bookmark.id;
     return (
       <div
@@ -91,10 +149,7 @@ class BookmarkItem extends React.Component<
                 }}
               />
             </div>
-            <div className="bookmark-position">
-              {bookmark.selection.start} .. {bookmark.selection.end} [
-              {bookmark.selection.startContainerID}]
-            </div>
+            <div className="bookmark-position">{info}</div>
             <div className="bookmark-color">
               <CirclePicker
                 color={color}
@@ -105,6 +160,7 @@ class BookmarkItem extends React.Component<
               />
             </div>
             <div className="bookmark-controls">
+              <div />
               <button
                 type="button"
                 className="save-bookmark-button btn btn-primary"
@@ -114,11 +170,18 @@ class BookmarkItem extends React.Component<
               </button>
               <button
                 type="button"
+                className="cancel-edit-bookmark-button btn btn-primary"
+                onClick={this.onCancelEdit}
+              >
+                Cancel
+              </button>
+              {/* <button
+                type="button"
                 className="delete-bookmark-button btn btn-primary"
                 onClick={this.onDelete}
               >
                 Delete
-              </button>
+              </button> */}
             </div>
           </div>
         ) : (
@@ -126,17 +189,33 @@ class BookmarkItem extends React.Component<
             className="bookmark-item-view"
             onClick={(e) => {
               e.stopPropagation();
-              document
-                .getElementById(bookmark.selection.startContainerID)
-                .scrollIntoView();
+              // setScrollToPage(-1);
+              let scrollPage = bookmark.isAreaSelection
+                ? bookmark.selection.page
+                : bookmark.selection.startPage;
+              setScrollToPage({ value: scrollPage - 1 });
+              document.getElementById(bookmark.id)?.scrollIntoView();
             }}
           >
-            <div className="bookmark-comment">{bookmark.comment}</div>
-            <div className="bookmark-position">
-              {bookmark.selection.start} .. {bookmark.selection.end} [
-              {bookmark.selection.startContainerID}]
+            <div className="bookmark-menu">
+              <div />
+              <Dropdown>
+                <Dropdown.Toggle
+                  as={CustomToggle}
+                  variant="secondary"
+                  id="dropdown-basic"
+                >
+                  <FontAwesomeIcon icon={faEllipsisH} />
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={this.onEdit}>Edit</Dropdown.Item>
+                  <Dropdown.Item onClick={this.onDelete}>Delete</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             </div>
-            <div className="bookmark-controls">
+            <div className="bookmark-comment">{bookmark.comment}</div>
+            <div className="bookmark-position">{info}</div>
+            {/* <div className="bookmark-controls">
               <button
                 type="button"
                 className="edit-bookmark-button btn btn-primary btn-sm"
@@ -151,7 +230,7 @@ class BookmarkItem extends React.Component<
               >
                 X
               </button>
-            </div>
+            </div> */}
           </div>
         )}
       </div>
@@ -163,6 +242,10 @@ const mapDispatchToProps = {
   updateBookmark: projectFileActions.updateBookmark,
   deleteBookmark: projectFileActions.deleteBookmark,
   setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
+  setScrollToPage: pdfViewerActions.setScrollToPage,
+  setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
+  setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
+  saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {

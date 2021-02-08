@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IProjectFile } from '../types/projectFile';
 import { IEvent } from '../types/event';
 import { zipDirectory, unzipFile } from '../utils/zip';
+import chmodr from '../utils/chmodr';
 
 // https://www.electronjs.org/docs/api/dialog
 
@@ -24,7 +25,10 @@ const openFile = async (event, path: string) => {
     const destPath = pathLib.join(appConst.CACHE_PATH, newID);
     try {
       await unzipFile(ourPath, destPath);
-      const content = await fs.readFile(pathLib.join(destPath, appConst.PROJECT_FILE_NAME));
+      const contentFileName = pathLib.join(destPath, appConst.PROJECT_FILE_NAME);
+      const content = await fs.readFile(contentFileName);
+      // chmodr.sync(destPath, 0o444);
+      // fssync.chmodSync(contentFileName, 0o777);
       event.reply(appConst.OPEN_FILE_DIALOG_RESPONSE, {
         id: newID,
         path: ourPath,
@@ -36,36 +40,90 @@ const openFile = async (event, path: string) => {
   }
 };
 
-const saveFileDialog = async (event, arg) => {
-  const response = await dialog.showSaveDialog({
-    filters: [
-      { name: 'ZIP files', extensions: ['zip'] },
-      { name: 'All files', extensions: ['*'] },
-    ],
+const canWrite = (path, callback) => {
+  fssync.access(path, fssync.W_OK, (err) => {
+    callback(null, !err);
   });
-  if (!response.canceled) {
-    event.reply(appConst.NEW_FILE_DIALOG_RESPONSE, {
-      path: response.filePath,
+};
+
+const canWritePromise = function (path) {
+  return new Promise((resolve, reject) => {
+    fssync.access(path, fssync.W_OK, (err) => {
+      if (err) {
+        dialog.showMessageBox({
+          message: `Can't write to "${path}"!`,
+          title: 'Error',
+          type: 'error',
+          buttons: ['Ok'],
+        });
+      }
+      resolve(!err);
     });
+  });
+};
+
+const saveFileDialog = async (event, arg) => {
+  let isWritable = false;
+  while (!isWritable) {
+    const response = await dialog.showSaveDialog({
+      filters: [
+        { name: 'ZIP files', extensions: ['zip'] },
+        { name: 'All files', extensions: ['*'] },
+      ],
+    });
+    if (!response.canceled) {
+      isWritable = await canWritePromise(pathLib.dirname(response.filePath));
+
+      if (isWritable) {
+        if (arg === 'saveCurrentProjectClick')
+          event.reply(appConst.NEW_FILE_DIALOG_RESPONSE, {
+            path: response.filePath,
+          });
+        else if (arg === 'projectTabsClosing')
+          event.reply(appConst.NEW_FILE_DIALOG_RESPONSE_2, {
+            path: response.filePath,
+          });
+      }
+    } else {
+      // TODO: like a crunch. 
+      isWritable = true
+      if (arg === 'projectTabsClosing')
+        event.reply(appConst.NEW_FILE_DIALOG_RESPONSE_2, {
+          path: '',
+        });
+    }
   }
 };
 
 const saveCurrentProject = async (event, currentProject) => {
   const path = pathLib.join(appConst.CACHE_PATH, currentProject.id);
   // fssync.mkdirSync(path, { recursive: true });
-  const res = fssync.writeFileSync(pathLib.join(path, appConst.PROJECT_FILE_NAME), currentProject.content);
+  const tmpPath = pathLib.join(path, appConst.PROJECT_FILE_NAME);
+  // fssync.chmodSync(tmpPath, 0o777);
+  const res = fssync.writeFileSync(tmpPath, currentProject.content);
 
-  if (fssync.existsSync(currentProject.path))
-    fssync.unlinkSync(currentProject.path);
+  const isWritable = await canWritePromise(pathLib.dirname(currentProject.path));
 
-  await zipDirectory(path, currentProject.path);
+  if (isWritable) {
+    if (fssync.existsSync(currentProject.path))
+      fssync.unlinkSync(currentProject.path);
 
-  // todo: listen to this event in renderer to display success message
-  event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
+    await zipDirectory(path, currentProject.path);
+
+    // todo: listen to this event in renderer to display success message
+    event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
+    dialog.showMessageBox({
+      message: `Project saved.`,
+      title: 'Information',
+      type: 'info',
+      buttons: ['Ok'],
+    });
+  }
 };
 
 const deleteFolderFromCache = async (event, folder: string) => {
   const path = pathLib.join(appConst.CACHE_PATH, folder);
+  // chmodr.sync(path, 0o777);
   await fs.rmdir(path + pathLib.sep, { recursive: true });
 };
 
@@ -76,6 +134,7 @@ const createFolderInCache = async (event, folder: string) => {
 
 const clearCache = async (event) => {
   const path = appConst.CACHE_PATH;
+  // chmodr.sync(appConst.APP_FOLDER, 0o777);
   fssync.rmdirSync(path + pathLib.sep, { recursive: true });
   await fs.mkdir(path, { recursive: true });
 };
@@ -84,6 +143,7 @@ const updateEventInCache = async (e, payload) => {
   const { projectID } = payload;
   const event: IEvent = JSON.parse(payload.event);
   const path = pathLib.join(appConst.CACHE_PATH, projectID, event.id);
+  // chmodr.sync(appConst.CACHE_PATH, 0o777);
   fssync.mkdirSync(path, { recursive: true });
 
   // delete deleted files:
@@ -95,7 +155,9 @@ const updateEventInCache = async (e, payload) => {
     }
   });
   existingFilesOnDisk.forEach((pdf) => {
-    fssync.unlinkSync(pathLib.join(path, pdf));
+    const pathToPdf = pathLib.join(path, pdf);
+    // fssync.chmodSync(pathToPdf, 0o777);
+    fssync.unlinkSync(pathToPdf);
   });
 
   // copy new files and change file paths
@@ -119,6 +181,7 @@ const updateEventInCache = async (e, payload) => {
     return { ...file, path: newFileName };
   });
 
+  // chmodr.sync(appConst.CACHE_PATH, 0o444);
   e.reply(appConst.UPDATE_EVENT_IN_CACHE_COMPLETE, JSON.stringify(event));
 };
 
