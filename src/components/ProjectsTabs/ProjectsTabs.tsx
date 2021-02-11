@@ -232,6 +232,7 @@ class ProjectsTabs extends React.Component<
             href="#"
             onClick={(e) => {
               e.stopPropagation();
+              saveCurrentProjectTemporary();
               setCurrentFile(getNewFileWithPath(''));
               setAppState(appConst.START_PAGE);
             }}

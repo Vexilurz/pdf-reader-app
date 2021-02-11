@@ -56,11 +56,12 @@ class StartPage extends React.Component<
   };
 
   onNewFileClick = (): void => {
-    const { setAppState, setCurrentFile } = this.props;
+    const { setAppState, setCurrentFile, addFileToOpened } = this.props;
     const newFile: IProjectFileWithPath = getNewFileWithPath(
       'Your project name'
     );
     setCurrentFile(newFile);
+    addFileToOpened(newFile);
     setAppState(appConst.PROJECT_EDIT_FORM);
   };
 
