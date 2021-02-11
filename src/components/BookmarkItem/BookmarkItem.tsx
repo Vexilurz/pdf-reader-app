@@ -98,6 +98,10 @@ class BookmarkItem extends React.Component<
     deleteBookmark(bookmark);
     setCurrentFileHaveChanges(true);
     saveCurrentProjectTemporary();
+    this.props.setNeedForceUpdate({
+      value: true,
+      tip: 'onDeleteBookmark',
+    });
   };
 
   render(): React.ReactElement {
@@ -246,6 +250,7 @@ const mapDispatchToProps = {
   setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
   setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
+  setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {
