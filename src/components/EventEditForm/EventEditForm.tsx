@@ -147,11 +147,6 @@ class EventEditForm extends React.Component<
         <div className="event-description">
           <textarea
             className="event-description-area"
-            // type="textarea"
-            // style={{
-            //   width: '400px',
-            //   height: '150px',
-            // }}
             value={editingEvent.description}
             onChange={(e) => {
               const updatedEvent = { ...editingEvent };

@@ -81,10 +81,6 @@ class BookmarkItem extends React.Component<
     e.stopPropagation();
     const { bookmark, setEditingBookmarkID } = this.props;
     setEditingBookmarkID(bookmark.id);
-    // this.setState({
-    //   comment: bookmark.comment,
-    //   color: bookmark.color,
-    // });
   };
 
   onDelete = (e) => {
@@ -179,13 +175,6 @@ class BookmarkItem extends React.Component<
               >
                 Cancel
               </button>
-              {/* <button
-                type="button"
-                className="delete-bookmark-button btn btn-primary"
-                onClick={this.onDelete}
-              >
-                Delete
-              </button> */}
             </div>
           </div>
         ) : (
@@ -193,7 +182,6 @@ class BookmarkItem extends React.Component<
             className="bookmark-item-view"
             onClick={(e) => {
               e.stopPropagation();
-              // setScrollToPage(-1);
               let scrollPage = bookmark.isAreaSelection
                 ? bookmark.selection.page
                 : bookmark.selection.startPage;
@@ -219,22 +207,6 @@ class BookmarkItem extends React.Component<
             </div>
             <div className="bookmark-comment">{bookmark.comment}</div>
             <div className="bookmark-position">{info}</div>
-            {/* <div className="bookmark-controls">
-              <button
-                type="button"
-                className="edit-bookmark-button btn btn-primary btn-sm"
-                onClick={this.onEdit}
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                className="delete-bookmark-button btn btn-danger btn-sm"
-                onClick={this.onDelete}
-              >
-                X
-              </button>
-            </div> */}
           </div>
         )}
       </div>

@@ -16,8 +16,6 @@ export const PdfPageControl = ({
   numPages,
   currentPage,
 }: IProps) => {
-  // const [pageNumber, setPageNumber] = useState<number>(1);
-
   const increment = () => {
     if (currentPage < numPages) {
       onSetPageNumber(currentPage + 1);

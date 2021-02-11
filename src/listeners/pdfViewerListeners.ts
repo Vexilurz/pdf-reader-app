@@ -1,7 +1,6 @@
 import { BrowserWindow, dialog, ipcMain } from 'electron';
 import PDFWindow from 'electron-pdf-window';
 import { promises as fs } from 'fs';
-// import printDialog from 'electron-print-dialog';
 import * as appConst from '../types/textConstants';
 import ptp from "pdf-to-printer";
 const loadPdfFile = async (event, payload) => {

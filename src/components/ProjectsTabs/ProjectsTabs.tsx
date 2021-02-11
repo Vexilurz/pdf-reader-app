@@ -61,17 +61,12 @@ class ProjectsTabs extends React.Component<
   componentDidMount() {
     ipcRenderer.on(appConst.SAVE_CURRENT_PROJECT_DONE, (event, payload) => {
       this.prjSaved = true;
-      console.log('!!!!!');
     });
     ipcRenderer.on(appConst.APP_CLOSING, async () => {
-      // const tmp = this.getOpenedProjects().map((project) =>
-      //   this.closeProject(project)
-      // );
       this.getOpenedProjects()
         .reduce(
           (prevPromise, project) =>
             prevPromise.then(() => {
-              console.log(`closing ${project.path}`);
               return this.closeProject(project);
             }),
           Promise.resolve()

@@ -107,6 +107,7 @@ class PDFViewer extends React.Component<
     this.props.disableAreaSelection();
   };
 
+  // TODO: this is not used yet, and not wirking.
   selectAllMatches = () => {
     const searchPattern = this.searchRef.current.value;
     let matchIndex = -1;
@@ -131,8 +132,6 @@ class PDFViewer extends React.Component<
     const { currentPdf } = this.props;
     const { pdfData } = this.state;
     ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
-
-    // this.props.setNeedForceUpdate({ value: true, tip: 'onPrint update' });
   };
 
   prevSearchRes = () => {
@@ -185,7 +184,6 @@ class PDFViewer extends React.Component<
     } = this.props;
     const { scale } = this.state;
     let newBookmark = null;
-    console.log(area);
     if (area) {
       let scaledArea = {
         ...area,
@@ -203,12 +201,10 @@ class PDFViewer extends React.Component<
       setCurrentFileHaveChanges(true);
       saveCurrentProjectTemporary();
     }
-    // setTimeout(() => {
     this.props.setNeedForceUpdate({
       value: true,
       tip: 'newAreaSelectionCallback',
-    }); // TODO: this thing do not help or work there
-    // }, 200);
+    });
   };
 
   onAddBookmark = () => {
@@ -222,9 +218,7 @@ class PDFViewer extends React.Component<
     } = this.props;
     let newBookmark = null;
     if (
-      !areaSelection && //) {
-      //   newBookmark = createBookmark('', true, areaSelection, '#cce5ff');
-      // } else if (
+      !areaSelection &&
       textSelection.startOffset !== Infinity &&
       textSelection.endOffset !== Infinity
     ) {
@@ -282,12 +276,10 @@ class PDFViewer extends React.Component<
           totalSearchResCount={totalSearchResCount}
           onSetScale={(scale: number) => {
             this.setState({ scale }, () => {
-              // setTimeout(() => {
               this.props.setNeedForceUpdate({
                 value: true,
                 tip: 'After scale setState',
               });
-              // }, 200);
             });
           }}
           onSetPageNumber={this.setPageNumber}

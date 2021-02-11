@@ -42,21 +42,6 @@ class EventItem extends React.Component<
     setAppState(appConst.EVENT_FORM);
   };
 
-  // todo: refactor? almost the same in the EventEditForm
-  // onFilesDrop = (acceptedFiles) => {
-  //   const { event, updateEvent } = this.props;
-  //   const updatedEvent = { ...event };
-  //   const files = Object.assign([], updatedEvent.files);
-  //   acceptedFiles.forEach((file) => {
-  //     // todo: use toLowerCase when compare?
-  //     const { path } = file;
-  //     const index = files.findIndex((f) => f.path === path);
-  //     if (index === -1) files.push({ path, bookmarks: [] });
-  //   });
-  //   updatedEvent.files = files;
-  //   updateEvent(updatedEvent);
-  // };
-
   onPdfFileClick = (file: IPdfFileWithBookmarks) => (e) => {
     e.stopPropagation();
     const {
@@ -95,8 +80,6 @@ class EventItem extends React.Component<
 
   render(): React.ReactElement {
     const { event } = this.props;
-    // const { dropAreaVisible } = this.state;
-
     return (
       <li className="event-item">
         <Alert
@@ -124,22 +107,6 @@ class EventItem extends React.Component<
               );
             })}
           </div>
-          {/* {dropAreaVisible ? (
-            <div className="event-dropzone">
-              <Dropzone onDrop={this.onFilesDrop}>
-                {({ getRootProps, getInputProps }) => (
-                  <section>
-                    <div {...getRootProps()}>
-                      <input {...getInputProps()} />
-                      <p>
-                        Drag 'n' drop some files here, or click to select files
-                      </p>
-                    </div>
-                  </section>
-                )}
-              </Dropzone>
-            </div>
-          ) : null} */}
         </Alert>
       </li>
     );

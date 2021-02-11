@@ -64,7 +64,6 @@ export default class PageContainer extends Component<Props, State> {
 
   checkForceUpdate() {
     if (this.props.needForceUpdate === true) {
-      // this.listRef.current?.forceUpdateGrid();
       this.listRef.current?.recomputeRowHeights(this.props.currentPage);
       this.props.setNeedForceUpdate({ value: false, tip: '...set to false' });
     }
@@ -75,7 +74,6 @@ export default class PageContainer extends Component<Props, State> {
       pageHeight: height,
       pageWidth: width,
     });
-    // this.listRef.current?.forceUpdateGrid();
   };
 
   setPagesRendered = (value: number) => {
@@ -144,7 +142,6 @@ export default class PageContainer extends Component<Props, State> {
             currentIndexes={currentIndexes}
             searchPattern={searchPattern}
             textLayerZIndex={textLayerZIndex}
-            // setNeedForceUpdate={this.props.setNeedForceUpdate}
           />
         </div>
       </div>

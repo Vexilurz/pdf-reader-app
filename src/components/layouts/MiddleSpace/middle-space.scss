@@ -1,8 +1,6 @@
 .middle-space {
   overflow: auto;
-  // grid-area: middle-space;
   background-color: #f7f7f7;
-  // border: 1px solid black;
   position: absolute;
   flex-grow: 1;
   max-height: calc(100% - 42px);
@@ -12,7 +10,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  // align-items: left;
 }
 
 .empty-screen {

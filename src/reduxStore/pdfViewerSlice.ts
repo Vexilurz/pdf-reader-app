@@ -57,7 +57,7 @@ export const pdfViewerSlice = createSlice({
     },
     setNeedForceUpdate: (state: IPDFViewerState, action: PayloadAction<IBoolValue>) => {
       const { payload } = action;
-      console.log('setNeedForceUpdate tip: ', payload.tip);
+      // console.log('setNeedForceUpdate tip: ', payload.tip);
       state.needForceUpdate = { value: payload.value };
     },
   },

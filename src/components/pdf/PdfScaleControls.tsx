@@ -49,7 +49,6 @@ export const PdfScaleControls = ({ onSetScale }: IProps) => {
                   setScaleMain(0.5 + index * 0.1);
                 }}
               >
-                {/* TODO: fix display (120.0000000000001%) */}
                 {`${50 + index * 10}%`}
               </Dropdown.Item>
             );

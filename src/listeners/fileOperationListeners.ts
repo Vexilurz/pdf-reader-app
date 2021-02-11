@@ -9,8 +9,6 @@ import { IEvent } from '../types/event';
 import { zipDirectory, unzipFile } from '../utils/zip';
 import chmodr from '../utils/chmodr';
 
-// https://www.electronjs.org/docs/api/dialog
-
 const openFile = async (event, path: string) => {
   let ourPath = null;
   if (path) ourPath = path;

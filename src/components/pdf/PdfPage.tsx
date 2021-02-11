@@ -24,10 +24,6 @@ interface Props {
 interface State {}
 
 export default class PdfPage extends Component<Props, State> {
-  componentDidUpdate(prevProps) {
-    console.log(prevProps);
-  }
-
   handlePdfPageResize = (pageNumber) => (contentRect) => {
     // TODO: condition is a crunch
     if (pageNumber === 1 && contentRect?.bounds?.height > 50)
@@ -197,7 +193,6 @@ export default class PdfPage extends Component<Props, State> {
         prevTextItem = textItem;
         let pattern = '';
         if (textItem.str) {
-          // this.pageText[pageNumber - 1] += textItem.str;
           const { searchPattern } = this.props;
           if (searchPattern) {
             pattern = this.highlightPattern(textItem.str, searchPattern);

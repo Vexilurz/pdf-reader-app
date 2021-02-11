@@ -104,7 +104,6 @@ class StartPage extends React.Component<
                 </button>
                 <button
                   type="button"
-                  // className="delete-recent-project-button btn btn-danger"
                   className="delete-recent-project-button btn-icon"
                   key={'delete-recent-key' + index}
                   onClick={() => {
@@ -126,9 +125,7 @@ class StartPage extends React.Component<
 }
 
 const mapStateToProps = (state: StoreType, ownProps: IStartPageProps) => {
-  return {
-    // visible: ownProps.visible,
-  };
+  return {};
 };
 
 const mapDispatchToProps = {

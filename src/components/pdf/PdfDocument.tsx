@@ -86,12 +86,6 @@ export default class PdfDocument extends Component<Props, State> {
         startOffset,
       } = sel;
 
-      // TODO: removed to fix broken text bookmarks adding.
-      // Selection partially outside PDF document
-      // if (!this.containerRef.current.contains(commonAncestorContainer)) {
-      //   return;
-      // }
-
       const startParenNode = startContainer?.parentNode as HTMLElement;
       const endParenNode = endContainer?.parentNode as HTMLElement;
 
