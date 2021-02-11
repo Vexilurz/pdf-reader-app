@@ -128,10 +128,11 @@ class PDFViewer extends React.Component<
   };
 
   onPrint = () => {
-    // const { currentPdf } = this.props;
-    // const { pdfData } = this.state;
-    // ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
-    this.props.setNeedForceUpdate({ value: true, tip: 'onPrint update' });
+    const { currentPdf } = this.props;
+    const { pdfData } = this.state;
+    ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
+
+    // this.props.setNeedForceUpdate({ value: true, tip: 'onPrint update' });
   };
 
   prevSearchRes = () => {
