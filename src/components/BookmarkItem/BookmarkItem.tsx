@@ -101,7 +101,12 @@ class BookmarkItem extends React.Component<
   };
 
   render(): React.ReactElement {
-    const { bookmark, editingBookmarkID, setScrollToPage } = this.props;
+    const {
+      bookmark,
+      editingBookmarkID,
+      setScrollToPage,
+      setNeedForceUpdate,
+    } = this.props;
     const { comment, color } = this.state;
     let info = '';
     if (bookmark.isAreaSelection) {
@@ -185,8 +190,10 @@ class BookmarkItem extends React.Component<
               let scrollPage = bookmark.isAreaSelection
                 ? bookmark.selection.page
                 : bookmark.selection.startPage;
+              // TODO: this thing don't scroll when page number is not changed.
               setScrollToPage({ value: scrollPage - 1 });
               document.getElementById(bookmark.id)?.scrollIntoView();
+              setNeedForceUpdate(true);
             }}
           >
             <div className="bookmark-menu">
@@ -222,7 +229,6 @@ const mapDispatchToProps = {
   setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
   setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
-  setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {
