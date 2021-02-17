@@ -11,6 +11,7 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
+import { actions as licenseActions } from '../../reduxStore/licenseSlice';
 import * as appConst from '../../types/textConstants';
 import { IPDFdata } from '../../types/pdf';
 import { PdfToolBar } from './PdfToolBar';
@@ -129,9 +130,11 @@ class PDFViewer extends React.Component<
   };
 
   onPrint = () => {
-    const { currentPdf } = this.props;
-    const { pdfData } = this.state;
-    ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
+    // const { currentPdf } = this.props;
+    // const { pdfData } = this.state;
+    // ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
+
+    this.props.setShowLicenseDialog(true);
   };
 
   prevSearchRes = () => {
@@ -335,6 +338,7 @@ const mapDispatchToProps = {
   setEditingBookmarkID: pdfViewerActions.setEditingBookmarkID,
   setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
+  setShowLicenseDialog: licenseActions.setShowLicenseDialog,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
