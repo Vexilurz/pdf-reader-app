@@ -23,6 +23,7 @@ export const DELETE_FOLDER_FROM_CACHE = 'delete-folder-from-cache';
 export const CLEAR_CACHE = 'clear-cache';
 export const UPDATE_EVENT_IN_CACHE = 'update-event-in-cache';
 export const APP_CLOSING = 'app-closing';
+export const ACTIVATE_LICENSE = 'activate-license';
 
 // renderer process listeners:
 export const OPEN_FILE_DIALOG_RESPONSE = 'open-file-dialog-response';
@@ -35,7 +36,7 @@ export const DELETE_FROM_RECENT_PROJECTS_DONE = 'delete-from-recent-projects-don
 export const GET_RECENT_PROJECTS_RESPONSE = 'get-recent-projects-response';
 export const UPDATE_EVENT_IN_CACHE_COMPLETE = 'update-event-in-cache-complete';
 export const APP_CLOSING_PERMISSION_GRANTED = 'app-closing-permission-granted';
-
+export const ACTIVATE_LICENSE_RESPONSE = 'activate-license-response';
 
 // other:
 export const APP_FOLDER = pathLib.join(os.homedir(), 'documentsApp' + pathLib.sep);
