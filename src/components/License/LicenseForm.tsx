@@ -10,10 +10,12 @@ import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
 import { actions as licenseActions } from '../../reduxStore/licenseSlice';
+import { getNewExpiringDate } from '../../utils/dateUtils';
 
 export interface IProps {}
 export interface IState {
   licenseKey: string;
+  messageToShow: string;
 }
 
 class LicenseForm extends React.Component<
@@ -24,40 +26,48 @@ class LicenseForm extends React.Component<
     super(props);
     this.state = {
       licenseKey: '',
+      messageToShow: '',
     };
   }
 
   componentDidMount(): void {
     ipcRenderer.on(appConst.ACTIVATE_LICENSE_RESPONSE, (event, data) => {
-      console.log('onReceiveAnswerFromApi', event, data);
+      const { licenseKey } = this.state;
+      const { setLicenseKey, setExpiringDate } = this.props;
       const { success } = data;
       console.log(success);
       if (success === undefined) {
-        console.log(
-          'License data does not match API or internet connection lost'
-        );
-        // this.props.dispatch({
-        //   type: 'setLicenseErrorMessage',
-        //   load: 'License data does not match API',
-        // });
+        this.setState({
+          messageToShow:
+            'License data does not match API or internet connection lost',
+        });
       } else if (success === false) {
-        console.log('License key does not exist.');
-        // this.props.dispatch({
-        //   type: 'setLicenseErrorMessage',
-        //   load: 'License key does not exist.',
-        // });
+        this.setState({
+          messageToShow: 'License key does not exist.',
+        });
       } else if (data.uses > 1) {
-        console.log('License key already in use.');
-        // this.props.dispatch({
-        //   type: 'setLicenseErrorMessage',
-        //   load: 'License key already in use.',
-        // });
+        this.setState({
+          messageToShow: 'License key already in use.',
+        });
       } else {
-        console.log('License accepted');
-        // checkLicense(createLicense(data), this.props.dispatch, true);
+        this.setState({
+          messageToShow: 'License accepted',
+        });
+        ipcRenderer.send(appConst.SAVE_LICENSE_INFORMATION, licenseKey);
+        setExpiringDate(getNewExpiringDate());
+        setLicenseKey(licenseKey);
+        this.handleClose();
       }
-      // this.setState({ waitingForAnswer: false });
     });
+    ipcRenderer.on(
+      appConst.LOAD_LICENSE_INFORMATION_RESPONSE,
+      (event, content) => {
+        const { setLicenseKey, setExpiringDate } = this.props;
+        if (content.licenseKey) setLicenseKey(content.licenseKey);
+        if (content.expiringDate) setExpiringDate(content.expiringDate);
+      }
+    );
+    ipcRenderer.send(appConst.LOAD_LICENSE_INFORMATION);
   }
 
   handleClose = () => {
@@ -74,6 +84,7 @@ class LicenseForm extends React.Component<
 
   render(): React.ReactElement {
     const { licenseDialogVisible } = this.props;
+    const { messageToShow } = this.state;
     return (
       <Modal show={licenseDialogVisible}>
         <Modal.Header>
@@ -84,6 +95,7 @@ class LicenseForm extends React.Component<
           <Button variant="primary" onClick={this.acquireLicense}>
             Acquire license
           </Button>
+          {messageToShow}
         </Modal.Body>
         <Modal.Footer>
           <input
@@ -112,6 +124,8 @@ class LicenseForm extends React.Component<
 
 const mapDispatchToProps = {
   setShowLicenseDialog: licenseActions.setShowLicenseDialog,
+  setLicenseKey: licenseActions.setLicenseKey,
+  setExpiringDate: licenseActions.setExpiringDate,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IProps) => {

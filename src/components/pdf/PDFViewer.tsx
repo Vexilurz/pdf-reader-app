@@ -159,19 +159,25 @@ class PDFViewer extends React.Component<
   };
 
   onAreaSelectionToggle = () => {
+    const {
+      setCurrentSelection,
+      toggleAreaSelectionEnable,
+      setNeedForceUpdate,
+      areaSelectionEnable,
+    } = this.props;
     const textLayers = document.querySelectorAll(
       '.react-pdf__Page__textContent'
     );
-    this.textLayerZIndex = this.props.areaSelectionEnable.value ? 5 : 1;
-    if (this.props.areaSelectionEnable) {
-      this.props.setCurrentSelection(null);
+    this.textLayerZIndex = areaSelectionEnable.value ? 5 : 1;
+    if (areaSelectionEnable) {
+      setCurrentSelection(null);
     }
-    this.props.toggleAreaSelectionEnable();
+    toggleAreaSelectionEnable();
     textLayers.forEach((layer) => {
       const { style } = layer;
       style.zIndex = this.textLayerZIndex;
     });
-    this.props.setNeedForceUpdate({
+    setNeedForceUpdate({
       value: true,
       tip: 'onAreaSelectionToggle',
     });
@@ -184,30 +190,36 @@ class PDFViewer extends React.Component<
       setCurrentSelection,
       setCurrentFileHaveChanges,
       saveCurrentProjectTemporary,
+      licenseActive,
+      setShowLicenseDialog,
     } = this.props;
-    const { scale } = this.state;
-    let newBookmark = null;
-    if (area) {
-      let scaledArea = {
-        ...area,
-        x: area.x / scale,
-        y: area.y / scale,
-        width: area.width / scale,
-        height: area.height / scale,
-      };
-      newBookmark = createBookmark('', true, scaledArea, '#cce5ff');
+    if (licenseActive) {
+      const { scale } = this.state;
+      let newBookmark = null;
+      if (area) {
+        let scaledArea = {
+          ...area,
+          x: area.x / scale,
+          y: area.y / scale,
+          width: area.width / scale,
+          height: area.height / scale,
+        };
+        newBookmark = createBookmark('', true, scaledArea, '#cce5ff');
+      }
+      if (newBookmark) {
+        addBookmark(newBookmark);
+        setEditingBookmarkID(newBookmark.id);
+        setCurrentSelection(null);
+        setCurrentFileHaveChanges(true);
+        saveCurrentProjectTemporary();
+      }
+      this.props.setNeedForceUpdate({
+        value: true,
+        tip: 'newAreaSelectionCallback',
+      });
+    } else {
+      setShowLicenseDialog(true);
     }
-    if (newBookmark) {
-      addBookmark(newBookmark);
-      setEditingBookmarkID(newBookmark.id);
-      setCurrentSelection(null);
-      setCurrentFileHaveChanges(true);
-      saveCurrentProjectTemporary();
-    }
-    this.props.setNeedForceUpdate({
-      value: true,
-      tip: 'newAreaSelectionCallback',
-    });
   };
 
   onAddBookmark = () => {
@@ -218,22 +230,28 @@ class PDFViewer extends React.Component<
       setEditingBookmarkID,
       setCurrentFileHaveChanges,
       saveCurrentProjectTemporary,
+      licenseActive,
+      setShowLicenseDialog,
     } = this.props;
-    let newBookmark = null;
-    if (
-      !areaSelection &&
-      textSelection.startOffset !== Infinity &&
-      textSelection.endOffset !== Infinity
-    ) {
-      newBookmark = createBookmark('', false, textSelection, '#cce5ff');
+    if (licenseActive) {
+      let newBookmark = null;
+      if (
+        !areaSelection &&
+        textSelection.startOffset !== Infinity &&
+        textSelection.endOffset !== Infinity
+      ) {
+        newBookmark = createBookmark('', false, textSelection, '#cce5ff');
+      }
+      if (newBookmark) {
+        addBookmark(newBookmark);
+        setEditingBookmarkID(newBookmark.id);
+        setCurrentFileHaveChanges(true);
+        saveCurrentProjectTemporary();
+      }
+      this.props.setNeedForceUpdate({ value: true, tip: 'onAddBookmark' });
+    } else {
+      setShowLicenseDialog(true);
     }
-    if (newBookmark) {
-      addBookmark(newBookmark);
-      setEditingBookmarkID(newBookmark.id);
-      setCurrentFileHaveChanges(true);
-      saveCurrentProjectTemporary();
-    }
-    this.props.setNeedForceUpdate({ value: true, tip: 'onAddBookmark' });
   };
 
   onOpenPDFinExternal = () => {
@@ -353,6 +371,7 @@ const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
     areaSelectionEnable: state.pdfViewer.areaSelectionEnable,
     textSelection: state.pdfViewer.pdfSelection,
     areaSelection: state.pdfViewer.areaSelection,
+    licenseActive: state.license.active,
   };
 };
 

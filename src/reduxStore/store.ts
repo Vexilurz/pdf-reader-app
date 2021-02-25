@@ -10,6 +10,7 @@ export const store = configureStore({
     appState: appStateReducer,
     projectFile: projectFileReducer,
     pdfViewer: pdfViewerReducer,
+    editingEvent: editingEventReducer,
     license: licenseReducer,
   },
 });

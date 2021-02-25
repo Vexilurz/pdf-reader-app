@@ -6,6 +6,7 @@ import * as appConst from '../../types/textConstants';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
+import { actions as licenseActions } from '../../reduxStore/licenseSlice';
 import { getNewEvent } from '../../types/event';
 import EventItem from '../EventItem/EventItem';
 import { Button } from 'react-bootstrap';
@@ -47,9 +48,18 @@ class EventsArea extends React.Component<
   };
 
   onCreateNewEventClick = () => {
-    const { setAppState, setEditingEvent } = this.props;
-    setEditingEvent(getNewEvent());
-    setAppState(appConst.EVENT_FORM);
+    const {
+      setAppState,
+      setEditingEvent,
+      licenseActive,
+      setShowLicenseDialog,
+    } = this.props;
+    if (licenseActive) {
+      setEditingEvent(getNewEvent());
+      setAppState(appConst.EVENT_FORM);
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   saveCurrentProjectClick = () => {
@@ -108,11 +118,13 @@ const mapDispatchToProps = {
   setEditingEvent: editingEventActions.setEditingEvent,
   setCurrentFile: projectFileActions.setCurrentFile,
   addFileToOpened: projectFileActions.addFileToOpened,
+  setShowLicenseDialog: licenseActions.setShowLicenseDialog,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventsAreaProps) => {
   return {
     currentProjectFile: state.projectFile.currentProjectFile,
+    licenseActive: state.license.active,
   };
 };
 
