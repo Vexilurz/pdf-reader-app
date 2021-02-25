@@ -5,7 +5,7 @@ import Cryptr from 'cryptr';
 import * as fssync from 'fs';
 import * as pathLib from 'path';
 import * as appConst from '../types/textConstants';
-import { getNewExpiringDate } from '../utils/dateUtils';
+import { getNewExpiringDate, getNewTrialDate } from '../utils/dateUtils';
 
 const crypt = new Cryptr('DocumentAppSecretKeyThere');
 
@@ -31,16 +31,19 @@ const activateLicense = async (event, payload) => {
     });
 };
 
-const saveLicenseInformation = async (event, payload) => {
-  const licenseKey = payload;
+const _saveLicFile = async (licenseKey: string, expiringDate: string) => {
   const dataToSave = {
     licenseKey,
-    expiringDate: getNewExpiringDate(),
+    expiringDate,
   };
   const path = pathLib.join(appConst.APP_FOLDER, appConst.LICENSE_FILE_NAME);
   const contentToSave = JSON.stringify(dataToSave);
   const encryptedContent = crypt.encrypt(contentToSave);
   await fs.writeFile(path, encryptedContent);
+};
+
+const saveLicenseInformation = async (event, payload) => {
+  await _saveLicFile(payload, getNewExpiringDate());
 };
 
 const loadLicenseInformation = async (event, payload) => {
@@ -50,6 +53,14 @@ const loadLicenseInformation = async (event, payload) => {
     const decryptedContent = crypt.decrypt(content);
     const contentToResponse = JSON.parse(decryptedContent);
     event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, contentToResponse);
+  } else {
+    const expiringDate = getNewTrialDate();
+    const licenseKey = 'TRIAL';
+    await _saveLicFile(licenseKey, expiringDate);
+    event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, {
+      licenseKey,
+      expiringDate,
+    });
   }
 };
 

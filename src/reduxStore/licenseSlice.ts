@@ -26,13 +26,13 @@ export const licenseSlice = createSlice({
     setLicenseKey: (state: ILicenseState, action: PayloadAction<string>) => {
       const { payload } = action;
       state.licenseKey = payload;
-      console.log(state.licenseKey);
+      console.log('licenseKey: ', state.licenseKey);
     },
     setExpiringDate: (state: ILicenseState, action: PayloadAction<string>) => {
       const { payload } = action;
       state.expiringDate = payload;
       state.active = (((new Date(payload)).getTime() - (new Date()).getTime()) / (1000 * 3600 * 24)) > 0;
-      console.log(state.expiringDate, state.active);
+      console.log('expiring: ', state.expiringDate, ' active: ', state.active);
     },
   },
 });
