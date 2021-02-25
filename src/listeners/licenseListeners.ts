@@ -1,10 +1,13 @@
 import axios from 'axios';
 import { ipcMain } from 'electron';
 import { promises as fs } from 'fs';
+import Cryptr from 'cryptr';
 import * as fssync from 'fs';
 import * as pathLib from 'path';
 import * as appConst from '../types/textConstants';
 import { getNewExpiringDate } from '../utils/dateUtils';
+
+const crypt = new Cryptr('DocumentAppSecretKeyThere');
 
 const activateLicense = async (event, payload) => {
   const key = payload;
@@ -36,14 +39,16 @@ const saveLicenseInformation = async (event, payload) => {
   };
   const path = pathLib.join(appConst.APP_FOLDER, appConst.LICENSE_FILE_NAME);
   const contentToSave = JSON.stringify(dataToSave);
-  await fs.writeFile(path, contentToSave);
+  const encryptedContent = crypt.encrypt(contentToSave);
+  await fs.writeFile(path, encryptedContent);
 };
 
 const loadLicenseInformation = async (event, payload) => {
   const path = pathLib.join(appConst.APP_FOLDER, appConst.LICENSE_FILE_NAME);
   if (fssync.existsSync(path)) {
     const content = await fs.readFile(path);
-    const contentToResponse = JSON.parse(content);
+    const decryptedContent = crypt.decrypt(content);
+    const contentToResponse = JSON.parse(decryptedContent);
     event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, contentToResponse);
   }
 };

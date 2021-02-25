@@ -46,4 +46,4 @@ export const APP_FOLDER = pathLib.join(os.homedir(), 'documentsApp' + pathLib.se
 export const CACHE_PATH = pathLib.join(APP_FOLDER, '.documentsAppCache' + pathLib.sep);
 export const RECENT_PROJECTS_FILENAME = pathLib.join(APP_FOLDER, 'recent.json');
 export const PROJECT_FILE_NAME = 'project.json';
-export const LICENSE_FILE_NAME = 'license.lic';
+export const LICENSE_FILE_NAME = '.license';

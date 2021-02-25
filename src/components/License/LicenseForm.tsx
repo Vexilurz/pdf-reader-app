@@ -12,6 +12,8 @@ import { actions as editingEventActions } from '../../reduxStore/editingEventSli
 import { actions as licenseActions } from '../../reduxStore/licenseSlice';
 import { getNewExpiringDate } from '../../utils/dateUtils';
 
+const { shell } = window.require('electron');
+
 export interface IProps {}
 export interface IState {
   licenseKey: string;
@@ -75,7 +77,11 @@ class LicenseForm extends React.Component<
     setShowLicenseDialog(false);
   };
 
-  acquireLicense = () => {};
+  acquireLicense = () => {
+    // CHANGE LINK HERE
+    let link = 'http://google.com';
+    shell.openExternal(link);
+  };
 
   activate = () => {
     const { licenseKey } = this.state;
