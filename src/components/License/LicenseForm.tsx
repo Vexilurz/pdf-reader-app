@@ -37,7 +37,7 @@ class LicenseForm extends React.Component<
       const { licenseKey } = this.state;
       const { setLicenseKey, setExpiringDate } = this.props;
       const { success } = data;
-      console.log(success);
+      console.log('success: ', success);
       if (success === undefined) {
         this.setState({
           messageToShow:
@@ -65,6 +65,7 @@ class LicenseForm extends React.Component<
       appConst.LOAD_LICENSE_INFORMATION_RESPONSE,
       (event, content) => {
         const { setLicenseKey, setExpiringDate } = this.props;
+        console.log(content.licenseKey, content.expiringDate);
         if (content.licenseKey) setLicenseKey(content.licenseKey);
         if (content.expiringDate) setExpiringDate(content.expiringDate);
       }
@@ -92,7 +93,7 @@ class LicenseForm extends React.Component<
     const { licenseDialogVisible } = this.props;
     const { messageToShow } = this.state;
     return (
-      <Modal show={licenseDialogVisible}>
+      <Modal show={licenseDialogVisible} onHide={this.handleClose}>
         <Modal.Header>
           <Modal.Title>License required</Modal.Title>
         </Modal.Header>

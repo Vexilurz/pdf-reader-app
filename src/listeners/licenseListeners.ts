@@ -48,19 +48,23 @@ const saveLicenseInformation = async (event, payload) => {
 
 const loadLicenseInformation = async (event, payload) => {
   const path = pathLib.join(appConst.APP_FOLDER, appConst.LICENSE_FILE_NAME);
-  if (fssync.existsSync(path)) {
-    const content = await fs.readFile(path);
-    const decryptedContent = crypt.decrypt(content);
-    const contentToResponse = JSON.parse(decryptedContent);
-    event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, contentToResponse);
-  } else {
-    const expiringDate = getNewTrialDate();
-    const licenseKey = 'TRIAL';
-    await _saveLicFile(licenseKey, expiringDate);
-    event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, {
-      licenseKey,
-      expiringDate,
-    });
+  try {
+    if (fssync.existsSync(path)) {
+      const content = await fs.readFile(path);
+      const decryptedContent = crypt.decrypt(content);
+      const contentToResponse = JSON.parse(decryptedContent);
+      event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, contentToResponse);
+    } else {
+      const expiringDate = getNewTrialDate();
+      const licenseKey = 'TRIAL';
+      await _saveLicFile(licenseKey, expiringDate);
+      event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, {
+        licenseKey,
+        expiringDate,
+      });
+    }
+  } catch (e) {
+    console.error('License load error: ', e);
   }
 };
 

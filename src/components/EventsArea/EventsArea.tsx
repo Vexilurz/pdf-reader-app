@@ -63,13 +63,22 @@ class EventsArea extends React.Component<
   };
 
   saveCurrentProjectClick = () => {
-    const { currentProjectFile, saveCurrentProject } = this.props;
-    if (currentProjectFile.path === '')
-      ipcRenderer.send(
-        appConst.SHOW_SAVE_FILE_DIALOG,
-        'saveCurrentProjectClick'
-      );
-    else saveCurrentProject();
+    const {
+      currentProjectFile,
+      saveCurrentProject,
+      licenseActive,
+      setShowLicenseDialog,
+    } = this.props;
+    if (licenseActive) {
+      if (currentProjectFile.path === '')
+        ipcRenderer.send(
+          appConst.SHOW_SAVE_FILE_DIALOG,
+          'saveCurrentProjectClick'
+        );
+      else saveCurrentProject();
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   render(): React.ReactElement {

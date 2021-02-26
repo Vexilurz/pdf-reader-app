@@ -6,6 +6,7 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
+import { actions as licenseActions } from '../../reduxStore/licenseSlice';
 import { IAreaSelection, IBookmark, IPdfSelection } from '../../types/bookmark';
 import { Button, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -59,6 +60,7 @@ class BookmarkItem extends React.Component<
       setEditingBookmarkID,
       setCurrentFileHaveChanges,
       saveCurrentProjectTemporary,
+      setNeedForceUpdate,
     } = this.props;
     const { comment, color } = this.state;
     const newBookmark = { ...bookmark };
@@ -66,7 +68,7 @@ class BookmarkItem extends React.Component<
     newBookmark.color = color;
     setEditingBookmarkID('');
     updateBookmark(newBookmark);
-    this.props.setNeedForceUpdate({ value: true, tip: 'onSaveBookmark' });
+    setNeedForceUpdate({ value: true, tip: 'onSaveBookmark' });
     setCurrentFileHaveChanges(true);
     saveCurrentProjectTemporary();
   };
@@ -78,26 +80,42 @@ class BookmarkItem extends React.Component<
   };
 
   onEdit = (e) => {
-    e.stopPropagation();
-    const { bookmark, setEditingBookmarkID } = this.props;
-    setEditingBookmarkID(bookmark.id);
+    const {
+      bookmark,
+      setEditingBookmarkID,
+      licenseActive,
+      setShowLicenseDialog,
+    } = this.props;
+    if (licenseActive) {
+      e.stopPropagation();
+      setEditingBookmarkID(bookmark.id);
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   onDelete = (e) => {
-    e.stopPropagation();
     const {
       bookmark,
       deleteBookmark,
       setCurrentFileHaveChanges,
       saveCurrentProjectTemporary,
+      licenseActive,
+      setShowLicenseDialog,
+      setNeedForceUpdate,
     } = this.props;
-    deleteBookmark(bookmark);
-    setCurrentFileHaveChanges(true);
-    saveCurrentProjectTemporary();
-    this.props.setNeedForceUpdate({
-      value: true,
-      tip: 'onDeleteBookmark',
-    });
+    if (licenseActive) {
+      e.stopPropagation();
+      deleteBookmark(bookmark);
+      setCurrentFileHaveChanges(true);
+      saveCurrentProjectTemporary();
+      setNeedForceUpdate({
+        value: true,
+        tip: 'onDeleteBookmark',
+      });
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   render(): React.ReactElement {
@@ -229,12 +247,14 @@ const mapDispatchToProps = {
   setNeedForceUpdate: pdfViewerActions.setNeedForceUpdate,
   setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
+  setShowLicenseDialog: licenseActions.setShowLicenseDialog,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {
   return {
     bookmark: ownProps.bookmark,
     editingBookmarkID: state.pdfViewer.editingBookmarkID,
+    licenseActive: state.license.active,
   };
 };
 
