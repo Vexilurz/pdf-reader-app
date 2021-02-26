@@ -137,7 +137,7 @@ class StartPage extends React.Component<
 
 const mapStateToProps = (state: StoreType, ownProps: IStartPageProps) => {
   return {
-    licenseActive: state.license.active,
+    licenseActive: state.license.info.active,
   };
 };
 

@@ -2,7 +2,7 @@ import './license-form.scss';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
-import { Button, Modal } from 'react-bootstrap';
+import { Button, FormControl, InputGroup, Modal } from 'react-bootstrap';
 import { StoreType } from '../../reduxStore/store';
 import * as appConst from '../../types/textConstants';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
@@ -35,9 +35,8 @@ class LicenseForm extends React.Component<
   componentDidMount(): void {
     ipcRenderer.on(appConst.ACTIVATE_LICENSE_RESPONSE, (event, data) => {
       const { licenseKey } = this.state;
-      const { setLicenseKey, setExpiringDate } = this.props;
+      const { setLicenseInfo } = this.props;
       const { success } = data;
-      console.log('success: ', success);
       if (success === undefined) {
         this.setState({
           messageToShow:
@@ -56,18 +55,20 @@ class LicenseForm extends React.Component<
           messageToShow: 'License accepted',
         });
         ipcRenderer.send(appConst.SAVE_LICENSE_INFORMATION, licenseKey);
-        setExpiringDate(getNewExpiringDate());
-        setLicenseKey(licenseKey);
+        setLicenseInfo({ licenseKey, expiringDate: getNewExpiringDate() });
         this.handleClose();
       }
     });
     ipcRenderer.on(
       appConst.LOAD_LICENSE_INFORMATION_RESPONSE,
       (event, content) => {
-        const { setLicenseKey, setExpiringDate } = this.props;
-        console.log(content.licenseKey, content.expiringDate);
-        if (content.licenseKey) setLicenseKey(content.licenseKey);
-        if (content.expiringDate) setExpiringDate(content.expiringDate);
+        const { setLicenseInfo } = this.props;
+        if (content.licenseKey && content.expiringDate)
+          setLicenseInfo({
+            licenseKey: content.licenseKey,
+            expiringDate: content.expiringDate,
+          });
+        else ipcRenderer.send(appConst.CHANGE_TITLE, `(License error)`);
       }
     );
     ipcRenderer.send(appConst.LOAD_LICENSE_INFORMATION);
@@ -86,6 +87,7 @@ class LicenseForm extends React.Component<
 
   activate = () => {
     const { licenseKey } = this.state;
+    this.setState({ messageToShow: '' });
     ipcRenderer.send(appConst.ACTIVATE_LICENSE, licenseKey);
   };
 
@@ -93,36 +95,33 @@ class LicenseForm extends React.Component<
     const { licenseDialogVisible } = this.props;
     const { messageToShow } = this.state;
     return (
-      <Modal show={licenseDialogVisible} onHide={this.handleClose}>
-        <Modal.Header>
+      <Modal show={licenseDialogVisible} onHide={this.handleClose} centered>
+        <Modal.Header closeButton>
           <Modal.Title>License required</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {`This function requires a license.  `}
-          <Button variant="primary" onClick={this.acquireLicense}>
-            Acquire license
-          </Button>
-          {messageToShow}
+          <div className="license-acquire-row">
+            <h6>This function requires a license.</h6>
+            <Button variant="primary" onClick={this.acquireLicense}>
+              Acquire license
+            </Button>
+          </div>
+          {messageToShow ? messageToShow : <br />}
         </Modal.Body>
         <Modal.Footer>
-          <input
-            className="license-key-input"
-            type="text"
-            style={{
-              width: '350px',
-              marginRight: '50px',
-            }}
-            onChange={(event) =>
-              this.setState({ licenseKey: event.target.value })
-            }
-            // C8893012-CF6843BB-B3DC3269-24065763
-          />
-          <Button variant="primary" onClick={this.activate}>
-            Activate
-          </Button>
-          <Button variant="secondary" onClick={this.handleClose}>
-            Cancel
-          </Button>
+          <InputGroup>
+            <FormControl
+              placeholder="Enter license code"
+              onChange={(event) =>
+                this.setState({ licenseKey: event.target.value })
+              }
+            />
+            <InputGroup.Append>
+              <Button variant="primary" onClick={this.activate}>
+                Activate
+              </Button>
+            </InputGroup.Append>
+          </InputGroup>
         </Modal.Footer>
       </Modal>
     );
@@ -131,8 +130,7 @@ class LicenseForm extends React.Component<
 
 const mapDispatchToProps = {
   setShowLicenseDialog: licenseActions.setShowLicenseDialog,
-  setLicenseKey: licenseActions.setLicenseKey,
-  setExpiringDate: licenseActions.setExpiringDate,
+  setLicenseInfo: licenseActions.setLicenseInfo,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IProps) => {

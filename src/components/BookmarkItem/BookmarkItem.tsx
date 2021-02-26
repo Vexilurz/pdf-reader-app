@@ -254,7 +254,7 @@ const mapStateToProps = (state: StoreType, ownProps: IBookmarkItemProps) => {
   return {
     bookmark: ownProps.bookmark,
     editingBookmarkID: state.pdfViewer.editingBookmarkID,
-    licenseActive: state.license.active,
+    licenseActive: state.license.info.active,
   };
 };
 

@@ -110,7 +110,7 @@ const mapDispatchToProps = {
 const mapStateToProps = (state: StoreType, ownProps: IProjectEditFormProps) => {
   return {
     currentProjectFile: state.projectFile.currentProjectFile,
-    licenseActive: state.license.active,
+    licenseActive: state.license.info.active,
   };
 };
 

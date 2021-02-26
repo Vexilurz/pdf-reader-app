@@ -369,7 +369,7 @@ const mapStateToProps = (state: StoreType, ownProps: IPDFViewerProps) => {
     areaSelectionEnable: state.pdfViewer.areaSelectionEnable,
     textSelection: state.pdfViewer.pdfSelection,
     areaSelection: state.pdfViewer.areaSelection,
-    licenseActive: state.license.active,
+    licenseActive: state.license.info.active,
   };
 };
 

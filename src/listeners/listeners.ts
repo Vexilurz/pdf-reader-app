@@ -8,5 +8,5 @@ export default (win: BrowserWindow | null): void => {
   initFileOperationListeners();
   initPdfViewerListeners(win);
   initProjectFileListeners();
-  licenseListeners();
+  licenseListeners(win);
 };

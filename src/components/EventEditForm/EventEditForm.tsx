@@ -263,7 +263,7 @@ const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {
   return {
     editingEvent: state.editingEvent.event,
     currentProjectFile: state.projectFile.currentProjectFile,
-    licenseActive: state.license.active,
+    licenseActive: state.license.info.active,
   };
 };
 

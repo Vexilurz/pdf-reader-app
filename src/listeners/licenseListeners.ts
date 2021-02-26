@@ -7,7 +7,7 @@ import * as pathLib from 'path';
 import * as appConst from '../types/textConstants';
 import { getNewExpiringDate, getNewTrialDate } from '../utils/dateUtils';
 
-const crypt = new Cryptr('DocumentAppSecretKeyThere');
+const crypt = new Cryptr(appConst.SECRET_KEY);
 
 const activateLicense = async (event, payload) => {
   const key = payload;
@@ -56,7 +56,7 @@ const loadLicenseInformation = async (event, payload) => {
       event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, contentToResponse);
     } else {
       const expiringDate = getNewTrialDate();
-      const licenseKey = 'TRIAL';
+      const licenseKey = appConst.TRIAL_KEY;
       await _saveLicFile(licenseKey, expiringDate);
       event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, {
         licenseKey,
@@ -65,14 +65,23 @@ const loadLicenseInformation = async (event, payload) => {
     }
   } catch (e) {
     console.error('License load error: ', e);
+    event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, {
+      licenseKey: '',
+      expiringDate: '',
+    });
   }
 };
 
-export default (): void => {
+const changeTitle = (win: BrowserWindow | null) => async (event, payload) => {
+  win.setTitle(`Document app ${payload}`);
+};
+
+export default (win: BrowserWindow | null): void => {
   const listeners = [
     { name: appConst.ACTIVATE_LICENSE, callback: activateLicense },
     { name: appConst.SAVE_LICENSE_INFORMATION, callback: saveLicenseInformation },
     { name: appConst.LOAD_LICENSE_INFORMATION, callback: loadLicenseInformation },
+    { name: appConst.CHANGE_TITLE, callback: changeTitle(win) },
   ];
 
   listeners.forEach((listener) => {

@@ -26,6 +26,7 @@ export const APP_CLOSING = 'app-closing';
 export const ACTIVATE_LICENSE = 'activate-license';
 export const SAVE_LICENSE_INFORMATION = 'save-license-information';
 export const LOAD_LICENSE_INFORMATION = 'load-license-information';
+export const CHANGE_TITLE = 'change-title';
 
 // renderer process listeners:
 export const OPEN_FILE_DIALOG_RESPONSE = 'open-file-dialog-response';
@@ -47,3 +48,5 @@ export const CACHE_PATH = pathLib.join(APP_FOLDER, '.documentsAppCache' + pathLi
 export const RECENT_PROJECTS_FILENAME = pathLib.join(APP_FOLDER, 'recent.json');
 export const PROJECT_FILE_NAME = 'project.json';
 export const LICENSE_FILE_NAME = '.license';
+export const TRIAL_KEY = 'TRIAL';
+export const SECRET_KEY = 'DocumentAppSecretKeyThere';
