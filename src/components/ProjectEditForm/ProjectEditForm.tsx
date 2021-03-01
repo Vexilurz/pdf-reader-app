@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import { actions as licenseActions } from '../../reduxStore/licenseSlice';
 import { IProjectFileWithPath, getNewFile } from '../../types/projectFile';
 import * as appConst from '../../types/textConstants';
 
@@ -38,17 +39,23 @@ class ProjectEditForm extends React.Component<
       currentProjectFile,
       setCurrentFileHaveChanges,
       saveCurrentProjectTemporary,
+      licenseActive,
+      setShowLicenseDialog,
     } = this.props;
-    const newFile: IProjectFileWithPath = {
-      ...currentProjectFile,
-      content: getNewFile(this.projectNameRef.current.value),
-    };
-    newFile.content.events = currentProjectFile.content.events;
-    setCurrentFile(newFile);
-    addFileToOpened(newFile);
-    setAppState(appConst.PDF_VIEWER);
-    setCurrentFileHaveChanges(true);
-    saveCurrentProjectTemporary();
+    if (licenseActive) {
+      const newFile: IProjectFileWithPath = {
+        ...currentProjectFile,
+        content: getNewFile(this.projectNameRef.current.value),
+      };
+      newFile.content.events = currentProjectFile.content.events;
+      setCurrentFile(newFile);
+      addFileToOpened(newFile);
+      setAppState(appConst.PDF_VIEWER);
+      setCurrentFileHaveChanges(true);
+      saveCurrentProjectTemporary();
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   render(): React.ReactElement {
@@ -97,11 +104,13 @@ const mapDispatchToProps = {
   setAppState: appStateActions.setAppState,
   setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
+  setShowLicenseDialog: licenseActions.setShowLicenseDialog,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IProjectEditFormProps) => {
   return {
     currentProjectFile: state.projectFile.currentProjectFile,
+    licenseActive: state.license.info.active,
   };
 };
 

@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
+import { actions as licenseActions } from '../../reduxStore/licenseSlice';
 import * as appConst from '../../types/textConstants';
 import {
   IProjectFileWithPath,
@@ -56,13 +57,23 @@ class StartPage extends React.Component<
   };
 
   onNewFileClick = (): void => {
-    const { setAppState, setCurrentFile, addFileToOpened } = this.props;
-    const newFile: IProjectFileWithPath = getNewFileWithPath(
-      'Your project name'
-    );
-    setCurrentFile(newFile);
-    addFileToOpened(newFile);
-    setAppState(appConst.PROJECT_EDIT_FORM);
+    const {
+      setAppState,
+      setCurrentFile,
+      addFileToOpened,
+      licenseActive,
+      setShowLicenseDialog,
+    } = this.props;
+    if (licenseActive) {
+      const newFile: IProjectFileWithPath = getNewFileWithPath(
+        'Your project name'
+      );
+      setCurrentFile(newFile);
+      addFileToOpened(newFile);
+      setAppState(appConst.PROJECT_EDIT_FORM);
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   render(): React.ReactElement {
@@ -125,13 +136,16 @@ class StartPage extends React.Component<
 }
 
 const mapStateToProps = (state: StoreType, ownProps: IStartPageProps) => {
-  return {};
+  return {
+    licenseActive: state.license.info.active,
+  };
 };
 
 const mapDispatchToProps = {
   setCurrentFile: projectFileActions.setCurrentFile,
   addFileToOpened: projectFileActions.addFileToOpened,
   setAppState: appStateActions.setAppState,
+  setShowLicenseDialog: licenseActions.setShowLicenseDialog,
 };
 
 type StatePropsType = ReturnType<typeof mapStateToProps>;

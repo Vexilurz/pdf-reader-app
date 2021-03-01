@@ -23,6 +23,10 @@ export const DELETE_FOLDER_FROM_CACHE = 'delete-folder-from-cache';
 export const CLEAR_CACHE = 'clear-cache';
 export const UPDATE_EVENT_IN_CACHE = 'update-event-in-cache';
 export const APP_CLOSING = 'app-closing';
+export const ACTIVATE_LICENSE = 'activate-license';
+export const SAVE_LICENSE_INFORMATION = 'save-license-information';
+export const LOAD_LICENSE_INFORMATION = 'load-license-information';
+export const CHANGE_TITLE = 'change-title';
 
 // renderer process listeners:
 export const OPEN_FILE_DIALOG_RESPONSE = 'open-file-dialog-response';
@@ -35,10 +39,14 @@ export const DELETE_FROM_RECENT_PROJECTS_DONE = 'delete-from-recent-projects-don
 export const GET_RECENT_PROJECTS_RESPONSE = 'get-recent-projects-response';
 export const UPDATE_EVENT_IN_CACHE_COMPLETE = 'update-event-in-cache-complete';
 export const APP_CLOSING_PERMISSION_GRANTED = 'app-closing-permission-granted';
-
+export const ACTIVATE_LICENSE_RESPONSE = 'activate-license-response';
+export const LOAD_LICENSE_INFORMATION_RESPONSE = 'load-license-information-response';
 
 // other:
 export const APP_FOLDER = pathLib.join(os.homedir(), 'documentsApp' + pathLib.sep);
 export const CACHE_PATH = pathLib.join(APP_FOLDER, '.documentsAppCache' + pathLib.sep);
 export const RECENT_PROJECTS_FILENAME = pathLib.join(APP_FOLDER, 'recent.json');
 export const PROJECT_FILE_NAME = 'project.json';
+export const LICENSE_FILE_NAME = '.license';
+export const TRIAL_KEY = 'TRIAL';
+export const SECRET_KEY = 'DocumentAppSecretKeyThere';

@@ -3,6 +3,7 @@ import PDFWindow from 'electron-pdf-window';
 import { promises as fs } from 'fs';
 import * as appConst from '../types/textConstants';
 import ptp from "pdf-to-printer";
+
 const loadPdfFile = async (event, payload) => {
   const { path, external } = payload;
   let data: Uint8Array = new Uint8Array();
@@ -21,16 +22,20 @@ const openExternalPdf = async (event) => {
   }
 };
 
-const printPdfFile = async (event, path: string) => {
-  process.chdir('./dist');
-  try {
-    await ptp.print(path, {
-      win32: ['-print-dialog'],
-    });
-  } catch (err) {
-    console.log(err);
+const printPdfFile = async (event, filePath: string) => {
+  if (process.env.NODE_ENV === 'development') {
+    process.chdir('./dist');
+    try {
+      await ptp.print(filePath, {
+        win32: ['-print-dialog'],
+      });
+    } catch (err) {
+      dialog.showMessageBox({ message: err.message });
+    }
+    process.chdir('../');
+  } else {
+    dialog.showMessageBox({ message: 'Printing feature is unavaliable now.' });
   }
-  process.chdir('../');
 };
 
 export default (win: BrowserWindow | null): void => {

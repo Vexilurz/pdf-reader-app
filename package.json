@@ -1,8 +1,8 @@
 {
-  "name": "electron-react-typescript-boilerplate",
+  "name": "document-app",
   "version": "2.0.0",
-  "description": "Template project for desktop apps using Electron, React and Typescript",
-  "author": "Marcelo Augusto",
+  "description": "Electron apllication for working with pdfs backed by pdf.js",
+  "author": "Konstantin Kurganov <kurganovk@gmail.com>",
   "license": "MIT",
   "keywords": [
     "electron",
@@ -10,23 +10,47 @@
     "typescript",
     "hot"
   ],
-  "homepage": "https://github.com/marceloaugusto80/electron-react-typescript-boilerplate",
+  "homepage": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/marceloaugusto80/electron-react-typescript-boilerplate.git"
+    "url": ""
   },
-  "bugs": {
-    "url": "https://github.com/marceloaugusto80/electron-react-typescript-boilerplate/issues"
-  },
+  "private": true,
   "main": "main-process.js",
   "scripts": {
     "format": "eslint src/**/*.ts{,x} --fix",
     "lint": "tsc --noEmit && eslint src/**/*.ts{,x}",
     "build": "npx webpack --env.NODE_ENV=development --env.target=render && npx webpack --env.NODE_ENV=development --env.target=main",
-    "build-prod": "npx webpack --env.NODE_ENV=production --env.target=render && npx webpack --env.NODE_ENV=production --env.target=main",
+    "build:prod": "npx webpack --env.NODE_ENV=production --env.target=render && npx webpack --env.NODE_ENV=production --env.target=main",
     "server": "npx webpack-dev-server --env.NODE_ENV=development --env.target=render --hot --progress",
     "start": "npx webpack --env.NODE_ENV=development --env.target=main && npx electron ./dist/.",
-    "pack": "npm run build-prod && npx electron-packager ./dist --out ./pack --overwrite"
+    "pack": "npm run build:prod && npx electron-packager ./dist --out ./pack --overwrite",
+    "publish:win": "npm run build:prod && npx electron-builder -w",
+    "publish:mac": "npm run build:prod && npx electron-builder -m"
+  },
+  "build": {
+    "asar": false,
+    "compression": "normal",
+    "files": [
+      "./dist/**/*"
+    ],
+    "extraMetadata": {
+      "main": "dist/main-process.js"
+    },
+    "icon": "./icon.ico",
+    "nsis": {
+      "oneClick": false,
+      "warningsAsErrors": false,
+      "perMachine": true,
+      "unicode": false,
+      "allowToChangeInstallationDirectory": true,
+      "menuCategory": true
+    },
+    "directories": {
+      "output": "release",
+      "buildResources": "dist"
+    },
+    "extends": null
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
@@ -35,12 +59,14 @@
     "@material-ui/core": "^4.11.0",
     "@reduxjs/toolkit": "^1.4.0",
     "archiver": "^5.0.2",
+    "axios": "^0.21.1",
     "bootstrap": "^4.5.3",
+    "cryptr": "^6.0.2",
     "electron-pdf-window": "^1.0.12",
     "electron-print-dialog": "0.1.0-alpha.1",
     "konva": "^7.2.1",
     "luxon": "^1.25.0",
-    "pdf-to-printer": "^1.5.2",
+    "pdf-to-printer": "^1.7.0",
     "print-js": "^1.5.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.4.0",

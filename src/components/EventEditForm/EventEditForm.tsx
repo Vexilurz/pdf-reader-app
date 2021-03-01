@@ -9,6 +9,7 @@ import { StoreType } from '../../reduxStore/store';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
+import { actions as licenseActions } from '../../reduxStore/licenseSlice';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
 
@@ -51,14 +52,20 @@ class EventEditForm extends React.Component<
       currentProjectFile,
       setCurrentFileHaveChanges,
       saveCurrentProjectTemporary,
+      licenseActive,
+      setShowLicenseDialog,
     } = this.props;
-    this.setState({ updating: true });
-    ipcRenderer.send(appConst.UPDATE_EVENT_IN_CACHE, {
-      projectID: currentProjectFile.id,
-      event: JSON.stringify(editingEvent),
-    });
-    setCurrentFileHaveChanges(true);
-    saveCurrentProjectTemporary();
+    if (licenseActive) {
+      this.setState({ updating: true });
+      ipcRenderer.send(appConst.UPDATE_EVENT_IN_CACHE, {
+        projectID: currentProjectFile.id,
+        event: JSON.stringify(editingEvent),
+      });
+      setCurrentFileHaveChanges(true);
+      saveCurrentProjectTemporary();
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   onCancelClick = (): void => {
@@ -74,40 +81,64 @@ class EventEditForm extends React.Component<
       currentProjectFile,
       setCurrentFileHaveChanges,
       saveCurrentProjectTemporary,
+      licenseActive,
+      setShowLicenseDialog,
     } = this.props;
-    ipcRenderer.send(
-      appConst.DELETE_FOLDER_FROM_CACHE,
-      `${currentProjectFile.id}/${editingEvent.id}`
-    );
-    deleteEvent(editingEvent);
-    setAppState(appConst.EMTPY_SCREEN);
-    setCurrentFileHaveChanges(true);
-    saveCurrentProjectTemporary();
+    if (licenseActive) {
+      ipcRenderer.send(
+        appConst.DELETE_FOLDER_FROM_CACHE,
+        `${currentProjectFile.id}/${editingEvent.id}`
+      );
+      deleteEvent(editingEvent);
+      setAppState(appConst.EMTPY_SCREEN);
+      setCurrentFileHaveChanges(true);
+      saveCurrentProjectTemporary();
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   // todo: find type of acceptedFiles of Dropzone.onDrop
   onFilesDrop = (acceptedFiles) => {
-    const { editingEvent, setEditingEvent } = this.props;
-    const updatedEvent = { ...editingEvent };
-    const files = Object.assign([], updatedEvent.files);
-    acceptedFiles.forEach((file) => {
-      // todo: use toLowerCase when compare?
-      const { path } = file;
-      const index = files.findIndex((f) => f.path === path);
-      if (index === -1) files.push({ path, bookmarks: [] });
-    });
-    updatedEvent.files = files;
-    setEditingEvent(updatedEvent);
+    const {
+      editingEvent,
+      setEditingEvent,
+      licenseActive,
+      setShowLicenseDialog,
+    } = this.props;
+    if (licenseActive) {
+      const updatedEvent = { ...editingEvent };
+      const files = Object.assign([], updatedEvent.files);
+      acceptedFiles.forEach((file) => {
+        // todo: use toLowerCase when compare?
+        const { path } = file;
+        const index = files.findIndex((f) => f.path === path);
+        if (index === -1) files.push({ path, bookmarks: [] });
+      });
+      updatedEvent.files = files;
+      setEditingEvent(updatedEvent);
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   onDeleteEventFile = (path: string) => () => {
-    const { editingEvent, setEditingEvent } = this.props;
-    const updatedEvent = { ...editingEvent };
-    const files = Object.assign([], updatedEvent.files);
-    const index = files.findIndex((f) => f.path === path);
-    if (index > -1) files.splice(index, 1);
-    updatedEvent.files = files;
-    setEditingEvent(updatedEvent);
+    const {
+      editingEvent,
+      setEditingEvent,
+      licenseActive,
+      setShowLicenseDialog,
+    } = this.props;
+    if (licenseActive) {
+      const updatedEvent = { ...editingEvent };
+      const files = Object.assign([], updatedEvent.files);
+      const index = files.findIndex((f) => f.path === path);
+      if (index > -1) files.splice(index, 1);
+      updatedEvent.files = files;
+      setEditingEvent(updatedEvent);
+    } else {
+      setShowLicenseDialog(true);
+    }
   };
 
   render(): React.ReactElement {
@@ -225,12 +256,14 @@ const mapDispatchToProps = {
   deleteEvent: projectFileActions.deleteEvent,
   setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
+  setShowLicenseDialog: licenseActions.setShowLicenseDialog,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {
   return {
     editingEvent: state.editingEvent.event,
     currentProjectFile: state.projectFile.currentProjectFile,
+    licenseActive: state.license.info.active,
   };
 };
 
