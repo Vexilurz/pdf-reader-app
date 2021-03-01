@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import initListeners from './listeners/listeners';
 import * as appConst from './types/textConstants';
 
@@ -6,10 +6,16 @@ declare const ENVIRONMENT: string;
 
 const IS_DEV = ENVIRONMENT === 'development';
 const DEV_SERVER_URL = 'http://localhost:9000';
-const HTML_FILE_PATH = 'index.html';
+
+const appPath =
+  process.env.NODE_ENV === 'production'
+    ? `${process.resourcesPath}/app/dist`
+    : __dirname;
+
+const HTML_FILE_PATH = `file:///${appPath}/index.html`;
 
 let win: BrowserWindow | null = null;
-let canCloseNow: boolean = false;
+let canCloseNow = false;
 
 function createWindow() {
   win = new BrowserWindow({
@@ -18,6 +24,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
+      webSecurity: false,
     },
   });
   win.maximize();
@@ -25,7 +32,7 @@ function createWindow() {
     win.loadURL(DEV_SERVER_URL);
     win.webContents.openDevTools();
   } else {
-    win.loadFile(HTML_FILE_PATH);
+    win.loadURL(HTML_FILE_PATH);
   }
 
   win.on('closed', () => {

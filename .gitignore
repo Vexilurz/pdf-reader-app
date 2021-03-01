@@ -57,3 +57,6 @@ pdf/*
 recent.json
 
 example.pdf
+
+/pack
+/release
