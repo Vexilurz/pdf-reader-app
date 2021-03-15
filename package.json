@@ -50,6 +50,12 @@
       "output": "release",
       "buildResources": "dist"
     },
+    "win": {
+      "icon": "./icon_win.ico"
+    },
+    "mac": {
+      "icon": "./icon.ico"
+    },
     "extends": null
   },
   "dependencies": {
