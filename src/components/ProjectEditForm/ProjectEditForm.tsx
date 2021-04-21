@@ -65,7 +65,7 @@ class ProjectEditForm extends React.Component<
         <div className="project-name">
           {'Name:   '}
           <input
-            className="project-name-input"
+            className="project-name-input form-control"
             type="text"
             ref={this.projectNameRef}
             style={{

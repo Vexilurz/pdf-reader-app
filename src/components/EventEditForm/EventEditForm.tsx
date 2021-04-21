@@ -18,6 +18,25 @@ export interface IEventEditFormState {
   updating: boolean;
 }
 
+const DatePickerInput = ({
+  onChange,
+  placeholder,
+  value,
+  isSecure,
+  id,
+  onClick,
+}) => (
+  <input
+    className={'form-control'}
+    onChange={onChange}
+    placeholder={placeholder}
+    value={value}
+    isSecure={isSecure}
+    id={id}
+    onClick={onClick}
+  />
+);
+
 class EventEditForm extends React.Component<
   StatePropsType & DispatchPropsType,
   IEventEditFormState
@@ -150,7 +169,7 @@ class EventEditForm extends React.Component<
         <div className="event-title-label">Event title:</div>
         <div className="event-title">
           <input
-            className="event-title-input"
+            className="event-title-input form-control"
             type="text"
             style={{
               width: '400px',
@@ -164,8 +183,9 @@ class EventEditForm extends React.Component<
           />
         </div>
         <div className="date-picker">
-          Event date:
+          {`Event date:      `}
           <DatePicker
+            customInput={<DatePickerInput />}
             selected={new Date(editingEvent.date)}
             onChange={(date: Date) => {
               const updatedEvent = { ...editingEvent };
@@ -177,7 +197,7 @@ class EventEditForm extends React.Component<
         <div className="description-label">Description:</div>
         <div className="event-description">
           <textarea
-            className="event-description-area"
+            className="event-description-area form-control"
             value={editingEvent.description}
             onChange={(e) => {
               const updatedEvent = { ...editingEvent };

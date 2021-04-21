@@ -160,7 +160,7 @@ class BookmarkItem extends React.Component<
           >
             <div className="bookmark-comment">
               <input
-                className="bookmark-comment-input"
+                className="bookmark-comment-input form-control"
                 type="text"
                 style={{
                   width: '150px',
