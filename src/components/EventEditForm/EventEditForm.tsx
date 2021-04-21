@@ -166,7 +166,9 @@ class EventEditForm extends React.Component<
     return (
       <div className="event-edit-form">
         {/* <div className="event-id">ID: {editingEvent.id}</div> */}
-        <div className="event-title-label">Event title:</div>
+        <div className="event-title-label" style={{ marginBottom: '-20px' }}>
+          Event title:
+        </div>
         <div className="event-title">
           <input
             className="event-title-input form-control"
@@ -183,7 +185,7 @@ class EventEditForm extends React.Component<
           />
         </div>
         <div className="date-picker">
-          {`Event date:      `}
+          <div style={{ marginRight: '10px' }}>Event date:</div>
           <DatePicker
             customInput={<DatePickerInput />}
             selected={new Date(editingEvent.date)}
@@ -194,7 +196,9 @@ class EventEditForm extends React.Component<
             }}
           />
         </div>
-        <div className="description-label">Description:</div>
+        <div className="description-label" style={{ marginBottom: '-20px' }}>
+          Description:
+        </div>
         <div className="event-description">
           <textarea
             className="event-description-area form-control"
