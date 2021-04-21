@@ -1,6 +1,6 @@
 import './event-edit-form.scss';
 import 'react-datepicker/dist/react-datepicker.css';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
@@ -104,14 +104,26 @@ class EventEditForm extends React.Component<
       setShowLicenseDialog,
     } = this.props;
     if (licenseActive) {
-      ipcRenderer.send(
-        appConst.DELETE_FOLDER_FROM_CACHE,
-        `${currentProjectFile.id}/${editingEvent.id}`
-      );
-      deleteEvent(editingEvent);
-      setAppState(appConst.EMTPY_SCREEN);
-      setCurrentFileHaveChanges(true);
-      saveCurrentProjectTemporary();
+      remote.dialog
+        .showMessageBox({
+          message: `Are you sure to delete event?`,
+          title: 'Question',
+          type: 'question',
+          buttons: ['Yes', 'Cancel'],
+        })
+        .then((res) => {
+          const { response } = res;
+          if (response === 0) {
+            ipcRenderer.send(
+              appConst.DELETE_FOLDER_FROM_CACHE,
+              `${currentProjectFile.id}/${editingEvent.id}`
+            );
+            deleteEvent(editingEvent);
+            setAppState(appConst.EMTPY_SCREEN);
+            setCurrentFileHaveChanges(true);
+            saveCurrentProjectTemporary();
+          }
+        });
     } else {
       setShowLicenseDialog(true);
     }
@@ -149,12 +161,24 @@ class EventEditForm extends React.Component<
       setShowLicenseDialog,
     } = this.props;
     if (licenseActive) {
-      const updatedEvent = { ...editingEvent };
-      const files = Object.assign([], updatedEvent.files);
-      const index = files.findIndex((f) => f.path === path);
-      if (index > -1) files.splice(index, 1);
-      updatedEvent.files = files;
-      setEditingEvent(updatedEvent);
+      remote.dialog
+        .showMessageBox({
+          message: `Are you sure to delete file "${path}"?`,
+          title: 'Question',
+          type: 'question',
+          buttons: ['Yes', 'Cancel'],
+        })
+        .then((res) => {
+          const { response } = res;
+          if (response === 0) {
+            const updatedEvent = { ...editingEvent };
+            const files = Object.assign([], updatedEvent.files);
+            const index = files.findIndex((f) => f.path === path);
+            if (index > -1) files.splice(index, 1);
+            updatedEvent.files = files;
+            setEditingEvent(updatedEvent);
+          }
+        });
     } else {
       setShowLicenseDialog(true);
     }
