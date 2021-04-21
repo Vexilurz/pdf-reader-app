@@ -1,4 +1,4 @@
-import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
 import { Button, FormControl, InputGroup } from 'react-bootstrap';
@@ -31,11 +31,19 @@ export const PdfPageControl = ({
   return (
     <InputGroup style={{ width }}>
       <InputGroup.Prepend>
-        <Button variant="outline-secondary" onClick={decrement}>
-          <FontAwesomeIcon icon={faAngleUp} />
+        <Button
+          variant="secondary"
+          style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
+          onClick={decrement}
+        >
+          <FontAwesomeIcon icon={faArrowUp} color={'black'} />
         </Button>
-        <Button variant="outline-secondary" onClick={increment}>
-          <FontAwesomeIcon icon={faAngleDown} />
+        <Button
+          variant="secondary"
+          style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
+          onClick={increment}
+        >
+          <FontAwesomeIcon icon={faArrowDown} color={'black'} />
         </Button>
       </InputGroup.Prepend>
 

@@ -28,15 +28,31 @@ export const PdfScaleControls = ({ onSetScale }: IProps) => {
   return (
     <>
       <ButtonGroup aria-label="Basic example">
-        <Button variant="secondary" onClick={increment}>
-          <FontAwesomeIcon icon={faPlus} />
+        <Button
+          variant="secondary"
+          style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
+          onClick={decrement}
+        >
+          <FontAwesomeIcon icon={faMinus} color={'black'} />
         </Button>
-        <Button variant="secondary">
-          <FontAwesomeIcon icon={faMinus} onClick={decrement} />
+        <Button
+          variant="secondary"
+          style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
+          onClick={increment}
+        >
+          <FontAwesomeIcon icon={faPlus} color={'black'} />
         </Button>
       </ButtonGroup>
       <Dropdown>
-        <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+        <Dropdown.Toggle
+          variant="secondary"
+          id="dropdown-basic"
+          style={{
+            backgroundColor: '#dcdce0',
+            borderColor: '#dcdce0',
+            color: 'black',
+          }}
+        >
           {`${(scale * 100).toFixed(0)}%`}
         </Dropdown.Toggle>
 

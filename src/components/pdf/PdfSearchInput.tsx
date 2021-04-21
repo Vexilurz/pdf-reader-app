@@ -43,8 +43,12 @@ export const PdfSearchInput = ({
   return (
     <InputGroup style={{ width }}>
       <InputGroup.Prepend>
-        <Button variant="outline-secondary" onClick={applySearchPattern}>
-          <FontAwesomeIcon icon={faSearch} />
+        <Button
+          variant="secondary"
+          style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
+          onClick={applySearchPattern}
+        >
+          <FontAwesomeIcon icon={faSearch} color={'black'} />
         </Button>
       </InputGroup.Prepend>
       <FormControl value={searchValue} onChange={onSearchFieldChange} />

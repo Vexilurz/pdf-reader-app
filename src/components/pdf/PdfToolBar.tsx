@@ -57,9 +57,6 @@ export class PdfToolBar extends React.Component<IProps, IState> {
       onOpenPDFinExternal,
       onRotatePdf,
     } = this.props;
-    const areaSelectionToggleStyle = areaSelectionEnable
-      ? 'secondary'
-      : 'outline-secondary';
     return (
       <div className="pdf-toolbar-main-container">
         <div>
@@ -82,40 +79,53 @@ export class PdfToolBar extends React.Component<IProps, IState> {
           />
           <PdfScaleControls onSetScale={onSetScale} />
           <Button
-            variant="outline-secondary"
+            variant="secondary"
+            style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
             onClick={onRotatePdf}
             title="Rotate"
           >
-            <FontAwesomeIcon icon={faRedo} />
+            <FontAwesomeIcon icon={faRedo} color={'black'} />
           </Button>
           <Button
-            variant={areaSelectionToggleStyle}
-            onClick={onAreaSelectionToggle}
-            title="Area selection"
-          >
-            <FontAwesomeIcon icon={faVectorSquare} />
-          </Button>
-          <Button
-            variant="outline-secondary"
+            variant="secondary"
+            style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
             onClick={(e) => {
               onAddBookmark();
             }}
             title="Comment text selection"
           >
-            <FontAwesomeIcon icon={faCommentAlt} />
+            <FontAwesomeIcon icon={faCommentAlt} color={'black'} />
           </Button>
           <Button
-            variant="outline-secondary"
+            variant={`secondary`}
+            onClick={onAreaSelectionToggle}
+            title="Area selection"
+            style={
+              areaSelectionEnable
+                ? { backgroundColor: '#B7B7B7' }
+                : { backgroundColor: '#eeeeee', borderColor: '#eeeeee' }
+            }
+          >
+            <FontAwesomeIcon icon={faVectorSquare} color={'black'} />
+          </Button>
+          <Button
+            variant="secondary"
+            style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
             onClick={() => {
               // ipcRenderer.send(appConst.OPEN_EXTERNAL_PDF);
               onOpenPDFinExternal();
             }}
             title="Open current PDF in external viewer"
           >
-            <FontAwesomeIcon icon={faFolderOpen} />
+            <FontAwesomeIcon icon={faFolderOpen} color={'black'} />
           </Button>
-          <Button variant="outline-secondary" onClick={onPrint} title="Print">
-            <FontAwesomeIcon icon={faPrint} />
+          <Button
+            variant="secondary"
+            style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
+            onClick={onPrint}
+            title="Print"
+          >
+            <FontAwesomeIcon icon={faPrint} color={'black'} />
           </Button>
         </div>
       </div>
