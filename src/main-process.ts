@@ -30,7 +30,7 @@ function createWindow() {
   win.maximize();
   if (IS_DEV) {
     win.loadURL(DEV_SERVER_URL);
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
   } else {
     win.loadURL(HTML_FILE_PATH);
   }

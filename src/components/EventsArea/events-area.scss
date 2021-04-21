@@ -19,22 +19,13 @@
 ul.events-list {
   list-style-type: none;
   position: relative;
-}
-ul.events-list:before {
-  content: ' ';
-  background: #d4d9df;
-  display: inline-block;
-  position: absolute;
-  left: 20px;
-  width: 2px;
-  height: 100%;
-  z-index: 400;
+  // height: auto;
 }
 ul.events-list > li {
   margin: 20px 0;
   padding-left: 20px;
 }
-ul.events-list > li:before {
+ul.events-list > li:after {
   content: ' ';
   background: white;
   display: inline-block;

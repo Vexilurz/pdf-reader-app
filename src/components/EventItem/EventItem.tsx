@@ -4,6 +4,7 @@ import { ipcRenderer, shell } from 'electron';
 import { connect } from 'react-redux';
 import Dropzone from 'react-dropzone';
 import Alert from 'react-bootstrap/Alert';
+import Measure from 'react-measure';
 import { DateTime } from 'luxon';
 import * as pathLib from 'path';
 import { StoreType } from '../../reduxStore/store';
@@ -21,6 +22,7 @@ export interface IEventItemProps {
 }
 export interface IEventItemState {
   dropAreaVisible: boolean;
+  listItemHeight: number;
 }
 
 class EventItem extends React.Component<
@@ -31,6 +33,7 @@ class EventItem extends React.Component<
     super(props);
     this.state = {
       dropAreaVisible: false,
+      listItemHeight: 0,
     };
   }
 
@@ -78,37 +81,62 @@ class EventItem extends React.Component<
     return date.setLocale('en').toLocaleString(DateTime.DATE_MED);
   };
 
+  handleResize = (contentRect) => {
+    if (contentRect?.bounds?.height) {
+      this.setState({ listItemHeight: contentRect.bounds.height });
+    }
+  };
+
   render(): React.ReactElement {
     const { event } = this.props;
+    const { listItemHeight } = this.state;
     return (
-      <li className="event-item">
-        <Alert
-          className="event-alert"
-          variant="secondary"
-          onClick={this.onEditEventClick}
-        >
-          <div className="event-header">
-            <div className="event-title">
-              <b>{event.title}</b>
-            </div>
-            <div className="event-date float-right">{this.getDateString()}</div>
-          </div>
-          <div className="event-description">{event.description}</div>
-          <div className="event-pdf-files">
-            {event.files.map((file, index) => {
-              return (
-                <p
-                  className="event-pdf-file"
-                  key={'event-key' + index}
-                  onClick={this.onPdfFileClick(file)}
-                >
-                  {pathLib.basename(file.path)}
-                </p>
-              );
-            })}
-          </div>
-        </Alert>
-      </li>
+      <Measure bounds onResize={this.handleResize}>
+        {({ measureRef }) => (
+          <li className="event-item" ref={measureRef}>
+            <div
+              style={{
+                content: ' ',
+                background: `#d4d9df`,
+                display: `inline-block`,
+                position: `absolute`,
+                left: `20px`,
+                width: `2px`,
+                height: listItemHeight + 20,
+                zIndex: 400,
+              }}
+            />
+            <Alert
+              className="event-alert"
+              variant="secondary"
+              onClick={this.onEditEventClick}
+            >
+              <div className="event-header">
+                <div className="event-title">
+                  <b>{event.title}</b>
+                </div>
+                <div className="event-date float-right">
+                  {this.getDateString()}
+                </div>
+              </div>
+              <div className="event-description">{event.description}</div>
+              <div className="event-pdf-files">
+                {event.files.map((file, index) => {
+                  return (
+                    <p
+                      className="event-pdf-file"
+                      key={'event-key' + index}
+                      onClick={this.onPdfFileClick(file)}
+                    >
+                      {pathLib.basename(file.path)}
+                    </p>
+                  );
+                })}
+              </div>
+            </Alert>
+          </li>
+        )}
+      </Measure>
     );
   }
 }

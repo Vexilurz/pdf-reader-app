@@ -24,6 +24,11 @@ class EventsArea extends React.Component<
   StatePropsType & DispatchPropsType,
   IEventsAreaState
 > {
+  constructor(props: StatePropsType & DispatchPropsType) {
+    super(props);
+    this.state = {};
+  }
+
   componentDidMount(): void {
     this.initListeners();
   }
