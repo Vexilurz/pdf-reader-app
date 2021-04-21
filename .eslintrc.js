@@ -30,6 +30,7 @@ module.exports = {
     project: ['./tsconfig.eslint.json'],
   },
   rules: {
+    'no-underscore-dangle': 0,
     'linebreak-style': 'off',
     'no-param-reassign': ['error', { props: false }],
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],

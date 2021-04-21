@@ -61,6 +61,7 @@ const loadLicenseInformation = async (event, payload) => {
       event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, {
         licenseKey,
         expiringDate,
+        showThatItIsDemo: true,
       });
     }
   } catch (e) {
