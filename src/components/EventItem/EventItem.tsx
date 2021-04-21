@@ -119,7 +119,7 @@ class EventItem extends React.Component<
                   {this.getDateString()}
                 </div>
               </div>
-              <div className="event-description">{event.description}</div>
+              {/* <div className="event-description">{event.description}</div> */}
               <div className="event-pdf-files">
                 {event.files.map((file, index) => {
                   return (
