@@ -126,25 +126,25 @@ class BookmarkItem extends React.Component<
       setNeedForceUpdate,
     } = this.props;
     const { comment, color } = this.state;
-    let info = '';
-    if (bookmark.isAreaSelection) {
-      const {
-        page,
-        x,
-        y,
-        width,
-        height,
-      } = bookmark.selection as IAreaSelection;
-      info = `A ${page} ${x}:${y} ${width}:${height}`;
-    } else {
-      const {
-        startOffset,
-        endOffset,
-        startPage,
-        endPage,
-      } = bookmark.selection as IPdfSelection;
-      info = `T ${startPage}:${startOffset} .. ${endPage}:${endOffset}`;
-    }
+    // let info = '';
+    // if (bookmark.isAreaSelection) {
+    //   const {
+    //     page,
+    //     x,
+    //     y,
+    //     width,
+    //     height,
+    //   } = bookmark.selection as IAreaSelection;
+    //   info = `A ${page} ${x}:${y} ${width}:${height}`;
+    // } else {
+    //   const {
+    //     startOffset,
+    //     endOffset,
+    //     startPage,
+    //     endPage,
+    //   } = bookmark.selection as IPdfSelection;
+    //   info = `T ${startPage}:${startOffset} .. ${endPage}:${endOffset}`;
+    // }
     const needToEdit = editingBookmarkID === bookmark.id;
     return (
       <div
@@ -172,7 +172,7 @@ class BookmarkItem extends React.Component<
                 }}
               />
             </div>
-            <div className="bookmark-position">{info}</div>
+            {/* <div className="bookmark-position">{info}</div> */}
             <div className="bookmark-color">
               <CirclePicker
                 color={color}
@@ -231,7 +231,7 @@ class BookmarkItem extends React.Component<
               </Dropdown>
             </div>
             <div className="bookmark-comment">{bookmark.comment}</div>
-            <div className="bookmark-position">{info}</div>
+            {/* <div className="bookmark-position">{info}</div> */}
           </div>
         )}
       </div>

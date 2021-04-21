@@ -165,7 +165,7 @@ class EventEditForm extends React.Component<
     const { updating } = this.state;
     return (
       <div className="event-edit-form">
-        <div className="event-id">ID: {editingEvent.id}</div>
+        {/* <div className="event-id">ID: {editingEvent.id}</div> */}
         <div className="event-title-label">Event title:</div>
         <div className="event-title">
           <input
