@@ -2,7 +2,7 @@
 import './pdf.scss';
 import * as pathLib from 'path';
 import * as React from 'react';
-import electron, { ipcRenderer, shell } from 'electron';
+import electron, { ipcRenderer, remote, shell } from 'electron';
 import { connect } from 'react-redux';
 import { List, AutoSizer } from 'react-virtualized';
 import Measure from 'react-measure';
@@ -253,7 +253,16 @@ class PDFViewer extends React.Component<
   };
 
   onOpenPDFinExternal = () => {
-    shell.openPath(this.props.currentPdf.path);
+    try {
+      shell.openPath(this.props.currentPdf.path);
+    } catch {
+      remote.dialog.showMessageBoxSync({
+        message: `Can't open file "${this.props.currentPdf.path}"!`,
+        title: 'Error',
+        type: 'error',
+        buttons: ['Ok'],
+      });
+    }
   };
 
   onRotatePdf = () => {
