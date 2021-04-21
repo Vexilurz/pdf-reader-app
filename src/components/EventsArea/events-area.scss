@@ -20,7 +20,8 @@
 ul.events-list {
   list-style-type: none;
   position: relative;
-  // height: auto;
+  height: auto;
+  overflow-y: auto;
 }
 ul.events-list > li {
   margin: 20px 0;
