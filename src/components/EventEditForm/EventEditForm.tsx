@@ -231,9 +231,17 @@ class EventEditForm extends React.Component<
           <Dropzone onDrop={this.onFilesDrop}>
             {({ getRootProps, getInputProps }) => (
               <section>
-                <div {...getRootProps()}>
+                <div
+                  {...getRootProps()}
+                  style={{
+                    height: '50px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
                   <input {...getInputProps()} />
-                  <p>Drag 'n' drop some files here, or click to select files</p>
+                  <p>Drop files here</p>
                 </div>
               </section>
             )}
