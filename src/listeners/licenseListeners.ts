@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ipcMain } from 'electron';
+import { dialog, ipcMain } from 'electron';
 import { promises as fs } from 'fs';
 import Cryptr from 'cryptr';
 import * as fssync from 'fs';
@@ -55,13 +55,18 @@ const loadLicenseInformation = async (event, payload) => {
       const contentToResponse = JSON.parse(decryptedContent);
       event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, contentToResponse);
     } else {
+      await dialog.showMessageBox({
+        message: `Program launches in DEMO mode`,
+        title: 'Information',
+        type: 'info',
+        buttons: ['Ok'],
+      });
       const expiringDate = getNewTrialDate();
       const licenseKey = appConst.TRIAL_KEY;
       await _saveLicFile(licenseKey, expiringDate);
       event.reply(appConst.LOAD_LICENSE_INFORMATION_RESPONSE, {
         licenseKey,
         expiringDate,
-        showThatItIsDemo: true,
       });
     }
   } catch (e) {

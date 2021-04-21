@@ -1,7 +1,7 @@
 import './license-form.scss';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import { Button, FormControl, InputGroup, Modal } from 'react-bootstrap';
 import { StoreType } from '../../reduxStore/store';
 import * as appConst from '../../types/textConstants';
@@ -63,14 +63,6 @@ class LicenseForm extends React.Component<
       appConst.LOAD_LICENSE_INFORMATION_RESPONSE,
       (event, content) => {
         const { setLicenseInfo } = this.props;
-        if (content.showThatItIsDemo) {
-          remote.dialog.showMessageBoxSync({
-            message: `Program launches in DEMO mode`,
-            title: 'Information',
-            type: 'info',
-            buttons: ['Ok'],
-          });
-        }
         if (content.licenseKey && content.expiringDate)
           setLicenseInfo({
             licenseKey: content.licenseKey,
