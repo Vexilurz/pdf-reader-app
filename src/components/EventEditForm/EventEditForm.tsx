@@ -12,6 +12,8 @@ import { actions as editingEventActions } from '../../reduxStore/editingEventSli
 import { actions as licenseActions } from '../../reduxStore/licenseSlice';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export interface IEventEditFormProps {}
 export interface IEventEditFormState {
@@ -239,14 +241,14 @@ class EventEditForm extends React.Component<
             const { path } = file;
             return (
               <div className="event-file" key={'event-file-key' + index}>
+                {path}
                 <button
                   type="button"
-                  className="delete-event-file-button edit-event-control-button btn btn-danger"
+                  className="delete-event-file-button edit-event-control-button"
                   onClick={this.onDeleteEventFile(path)}
                 >
-                  X
+                  <FontAwesomeIcon icon={faTrash} color={'black'} />
                 </button>
-                {path}
               </div>
             );
           })}
@@ -271,29 +273,31 @@ class EventEditForm extends React.Component<
             )}
           </Dropzone>
         </div>
-        <div className="set-event">
+        <div className="event-controls">
+          <div className="set-event">
+            <button
+              type="button"
+              className="set-event-button edit-event-control-button btn btn-primary"
+              onClick={this.onSetEventClick}
+            >
+              {updating ? (
+                <div className="updating-container">
+                  <img src="./public/loading.gif" alt="Updating..." />
+                </div>
+              ) : null}
+              Save
+            </button>
+            <button
+              type="button"
+              className="cancel-button edit-event-control-button btn btn-primary"
+              onClick={this.onCancelClick}
+            >
+              Cancel
+            </button>
+          </div>
           <button
             type="button"
-            className="set-event-button edit-event-control-button btn btn-primary"
-            onClick={this.onSetEventClick}
-          >
-            {updating ? (
-              <div className="updating-container">
-                <img src="./public/loading.gif" alt="Updating..." />
-              </div>
-            ) : null}
-            Save
-          </button>
-          <button
-            type="button"
-            className="cancel-button edit-event-control-button btn btn-primary"
-            onClick={this.onCancelClick}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="event-delete-button edit-event-control-button btn btn-danger"
+            className="event-delete-button edit-event-control-button btn btn-secondary"
             onClick={this.onDeleteEventClick}
           >
             Delete
