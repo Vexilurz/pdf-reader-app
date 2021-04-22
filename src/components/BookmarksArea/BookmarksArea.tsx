@@ -30,7 +30,6 @@ class BookmarksArea extends React.Component<
           setEditingBookmarkID('');
         }}
       >
-        Bookmarks area
         <div className="bookmarks-list">
           {projectFile.events[indexes.eventIndex]?.files[
             indexes.fileIndex

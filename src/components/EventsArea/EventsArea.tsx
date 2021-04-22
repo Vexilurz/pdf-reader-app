@@ -90,7 +90,6 @@ class EventsArea extends React.Component<
     const { currentProjectFile, setAppState } = this.props;
     return (
       <div className="events-area">
-        Events area
         <div className="events-toolbar">
           <Button
             variant="outline-secondary"
