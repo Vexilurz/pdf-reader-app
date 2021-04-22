@@ -58,29 +58,62 @@ class ProjectsTabs extends React.Component<
     return openedProjectFiles;
   };
 
-  componentDidMount() {
-    ipcRenderer.on(appConst.SAVE_CURRENT_PROJECT_DONE, (event, payload) => {
-      this.prjSaved = true;
-    });
-    ipcRenderer.on(appConst.APP_CLOSING, async () => {
-      this.getOpenedProjects()
-        .reduce(
-          (prevPromise, project) =>
-            prevPromise.then(() => {
-              return this.closeProject(project);
-            }),
-          Promise.resolve()
-        )
-        .then(() => ipcRenderer.send(appConst.APP_CLOSING_PERMISSION_GRANTED));
-    });
-    ipcRenderer.on(appConst.NEW_FILE_DIALOG_RESPONSE_2, (event, response) => {
-      this.gettedPath = response.path;
-      this.isPathGetted = true;
-    });
-    ipcRenderer.on(appConst.ADD_TO_RECENT_PROJECTS_DONE, (event, response) => {
-      this.addToRecentDone = true;
-    });
+  componentDidMount(): void {
+    ipcRenderer.on(
+      appConst.SAVE_CURRENT_PROJECT_DONE,
+      this.onSaveCurrentProjectDone
+    );
+    ipcRenderer.on(appConst.APP_CLOSING, this.onAppClosing);
+    ipcRenderer.on(
+      appConst.NEW_FILE_DIALOG_RESPONSE_2,
+      this.onNewFileDialogResponse2
+    );
+    ipcRenderer.on(
+      appConst.ADD_TO_RECENT_PROJECTS_DONE,
+      this.onAddToRecentProjectsDone
+    );
   }
+
+  componentWillUnmount(): void {
+    ipcRenderer.removeListener(
+      appConst.SAVE_CURRENT_PROJECT_DONE,
+      this.onSaveCurrentProjectDone
+    );
+    ipcRenderer.removeListener(appConst.APP_CLOSING, this.onAppClosing);
+    ipcRenderer.removeListener(
+      appConst.NEW_FILE_DIALOG_RESPONSE_2,
+      this.onNewFileDialogResponse2
+    );
+    ipcRenderer.removeListener(
+      appConst.ADD_TO_RECENT_PROJECTS_DONE,
+      this.onAddToRecentProjectsDone
+    );
+  }
+
+  onAddToRecentProjectsDone = (event, response) => {
+    this.addToRecentDone = true;
+  };
+
+  onNewFileDialogResponse2 = (event, response) => {
+    this.gettedPath = response.path;
+    this.isPathGetted = true;
+  };
+
+  onSaveCurrentProjectDone = (event, payload) => {
+    this.prjSaved = true;
+  };
+
+  onAppClosing = () => {
+    this.getOpenedProjects()
+      .reduce(
+        (prevPromise, project) =>
+          prevPromise.then(() => {
+            return this.closeProject(project);
+          }),
+        Promise.resolve()
+      )
+      .then(() => ipcRenderer.send(appConst.APP_CLOSING_PERMISSION_GRANTED));
+  };
 
   closeProject = (project: IProjectFileWithPath) => {
     return new Promise((resolve, reject) => {

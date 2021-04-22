@@ -32,24 +32,38 @@ class StartPage extends React.Component<
   }
 
   componentDidMount(): void {
-    this.initListeners();
+    ipcRenderer.on(
+      appConst.OPEN_FILE_DIALOG_RESPONSE,
+      this.onOpenFileDialogResponse
+    );
+    ipcRenderer.on(
+      appConst.GET_RECENT_PROJECTS_RESPONSE,
+      this.onGetRecentProjectsResponse
+    );
     ipcRenderer.send(appConst.GET_RECENT_PROJECTS);
   }
 
-  initListeners = (): void => {
-    ipcRenderer.on(
+  componentWillUnmount(): void {
+    ipcRenderer.removeListener(
       appConst.OPEN_FILE_DIALOG_RESPONSE,
-      (event, response: IProjectFileWithPath) => {
-        const { setCurrentFile, setAppState, addFileToOpened } = this.props;
-        setCurrentFile(response);
-        addFileToOpened(response);
-        setAppState(appConst.EMTPY_SCREEN);
-        ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, response);
-      }
+      this.onOpenFileDialogResponse
     );
-    ipcRenderer.on(appConst.GET_RECENT_PROJECTS_RESPONSE, (event, recent) => {
-      this.setState({ recent });
-    });
+    ipcRenderer.removeListener(
+      appConst.GET_RECENT_PROJECTS_RESPONSE,
+      this.onGetRecentProjectsResponse
+    );
+  }
+
+  onGetRecentProjectsResponse = (event, recent) => {
+    this.setState({ recent });
+  };
+
+  onOpenFileDialogResponse = (event, response: IProjectFileWithPath) => {
+    const { setCurrentFile, setAppState, addFileToOpened } = this.props;
+    setCurrentFile(response);
+    addFileToOpened(response);
+    setAppState(appConst.EMTPY_SCREEN);
+    ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, response);
   };
 
   onOpenFileClick = (): void => {
@@ -108,7 +122,7 @@ class StartPage extends React.Component<
                   key={'recent-project-key' + index}
                   onClick={() => {
                     ipcRenderer.send(appConst.OPEN_FILE, item.path);
-                    setAppState(appConst.EMTPY_SCREEN);
+                    // setAppState(appConst.EMTPY_SCREEN);
                   }}
                 >
                   {`${item.name} (${item.path})`}

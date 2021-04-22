@@ -30,26 +30,34 @@ class EventsArea extends React.Component<
   }
 
   componentDidMount(): void {
-    this.initListeners();
+    ipcRenderer.on(
+      appConst.NEW_FILE_DIALOG_RESPONSE,
+      this.onNewFileDialogResponse
+    );
   }
 
-  initListeners = (): void => {
-    ipcRenderer.on(appConst.NEW_FILE_DIALOG_RESPONSE, (event, response) => {
-      const {
-        saveCurrentProject,
-        currentProjectFile,
-        setCurrentFile,
-        addFileToOpened,
-      } = this.props;
-      const newFile: IProjectFileWithPath = {
-        ...currentProjectFile,
-        path: response.path,
-      };
-      setCurrentFile(newFile);
-      addFileToOpened(newFile); // just for update filename in project tabs...
-      saveCurrentProject(true);
-      ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, newFile);
-    });
+  componentWillUnmount(): void {
+    ipcRenderer.removeListener(
+      appConst.NEW_FILE_DIALOG_RESPONSE,
+      this.onNewFileDialogResponse
+    );
+  }
+
+  onNewFileDialogResponse = (event, response) => {
+    const {
+      saveCurrentProject,
+      currentProjectFile,
+      setCurrentFile,
+      addFileToOpened,
+    } = this.props;
+    const newFile: IProjectFileWithPath = {
+      ...currentProjectFile,
+      path: response.path,
+    };
+    setCurrentFile(newFile);
+    addFileToOpened(newFile); // just for update filename in project tabs...
+    saveCurrentProject(true);
+    ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, newFile);
   };
 
   onCreateNewEventClick = () => {

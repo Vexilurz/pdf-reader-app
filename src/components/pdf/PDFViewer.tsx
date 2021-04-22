@@ -88,19 +88,31 @@ class PDFViewer extends React.Component<
   }
 
   componentDidMount(): void {
-    ipcRenderer.on(appConst.PDF_FILE_CONTENT_RESPONSE, (event, payload) => {
-      const { data, path, external } = payload;
-      const { setCurrentPdf, setAppState } = this.props;
-      this.setState({
-        renderTextLayer: false,
-        pdfData: { data },
-        displayedPdfName: pathLib.basename(path),
-      });
-      if (external) {
-        setCurrentPdf({ path, eventID: '' });
-      }
-    });
+    ipcRenderer.on(
+      appConst.PDF_FILE_CONTENT_RESPONSE,
+      this.onPdfFileContentResponse
+    );
   }
+
+  componentWillUnmount(): void {
+    ipcRenderer.removeListener(
+      appConst.PDF_FILE_CONTENT_RESPONSE,
+      this.onPdfFileContentResponse
+    );
+  }
+
+  onPdfFileContentResponse = (event, payload) => {
+    const { data, path, external } = payload;
+    const { setCurrentPdf, setAppState } = this.props;
+    this.setState({
+      renderTextLayer: false,
+      pdfData: { data },
+      displayedPdfName: pathLib.basename(path),
+    });
+    if (external) {
+      setCurrentPdf({ path, eventID: '' });
+    }
+  };
 
   onLoadSuccessCallback = (numPages: number) => {
     this.setState({ numPages });

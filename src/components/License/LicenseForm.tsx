@@ -33,46 +33,64 @@ class LicenseForm extends React.Component<
   }
 
   componentDidMount(): void {
-    ipcRenderer.on(appConst.ACTIVATE_LICENSE_RESPONSE, (event, data) => {
-      const { licenseKey } = this.state;
-      const { setLicenseInfo } = this.props;
-      const { success } = data;
-      if (success === undefined) {
-        this.setState({
-          messageToShow:
-            'License data does not match API or internet connection lost',
-        });
-      } else if (success === false) {
-        this.setState({
-          messageToShow: 'License key does not exist.',
-        });
-      } else if (data.uses > 1) {
-        this.setState({
-          messageToShow: 'License key already in use.',
-        });
-      } else {
-        this.setState({
-          messageToShow: 'License accepted',
-        });
-        ipcRenderer.send(appConst.SAVE_LICENSE_INFORMATION, licenseKey);
-        setLicenseInfo({ licenseKey, expiringDate: getNewExpiringDate() });
-        this.handleClose();
-      }
-    });
+    ipcRenderer.on(
+      appConst.ACTIVATE_LICENSE_RESPONSE,
+      this.onActivateLicenseResponse
+    );
     ipcRenderer.on(
       appConst.LOAD_LICENSE_INFORMATION_RESPONSE,
-      (event, content) => {
-        const { setLicenseInfo } = this.props;
-        if (content.licenseKey && content.expiringDate)
-          setLicenseInfo({
-            licenseKey: content.licenseKey,
-            expiringDate: content.expiringDate,
-          });
-        else ipcRenderer.send(appConst.CHANGE_TITLE, `(License error)`);
-      }
+      this.onLoadLicenseInfoResponse
     );
     ipcRenderer.send(appConst.LOAD_LICENSE_INFORMATION);
   }
+
+  componentWillUnmount(): void {
+    ipcRenderer.removeListener(
+      appConst.ACTIVATE_LICENSE_RESPONSE,
+      this.onActivateLicenseResponse
+    );
+    ipcRenderer.removeListener(
+      appConst.LOAD_LICENSE_INFORMATION_RESPONSE,
+      this.onLoadLicenseInfoResponse
+    );
+  }
+
+  onLoadLicenseInfoResponse = (event, content) => {
+    const { setLicenseInfo } = this.props;
+    if (content.licenseKey && content.expiringDate)
+      setLicenseInfo({
+        licenseKey: content.licenseKey,
+        expiringDate: content.expiringDate,
+      });
+    else ipcRenderer.send(appConst.CHANGE_TITLE, `(License error)`);
+  };
+
+  onActivateLicenseResponse = (event, data) => {
+    const { licenseKey } = this.state;
+    const { setLicenseInfo } = this.props;
+    const { success } = data;
+    if (success === undefined) {
+      this.setState({
+        messageToShow:
+          'License data does not match API or internet connection lost',
+      });
+    } else if (success === false) {
+      this.setState({
+        messageToShow: 'License key does not exist.',
+      });
+    } else if (data.uses > 1) {
+      this.setState({
+        messageToShow: 'License key already in use.',
+      });
+    } else {
+      this.setState({
+        messageToShow: 'License accepted',
+      });
+      ipcRenderer.send(appConst.SAVE_LICENSE_INFORMATION, licenseKey);
+      setLicenseInfo({ licenseKey, expiringDate: getNewExpiringDate() });
+      this.handleClose();
+    }
+  };
 
   handleClose = () => {
     const { setShowLicenseDialog } = this.props;
