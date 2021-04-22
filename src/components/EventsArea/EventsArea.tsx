@@ -94,6 +94,13 @@ class EventsArea extends React.Component<
         <div className="events-toolbar">
           <Button
             variant="outline-secondary"
+            onClick={this.onCreateNewEventClick}
+            title="Create new event"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+          </Button>
+          <Button
+            variant="outline-secondary"
             onClick={this.saveCurrentProjectClick}
             title="Save current project"
           >
@@ -107,13 +114,6 @@ class EventsArea extends React.Component<
             title="Open project settings"
           >
             <FontAwesomeIcon icon={faCog} />
-          </Button>
-          <Button
-            variant="outline-secondary"
-            onClick={this.onCreateNewEventClick}
-            title="Create new event"
-          >
-            <FontAwesomeIcon icon={faPlus} />
           </Button>
         </div>
         <ul className="events-list">
