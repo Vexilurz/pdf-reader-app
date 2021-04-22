@@ -243,7 +243,6 @@ class ProjectsTabs extends React.Component<
 const mapDispatchToProps = {
   setCurrentFile: projectFileActions.setCurrentFile,
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
-  saveCurrentProject: projectFileActions.saveCurrentProject,
   saveProjectByID: projectFileActions.saveProjectByID,
   setProjectPathByID: projectFileActions.setProjectPathByID,
   deleteFileFromOpened: projectFileActions.deleteFileFromOpened,

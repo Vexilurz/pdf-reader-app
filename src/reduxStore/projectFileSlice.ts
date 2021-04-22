@@ -102,13 +102,18 @@ export const projectFileSlice = createSlice({
       state.currentPdf = payload;
       state.currentIndexes = getCurrentIndexes(state);
     },
-    saveCurrentProject: (state: IProjectFileState) => {
+    saveCurrentProject: (
+      state: IProjectFileState,
+      action: PayloadAction<boolean>
+    ) => {
       const { path } = state.currentProjectFile;
+      const showConfirm = action.payload;
       if (path !== '') {
         ipcRenderer.send(appConst.SAVE_CURRENT_PROJECT, {
           id: state.currentProjectFile.id,
           path: state.currentProjectFile.path,
           content: JSON.stringify(state.currentProjectFile.content),
+          showConfirm,
         });
         state.currentProjectFile.haveChanges = false;
         _saveCurrentProjectTemporary(state);
@@ -124,6 +129,7 @@ export const projectFileSlice = createSlice({
             id: prj.id,
             path: prj.path,
             content: JSON.stringify(prj.content),
+            showConfirm: true,
           });
           // prj.haveChanges = false;
         }

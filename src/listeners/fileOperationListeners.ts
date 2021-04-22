@@ -94,6 +94,7 @@ const saveFileDialog = async (event, arg) => {
 };
 
 const saveCurrentProject = async (event, currentProject) => {
+  const { showConfirm } = currentProject;
   const path = pathLib.join(appConst.CACHE_PATH, currentProject.id);
   // fssync.mkdirSync(path, { recursive: true });
   const tmpPath = pathLib.join(path, appConst.PROJECT_FILE_NAME);
@@ -110,12 +111,13 @@ const saveCurrentProject = async (event, currentProject) => {
 
     // todo: listen to this event in renderer to display success message
     event.reply(appConst.SAVE_CURRENT_PROJECT_DONE, res);
-    dialog.showMessageBox({
-      message: `Project saved.`,
-      title: 'Information',
-      type: 'info',
-      buttons: ['Ok'],
-    });
+    if (showConfirm === true)
+      dialog.showMessageBox({
+        message: `Project saved.`,
+        title: 'Information',
+        type: 'info',
+        buttons: ['Ok'],
+      });
   }
 };
 

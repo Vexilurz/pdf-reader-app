@@ -47,7 +47,7 @@ class EventsArea extends React.Component<
       };
       setCurrentFile(newFile);
       addFileToOpened(newFile); // just for update filename in project tabs...
-      saveCurrentProject();
+      saveCurrentProject(true);
       ipcRenderer.send(appConst.ADD_TO_RECENT_PROJECTS, newFile);
     });
   };
@@ -80,7 +80,7 @@ class EventsArea extends React.Component<
           appConst.SHOW_SAVE_FILE_DIALOG,
           'saveCurrentProjectClick'
         );
-      else saveCurrentProject();
+      else saveCurrentProject(false);
     } else {
       setShowLicenseDialog(true);
     }
