@@ -141,6 +141,7 @@ const clearCache = async (event) => {
 
 const updateEventInCache = async (e, payload) => {
   const { projectID } = payload;
+  let { openFileAfter } = payload;
   const event: IEvent = JSON.parse(payload.event);
   const path = pathLib.join(appConst.CACHE_PATH, projectID, event.id);
   // chmodr.sync(appConst.CACHE_PATH, 0o777);
@@ -174,6 +175,7 @@ const updateEventInCache = async (e, payload) => {
           i += 1;
         }
         fssync.copyFileSync(file.path, pathLib.join(path, newFileName));
+        if (openFileAfter === file.path) openFileAfter = newFileName;
       } catch (err) {
         console.error(err);
       }
@@ -182,7 +184,7 @@ const updateEventInCache = async (e, payload) => {
   });
 
   // chmodr.sync(appConst.CACHE_PATH, 0o444);
-  e.reply(appConst.UPDATE_EVENT_IN_CACHE_COMPLETE, JSON.stringify(event));
+  e.reply(appConst.UPDATE_EVENT_IN_CACHE_COMPLETE, JSON.stringify({ ...event, openFileAfter }));
 };
 
 export default (): void => {

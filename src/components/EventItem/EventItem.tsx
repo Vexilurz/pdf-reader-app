@@ -55,7 +55,7 @@ class EventItem extends React.Component<
       event,
       currentProjectFile,
     } = this.props;
-    let path = file.path;
+    let { path } = file;
     if (pathLib.dirname(file.path) === '.') {
       path = pathLib.join(
         appConst.CACHE_PATH,

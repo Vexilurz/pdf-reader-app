@@ -28,6 +28,9 @@
 }
 
 .event-file {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .event-files {
@@ -66,4 +69,9 @@ img {
   display: flex;
   flex-direction: row;
   align-items: center;
+}
+
+.event-pdf-file-in-edit {
+  color: black;
+  cursor: pointer;
 }

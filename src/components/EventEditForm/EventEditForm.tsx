@@ -1,19 +1,23 @@
 import './event-edit-form.scss';
 import 'react-datepicker/dist/react-datepicker.css';
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer, remote, shell } from 'electron';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
 import Dropzone from 'react-dropzone';
 import { StoreType } from '../../reduxStore/store';
+import * as pathLib from 'path';
 import { actions as projectFileActions } from '../../reduxStore/projectFileSlice';
 import { actions as appStateActions } from '../../reduxStore/appStateSlice';
 import { actions as editingEventActions } from '../../reduxStore/editingEventSlice';
 import { actions as licenseActions } from '../../reduxStore/licenseSlice';
+import { actions as pdfViewerActions } from '../../reduxStore/pdfViewerSlice';
 import * as appConst from '../../types/textConstants';
 import { IEvent } from '../../types/event';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { IPdfFileWithBookmarks } from '../../types/pdf';
+import { getInfSelection } from '../../types/bookmark';
 
 export interface IEventEditFormProps {}
 export interface IEventEditFormState {
@@ -55,19 +59,24 @@ class EventEditForm extends React.Component<
   }
 
   initListeners = (): void => {
-    ipcRenderer.on(
+    ipcRenderer.once(
       appConst.UPDATE_EVENT_IN_CACHE_COMPLETE,
       (event, payload) => {
         const { updateEvent, setAppState } = this.props;
-        const updatedEvent: IEvent = JSON.parse(payload);
+        const rcvObj = JSON.parse(payload);
+        const { openFileAfter } = rcvObj;
+        delete rcvObj.openFileAfter;
+        const updatedEvent: IEvent = rcvObj;
         updateEvent(updatedEvent);
-        setAppState(appConst.EMTPY_SCREEN);
+        if (openFileAfter) {
+          this.onPdfFileClick(openFileAfter);
+        } else setAppState(appConst.EMTPY_SCREEN);
         this.setState({ updating: false });
       }
     );
   };
 
-  onSetEventClick = (): void => {
+  onSetEventClick = (openFileAfter?: string): void => {
     const {
       editingEvent,
       currentProjectFile,
@@ -81,6 +90,7 @@ class EventEditForm extends React.Component<
       ipcRenderer.send(appConst.UPDATE_EVENT_IN_CACHE, {
         projectID: currentProjectFile.id,
         event: JSON.stringify(editingEvent),
+        openFileAfter,
       });
       setCurrentFileHaveChanges(true);
       saveCurrentProjectTemporary();
@@ -186,6 +196,36 @@ class EventEditForm extends React.Component<
     }
   };
 
+  onPdfFileClick = (pathIn: string) => {
+    const {
+      setCurrentPdf,
+      setAppState,
+      setSelection,
+      setShowLoading,
+      editingEvent,
+      currentProjectFile,
+    } = this.props;
+    let path = pathIn;
+    if (pathLib.dirname(pathIn) === '.') {
+      path = pathLib.join(
+        appConst.CACHE_PATH,
+        currentProjectFile.id,
+        editingEvent.id,
+        pathIn
+      );
+    }
+    if (pathLib.extname(path).toLowerCase() === '.pdf') {
+      setShowLoading(true);
+      setSelection(getInfSelection());
+      ipcRenderer.send(appConst.LOAD_PDF_FILE, { path, external: false });
+      setCurrentPdf({ path, eventID: editingEvent.id });
+      setAppState(appConst.PDF_VIEWER);
+    } else {
+      setAppState(appConst.EMTPY_SCREEN);
+      shell.openPath(path);
+    }
+  };
+
   render(): React.ReactElement {
     const { editingEvent, setEditingEvent } = this.props;
     const { updating } = this.state;
@@ -241,7 +281,15 @@ class EventEditForm extends React.Component<
             const { path } = file;
             return (
               <div className="event-file" key={'event-file-key' + index}>
-                {path}
+                <p
+                  className="event-pdf-file-in-edit"
+                  key={'event-pdf' + index}
+                  onClick={() => {
+                    this.onSetEventClick(path);
+                  }}
+                >
+                  {path}
+                </p>
                 <button
                   type="button"
                   className="delete-event-file-button edit-event-control-button"
@@ -278,7 +326,9 @@ class EventEditForm extends React.Component<
             <button
               type="button"
               className="set-event-button edit-event-control-button btn btn-primary"
-              onClick={this.onSetEventClick}
+              onClick={() => {
+                this.onSetEventClick();
+              }}
             >
               {updating ? (
                 <div className="updating-container">
@@ -317,6 +367,8 @@ const mapDispatchToProps = {
   setCurrentFileHaveChanges: projectFileActions.setCurrentFileHaveChanges,
   saveCurrentProjectTemporary: projectFileActions.saveCurrentProjectTemporary,
   setShowLicenseDialog: licenseActions.setShowLicenseDialog,
+  setSelection: pdfViewerActions.setSelection,
+  setShowLoading: appStateActions.setShowLoading,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: IEventEditFormProps) => {
