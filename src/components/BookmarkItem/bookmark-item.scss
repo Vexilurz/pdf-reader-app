@@ -16,8 +16,44 @@
   background-color: #ffffff;
 }
 
-.bookmark-menu {
-  width: 100%;
+// .bookmark-menu {
+//   width: 100%;
+//   display: flex;
+//   justify-content: space-between;
+// }
+
+.bookmark-item-view {
   display: flex;
   justify-content: space-between;
+}
+
+.save-bookmark-button {
+  margin: 8px;
+}
+
+.cancel-edit-bookmark-button {
+  margin: 8px;
+}
+
+.bookmark-comment {
+  // margin: 8px;
+  width: 100%;
+}
+.bookmark-comment-input {
+  // margin: 8px;
+  width: 100%;
+  padding: 6px;
+}
+
+.bookmark-color {
+  margin: 8px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.circle-picker {
+  width: 210px !important;
+  margin-left: -12px !important;
+  margin-bottom: -22px !important;
 }

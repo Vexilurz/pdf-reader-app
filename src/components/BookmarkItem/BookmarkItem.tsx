@@ -20,8 +20,15 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
       e.preventDefault();
       onClick(e);
     }}
+    size={'sm'}
+    style={{ height: 25 }}
   >
-    {children}
+    <FontAwesomeIcon
+      icon={faEllipsisH}
+      size={'xs'}
+      // style={{ width: 20, height: 20 }}
+    />
+    {/* {children} */}
     {/* &#x25bc; */}
   </Button>
 ));
@@ -162,9 +169,6 @@ class BookmarkItem extends React.Component<
               <input
                 className="bookmark-comment-input form-control"
                 type="text"
-                style={{
-                  width: '150px',
-                }}
                 autoFocus
                 value={comment}
                 onChange={(e) => {
@@ -183,7 +187,6 @@ class BookmarkItem extends React.Component<
               />
             </div>
             <div className="bookmark-controls">
-              <div />
               <button
                 type="button"
                 className="save-bookmark-button btn btn-primary"
@@ -214,23 +217,20 @@ class BookmarkItem extends React.Component<
               setNeedForceUpdate(true);
             }}
           >
-            <div className="bookmark-menu">
-              <div />
-              <Dropdown>
-                <Dropdown.Toggle
-                  as={CustomToggle}
-                  variant="secondary"
-                  id="dropdown-basic"
-                >
-                  <FontAwesomeIcon icon={faEllipsisH} />
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <Dropdown.Item onClick={this.onEdit}>Edit</Dropdown.Item>
-                  <Dropdown.Item onClick={this.onDelete}>Delete</Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
             <div className="bookmark-comment">{bookmark.comment}</div>
+            {/* <div className="bookmark-menu"> */}
+            <Dropdown>
+              <Dropdown.Toggle
+                as={CustomToggle}
+                variant="secondary"
+                id="dropdown-basic"
+              />
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={this.onEdit}>Edit</Dropdown.Item>
+                <Dropdown.Item onClick={this.onDelete}>Delete</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            {/* </div> */}
             {/* <div className="bookmark-position">{info}</div> */}
           </div>
         )}
