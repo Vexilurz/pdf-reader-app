@@ -3,6 +3,8 @@ import {
   faAngleUp,
   faSearch,
   faTimes,
+  faArrowUp,
+  faArrowDown,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
@@ -55,6 +57,22 @@ export const PdfSearchInput = ({
       <InputGroup.Append hidden={!searchValue}>
         <Button onClick={clearSearchField}>
           <FontAwesomeIcon icon={faTimes} />
+        </Button>
+      </InputGroup.Append>
+      <InputGroup.Append>
+        <Button
+          variant="secondary"
+          style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
+          onClick={prevSearchRes}
+        >
+          <FontAwesomeIcon icon={faArrowUp} color={'black'} />
+        </Button>
+        <Button
+          variant="secondary"
+          style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
+          onClick={nextSearchRes}
+        >
+          <FontAwesomeIcon icon={faArrowDown} color={'black'} />
         </Button>
       </InputGroup.Append>
     </InputGroup>

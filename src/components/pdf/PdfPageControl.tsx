@@ -30,7 +30,7 @@ export const PdfPageControl = ({
 
   return (
     <InputGroup style={{ width }}>
-      <InputGroup.Prepend>
+      {/* <InputGroup.Prepend>
         <Button
           variant="secondary"
           style={{ backgroundColor: '#eeeeee', borderColor: '#eeeeee' }}
@@ -45,7 +45,7 @@ export const PdfPageControl = ({
         >
           <FontAwesomeIcon icon={faArrowDown} color={'black'} />
         </Button>
-      </InputGroup.Prepend>
+      </InputGroup.Prepend> */}
 
       <div className="page-count-label">
         <span>

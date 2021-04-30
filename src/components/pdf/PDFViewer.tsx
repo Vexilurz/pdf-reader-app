@@ -31,7 +31,6 @@ export interface IPDFViewerState {
   renderTextLayer: boolean;
   pdfDocWidth: number;
   searchPattern: string | null;
-  currentSearchResNum: number;
   totalSearchResCount: number;
   displayedPdfName: string;
   pageWidth: number;
@@ -49,8 +48,9 @@ class PDFViewer extends React.Component<
   private listRef: React.RefObject<any>;
 
   private pageText: string[];
-  private _totalSearchResCount: number;
   private textLayerZIndex: number;
+  private _currentSearchPage: number;
+  private _currentSearchIndex: number;
 
   constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
@@ -62,7 +62,6 @@ class PDFViewer extends React.Component<
       renderTextLayer: false,
       pdfDocWidth: 1000,
       searchPattern: null,
-      currentSearchResNum: 0,
       totalSearchResCount: 0,
       displayedPdfName: '',
       pageWidth: 100,
@@ -74,7 +73,8 @@ class PDFViewer extends React.Component<
     this.searchRef = React.createRef();
     this.listRef = React.createRef();
     this.pageText = [];
-    this._totalSearchResCount = 0;
+    this._currentSearchPage = 1;
+    this._currentSearchIndex = 1;
     this.textLayerZIndex = 5;
   }
 
@@ -147,24 +147,54 @@ class PDFViewer extends React.Component<
     ipcRenderer.send(appConst.PRINT_PDF_FILE, currentPdf.path);
   };
 
+  getSearchElement = () => {
+    console.log(`${this._currentSearchPage}-${this._currentSearchIndex}`);
+    return document.getElementById(
+      `${this._currentSearchPage}-${this._currentSearchIndex}`
+    );
+  };
+
   prevSearchRes = () => {
-    const { currentSearchResNum } = this.state;
-    if (currentSearchResNum > 1) {
-      this.setState({
-        currentSearchResNum: currentSearchResNum - 1,
-      });
+    const { setScrollToPage } = this.props;
+    const { numPages } = this.state;
+    this._currentSearchIndex--;
+    let element = this.getSearchElement();
+    while (!element && this._currentSearchPage > 1) {
+      this._currentSearchPage--;
+      setScrollToPage({ value: this._currentSearchPage });
+      this._currentSearchIndex = 1; // TODO: remember max of found on page
+      element = this.getSearchElement();
+    }
+    if (!element) {
+      this._currentSearchPage = numPages;
+      this._currentSearchIndex = 1;
+      element = this.getSearchElement();
+    }
+    if (element) {
+      setScrollToPage({ value: this._currentSearchPage });
+      element.scrollIntoView();
     }
   };
 
   nextSearchRes = () => {
-    const { currentSearchResNum, totalSearchResCount } = this.state;
-    if (currentSearchResNum < totalSearchResCount) {
-      this.setState({
-        currentSearchResNum: currentSearchResNum + 1,
-      });
-      // TODO:
-      // setScrollToPage({ value: page_number });
-      // document.getElementById(element_id).scrollIntoView();
+    const { setScrollToPage } = this.props;
+    const { numPages } = this.state;
+    this._currentSearchIndex++;
+    let element = this.getSearchElement();
+    while (!element && this._currentSearchPage < numPages) {
+      this._currentSearchPage++;
+      setScrollToPage({ value: this._currentSearchPage });
+      this._currentSearchIndex = 1;
+      element = this.getSearchElement();
+    }
+    if (!element) {
+      this._currentSearchPage = 1;
+      this._currentSearchIndex = 1;
+      element = this.getSearchElement();
+    }
+    if (element) {
+      setScrollToPage({ value: this._currentSearchPage });
+      element.scrollIntoView();
     }
   };
 

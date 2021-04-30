@@ -60,6 +60,12 @@ export default class PageContainer extends Component<Props, State> {
 
   componentDidUpdate(prevProps) {
     this.checkForceUpdate();
+    // if (this.props.listHeight !== prevProps.listHeight) {
+    //   this.setState({
+    //     pageWidth: this.props.listWidth - 20,
+    //     pageHeight: this.props.listHeight,
+    //   });
+    // }
   }
 
   checkForceUpdate() {

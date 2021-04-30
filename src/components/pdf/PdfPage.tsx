@@ -24,6 +24,20 @@ interface Props {
 interface State {}
 
 export default class PdfPage extends Component<Props, State> {
+  private _currentSearchIndex: number;
+
+  constructor(props: State & Props) {
+    super(props);
+    this.state = {};
+    this._currentSearchIndex = 0;
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.searchPattern !== prevProps.searchPattern) {
+      this._currentSearchIndex = 0;
+    }
+  }
+
   handlePdfPageResize = (pageNumber) => (contentRect) => {
     // TODO: condition is a crunch
     if (pageNumber === 1 && contentRect?.bounds?.height > 50)
@@ -48,6 +62,9 @@ export default class PdfPage extends Component<Props, State> {
   };
 
   highlightPattern = (text: string, pattern: string) => {
+    // console.log(`"${text}"`);
+    if (text === ' A Simple PDF File ') console.log('render line');
+
     const splitText = text.toLowerCase().split(pattern);
 
     if (splitText.length <= 1) {
@@ -59,13 +76,15 @@ export default class PdfPage extends Component<Props, State> {
       else {
         // this._totalSearchResCount += 1;
         // this.setState({ totalSearchResCount: this._totalSearchResCount });
+        this._currentSearchIndex += 1;
+        const id = `${this.props.pageNumber}-${this._currentSearchIndex}`;
         return [
           item,
           this.getMarkedText(
             pattern,
             'blue',
-            'REMOVE_THIS_SAME_KEY',
-            'REMOVE_THIS_SAME_ID'
+            id,
+            id
             // this._totalSearchResCount,
             // `sr${this._totalSearchResCount}`
           ),
@@ -82,6 +101,7 @@ export default class PdfPage extends Component<Props, State> {
         className={key}
         key={key}
         id={id}
+        title={id} // debug
         style={{ color, backgroundColor: color }}
       >
         {text}
@@ -237,25 +257,29 @@ export default class PdfPage extends Component<Props, State> {
 
   render() {
     const { scale, pageNumber } = this.props;
+    this._currentSearchIndex = 0;
     return (
-      <Measure bounds onResize={this.handlePdfPageResize(pageNumber)}>
-        {({ measureRef }) => (
-          <div ref={measureRef}>
-            <Page
-              canvasRef={measureRef}
-              width={this.props.width}
-              height={this.props.height}
-              scale={scale}
-              pageNumber={pageNumber}
-              onLoadSuccess={this.onPageLoad}
-              customTextRenderer={this.pdfRenderer(pageNumber)}
-              onGetTextSuccess={() => {
-                this.onRenderFinished(pageNumber);
-              }}
-            />
-          </div>
-        )}
-      </Measure>
+      // TODO: this measure block cause inf re-render of page.
+      // But width and height of the page is needed to scale area bookmarks.
+
+      // <Measure bounds onResize={this.handlePdfPageResize(pageNumber)}>
+      //   {({ measureRef }) => (
+      // <div ref={measureRef}>
+      <Page
+        // canvasRef={measureRef}
+        width={this.props.width}
+        height={this.props.height}
+        scale={scale}
+        pageNumber={pageNumber}
+        onLoadSuccess={this.onPageLoad}
+        customTextRenderer={this.pdfRenderer(pageNumber)}
+        onGetTextSuccess={() => {
+          this.onRenderFinished(pageNumber);
+        }}
+      />
+      // </div>
+      //   )}
+      // </Measure>
     );
   }
 }
