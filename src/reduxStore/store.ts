@@ -4,6 +4,7 @@ import projectFileReducer from './projectFileSlice';
 import pdfViewerReducer from './pdfViewerSlice';
 import editingEventReducer from './editingEventSlice';
 import licenseReducer from './licenseSlice';
+import dimensionReducer from './dimensionSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     pdfViewer: pdfViewerReducer,
     editingEvent: editingEventReducer,
     license: licenseReducer,
+    dimensions: dimensionReducer,
   },
 });
 

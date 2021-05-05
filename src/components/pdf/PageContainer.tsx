@@ -1,5 +1,6 @@
 /* eslint-disable */
 import React, { Component, CSSProperties } from 'react';
+import { connect } from 'react-redux';
 import { List, AutoSizer } from 'react-virtualized';
 import { IBoolValue } from '../../reduxStore/pdfViewerSlice';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
@@ -7,6 +8,8 @@ import { IAreaSelection } from '../../types/bookmark';
 import { IProjectFileWithPath } from '../../types/projectFile';
 import AreaSelection from './AreaSelection';
 import PdfPage from './PdfPage';
+import { actions as dimensionsActions } from '../../reduxStore/dimensionSlice';
+import { StoreType } from '../../reduxStore/store';
 
 interface IRowRendererProps {
   key: string;
@@ -43,11 +46,14 @@ interface State {
   pageHeight: number;
 }
 
-export default class PageContainer extends Component<Props, State> {
+class PageContainer extends Component<
+  StatePropsType & DispatchPropsType,
+  State
+> {
   private listRef: React.RefObject<any>;
   private pagesRendered: number;
 
-  constructor(props: State & Props) {
+  constructor(props: StatePropsType & DispatchPropsType) {
     super(props);
     // Refactor this
     this.state = {
@@ -125,8 +131,8 @@ export default class PageContainer extends Component<Props, State> {
         >
           <AreaSelection
             key={`as${index + 1}_${key}`}
-            width={pageWidth}
-            height={pageHeight}
+            width={this.props.pageDim.width}
+            height={this.props.pageDim.height}
             page={index + 1}
             bookmarks={bookmarksFiltered}
             scale={scale}
@@ -134,8 +140,8 @@ export default class PageContainer extends Component<Props, State> {
           />
           <PdfPage
             // Magic number: width of scroll bar
-            width={this.props.listWidth - 20}
-            height={this.props.listHeight}
+            // width={this.props.listWidth - 20}
+            // height={this.props.listHeight}
             scale={scale}
             pageNumber={index + 1}
             numPages={numPages}
@@ -160,10 +166,10 @@ export default class PageContainer extends Component<Props, State> {
     this.pagesRendered = 0;
     return (
       <List
-        width={this.props.listWidth}
-        height={this.props.listHeight}
+        width={this.props.docDim.width}
+        height={this.props.docDim.height}
         rowCount={numPages}
-        rowHeight={pageHeight + 10}
+        rowHeight={this.props.pageDim.height + 20}
         rowRenderer={this.rowRenderer}
         scrollToIndex={scrollToIndex}
         scrollToAlignment={'start'}
@@ -173,3 +179,21 @@ export default class PageContainer extends Component<Props, State> {
     );
   }
 }
+
+const mapDispatchToProps = {
+  setDocumentDimensions: dimensionsActions.setDocumentDimensions,
+  setPageDimentions: dimensionsActions.setPageDimensions,
+};
+
+const mapStateToProps = (state: StoreType, ownProps: Props) => {
+  return {
+    ...ownProps,
+    pageDim: state.dimensions.page,
+    docDim: state.dimensions.document,
+  };
+};
+
+type StatePropsType = ReturnType<typeof mapStateToProps>;
+type DispatchPropsType = typeof mapDispatchToProps;
+
+export default connect(mapStateToProps, mapDispatchToProps)(PageContainer);

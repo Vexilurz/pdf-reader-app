@@ -1,9 +1,13 @@
 /* eslint-disable */
 import React, { Component, Ref } from 'react';
+import { connect } from 'react-redux';
 import { Page } from 'react-pdf/dist/esm/entry.webpack';
 import Measure from 'react-measure';
 import { IProjectFileWithPath } from '../../types/projectFile';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
+import { actions as dimensionsActions } from '../../reduxStore/dimensionSlice';
+import { StoreType } from '../../reduxStore/store';
+import { withStyles } from '@material-ui/core';
 
 interface Props {
   scale: number;
@@ -18,12 +22,12 @@ interface Props {
   currentIndexes: IEventAndFileIndex;
   searchPattern: string | null;
   textLayerZIndex: number;
-  height: number;
-  width: number;
+  // height: number;
+  // width: number;
 }
 interface State {}
 
-export default class PdfPage extends Component<Props, State> {
+class PdfPage extends Component<StatePropsType & DispatchPropsType, State> {
   private _currentSearchIndex: number;
 
   constructor(props: State & Props) {
@@ -39,12 +43,17 @@ export default class PdfPage extends Component<Props, State> {
   }
 
   handlePdfPageResize = (pageNumber) => (contentRect) => {
+    // console.log(pageNumber, contentRect?.bounds);
     // TODO: condition is a crunch
     if (pageNumber === 1 && contentRect?.bounds?.height > 50)
-      this.props.pageDimensionsCallback(
-        contentRect?.bounds?.width,
-        contentRect?.bounds?.height
-      );
+      // this.props.pageDimensionsCallback(
+      //   contentRect?.bounds?.width,
+      //   contentRect?.bounds?.height
+      // );
+      this.props.setPageDimensions({
+        width: contentRect?.bounds?.width,
+        height: contentRect?.bounds?.height,
+      });
   };
 
   onPageLoad = async (page) => {
@@ -262,24 +271,47 @@ export default class PdfPage extends Component<Props, State> {
       // TODO: this measure block cause inf re-render of page.
       // But width and height of the page is needed to scale area bookmarks.
 
-      // <Measure bounds onResize={this.handlePdfPageResize(pageNumber)}>
-      //   {({ measureRef }) => (
-      // <div ref={measureRef}>
-      <Page
-        // canvasRef={measureRef}
-        width={this.props.width}
-        height={this.props.height}
-        scale={scale}
-        pageNumber={pageNumber}
-        onLoadSuccess={this.onPageLoad}
-        customTextRenderer={this.pdfRenderer(pageNumber)}
-        onGetTextSuccess={() => {
-          this.onRenderFinished(pageNumber);
+      <Measure
+        bounds
+        onResize={(e) => {
+          // this.handlePdfPageResize(pageNumber)(e);
+          console.log('qwewqe');
         }}
-      />
-      // </div>
-      //   )}
-      // </Measure>
+      >
+        {({ measureRef }) => (
+          // <div ref={measureRef}>
+          <Page
+            canvasRef={measureRef}
+            width={this.props.docDim.width}
+            // height={this.props.height}
+            scale={scale}
+            pageNumber={pageNumber}
+            onLoadSuccess={this.onPageLoad}
+            customTextRenderer={this.pdfRenderer(pageNumber)}
+            onGetTextSuccess={() => {
+              this.onRenderFinished(pageNumber);
+            }}
+          />
+          // </div>
+        )}
+      </Measure>
     );
   }
 }
+
+const mapDispatchToProps = {
+  setPageDimensions: dimensionsActions.setPageDimensions,
+};
+
+const mapStateToProps = (state: StoreType, ownProps: Props) => {
+  return {
+    ...ownProps,
+    docDim: state.dimensions.document,
+    pageDim: state.dimensions.page,
+  };
+};
+
+type StatePropsType = ReturnType<typeof mapStateToProps>;
+type DispatchPropsType = typeof mapDispatchToProps;
+
+export default connect(mapStateToProps, mapDispatchToProps)(PdfPage);

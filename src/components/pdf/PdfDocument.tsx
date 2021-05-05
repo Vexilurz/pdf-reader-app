@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Document } from 'react-pdf/dist/esm/entry.webpack';
+import { connect } from 'react-redux';
 import Measure from 'react-measure';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
 import { IAreaSelection, IPdfSelection } from '../../types/bookmark';
@@ -7,6 +8,8 @@ import { IPDFdata } from '../../types/pdf';
 import { IProjectFileWithPath } from '../../types/projectFile';
 import PageContainer from './PageContainer';
 import { IBoolValue } from '../../reduxStore/pdfViewerSlice';
+import { StoreType } from '../../reduxStore/store';
+import { actions as dimensionsActions } from '../../reduxStore/dimensionSlice';
 
 interface Props {
   pdfFile?: IPDFdata;
@@ -36,7 +39,7 @@ interface State {
   listHeight: number;
 }
 
-export default class PdfDocument extends Component<Props, State> {
+class PdfDocument extends Component<StatePropsType & DispatchPropsType, State> {
   private containerRef: React.RefObject<HTMLElement>;
 
   constructor(props: Props) {
@@ -128,14 +131,20 @@ export default class PdfDocument extends Component<Props, State> {
       <Measure
         bounds
         onResize={(contentRect) => {
-          this.setState({
-            listHeight: contentRect?.bounds?.height,
-            listWidth: contentRect?.bounds?.width,
+          // this.setState({
+          //   listHeight: contentRect?.bounds?.height,
+          //   listWidth: contentRect?.bounds?.width,
+          // });
+          console.log('OnDocRes!!');
+          this.props.setDocumentDimensions({
+            width: contentRect?.bounds?.width,
+            height: contentRect?.bounds?.height,
           });
         }}
       >
         {({ measureRef }) => (
           <div className="pdf-document" ref={measureRef}>
+            {`doc width: ${this.props.width}`}
             <Document
               file={pdfFile}
               onLoadSuccess={this.onDocumentLoadSuccess}
@@ -167,3 +176,19 @@ export default class PdfDocument extends Component<Props, State> {
     );
   }
 }
+
+const mapDispatchToProps = {
+  setDocumentDimensions: dimensionsActions.setDocumentDimensions,
+};
+
+const mapStateToProps = (state: StoreType, ownProps: Props) => {
+  return {
+    ...ownProps,
+    width: state.dimensions.document.width,
+  };
+};
+
+type StatePropsType = ReturnType<typeof mapStateToProps>;
+type DispatchPropsType = typeof mapDispatchToProps;
+
+export default connect(mapStateToProps, mapDispatchToProps)(PdfDocument);
