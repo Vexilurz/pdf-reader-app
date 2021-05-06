@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IEvent, getNewEvent } from '../types/event';
 
 interface IDimensions {
   height: number;

@@ -5,6 +5,7 @@ import pdfViewerReducer from './pdfViewerSlice';
 import editingEventReducer from './editingEventSlice';
 import licenseReducer from './licenseSlice';
 import dimensionReducer from './dimensionSlice';
+import searchReducer from './searchSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     editingEvent: editingEventReducer,
     license: licenseReducer,
     dimensions: dimensionReducer,
+    search: searchReducer,
   },
 });
 

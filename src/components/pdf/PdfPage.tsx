@@ -6,6 +6,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import { IProjectFileWithPath } from '../../types/projectFile';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
 import { actions as dimensionsActions } from '../../reduxStore/dimensionSlice';
+import { actions as searchActions } from '../../reduxStore/searchSlice';
 import { StoreType } from '../../reduxStore/store';
 import { withStyles } from '@material-ui/core';
 
@@ -85,6 +86,10 @@ class PdfPage extends Component<StatePropsType & DispatchPropsType, State> {
         // this.setState({ totalSearchResCount: this._totalSearchResCount });
         this._currentSearchIndex += 1;
         const id = `${this.props.pageNumber}-${this._currentSearchIndex}`;
+        this.props.addResult({
+          page: this.props.pageNumber,
+          index: this._currentSearchIndex,
+        });
         return [
           item,
           this.getMarkedText(
@@ -267,9 +272,6 @@ class PdfPage extends Component<StatePropsType & DispatchPropsType, State> {
     this._currentSearchIndex = 0;
     const pageMargin = 20;
     return (
-      // TODO: this measure block cause inf re-render of page.
-      // But width and height of the page is needed to scale area bookmarks.
-
       <ReactResizeDetector
         handleWidth
         handleHeight
@@ -298,6 +300,7 @@ class PdfPage extends Component<StatePropsType & DispatchPropsType, State> {
 
 const mapDispatchToProps = {
   setPageDimensions: dimensionsActions.setPageDimensions,
+  addResult: searchActions.addResult,
 };
 
 const mapStateToProps = (state: StoreType, ownProps: Props) => {
