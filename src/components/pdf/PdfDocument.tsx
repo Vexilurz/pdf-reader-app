@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Document } from 'react-pdf/dist/esm/entry.webpack';
 import { connect } from 'react-redux';
-import Measure from 'react-measure';
+import ReactResizeDetector from 'react-resize-detector';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
 import { IAreaSelection, IPdfSelection } from '../../types/bookmark';
 import { IPDFdata } from '../../types/pdf';
@@ -128,23 +128,21 @@ class PdfDocument extends Component<StatePropsType & DispatchPropsType, State> {
     } = this.props;
     const { numPages } = this.state;
     return (
-      <Measure
-        bounds
-        onResize={(contentRect) => {
-          // this.setState({
-          //   listHeight: contentRect?.bounds?.height,
-          //   listWidth: contentRect?.bounds?.width,
-          // });
+      <ReactResizeDetector
+        handleWidth
+        handleHeight
+        onResize={(width, height) => {
           console.log('OnDocRes!!');
-          this.props.setDocumentDimensions({
-            width: contentRect?.bounds?.width,
-            height: contentRect?.bounds?.height,
-          });
+          const toolbarHeight = 0;
+          if (width && height)
+            this.props.setDocumentDimensions({
+              width,
+              height: height - toolbarHeight,
+            });
         }}
       >
-        {({ measureRef }) => (
-          <div className="pdf-document" ref={measureRef}>
-            {`doc width: ${this.props.width}`}
+        {({ targetRef }) => (
+          <div className="pdf-document" ref={targetRef}>
             <Document
               file={pdfFile}
               onLoadSuccess={this.onDocumentLoadSuccess}
@@ -172,7 +170,7 @@ class PdfDocument extends Component<StatePropsType & DispatchPropsType, State> {
             </Document>
           </div>
         )}
-      </Measure>
+      </ReactResizeDetector>
     );
   }
 }

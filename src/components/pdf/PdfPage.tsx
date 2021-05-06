@@ -2,7 +2,7 @@
 import React, { Component, Ref } from 'react';
 import { connect } from 'react-redux';
 import { Page } from 'react-pdf/dist/esm/entry.webpack';
-import Measure from 'react-measure';
+import ReactResizeDetector from 'react-resize-detector';
 import { IProjectFileWithPath } from '../../types/projectFile';
 import { IEventAndFileIndex } from '../../reduxStore/projectFileSlice';
 import { actions as dimensionsActions } from '../../reduxStore/dimensionSlice';
@@ -37,23 +37,21 @@ class PdfPage extends Component<StatePropsType & DispatchPropsType, State> {
   }
 
   componentDidUpdate(prevProps) {
+    // console.log(prevProps);
     if (this.props.searchPattern !== prevProps.searchPattern) {
       this._currentSearchIndex = 0;
     }
   }
 
-  handlePdfPageResize = (pageNumber) => (contentRect) => {
-    // console.log(pageNumber, contentRect?.bounds);
+  handlePdfPageResize = (pageNumber, width, height) => {
     // TODO: condition is a crunch
-    if (pageNumber === 1 && contentRect?.bounds?.height > 50)
-      // this.props.pageDimensionsCallback(
-      //   contentRect?.bounds?.width,
-      //   contentRect?.bounds?.height
-      // );
+    if (pageNumber === 1 && height > 50) {
+      console.log(width, height);
       this.props.setPageDimensions({
-        width: contentRect?.bounds?.width,
-        height: contentRect?.bounds?.height,
+        width,
+        height,
       });
+    }
   };
 
   onPageLoad = async (page) => {
@@ -267,22 +265,22 @@ class PdfPage extends Component<StatePropsType & DispatchPropsType, State> {
   render() {
     const { scale, pageNumber } = this.props;
     this._currentSearchIndex = 0;
+    const pageMargin = 20;
     return (
       // TODO: this measure block cause inf re-render of page.
       // But width and height of the page is needed to scale area bookmarks.
 
-      <Measure
-        bounds
-        onResize={(e) => {
-          // this.handlePdfPageResize(pageNumber)(e);
-          console.log('qwewqe');
+      <ReactResizeDetector
+        handleWidth
+        handleHeight
+        onResize={(width, height) => {
+          this.handlePdfPageResize(pageNumber, width, height);
         }}
       >
-        {({ measureRef }) => (
-          // <div ref={measureRef}>
+        {({ targetRef }) => (
           <Page
-            canvasRef={measureRef}
-            width={this.props.docDim.width}
+            canvasRef={targetRef}
+            width={this.props.docDim.width - pageMargin}
             // height={this.props.height}
             scale={scale}
             pageNumber={pageNumber}
@@ -292,9 +290,8 @@ class PdfPage extends Component<StatePropsType & DispatchPropsType, State> {
               this.onRenderFinished(pageNumber);
             }}
           />
-          // </div>
         )}
-      </Measure>
+      </ReactResizeDetector>
     );
   }
 }
