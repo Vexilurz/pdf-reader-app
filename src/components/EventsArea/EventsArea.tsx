@@ -123,11 +123,13 @@ class EventsArea extends React.Component<
             <FontAwesomeIcon icon={faCog} />
           </Button>
         </div>
-        <ul className="events-list">
-          {currentProjectFile?.content?.events?.map((event, index) => {
-            return <EventItem event={event} key={'event-item-key' + index} />;
-          })}
-        </ul>
+        <div className="events-list">
+          <ul>
+            {currentProjectFile?.content?.events?.map((event, index) => {
+              return <EventItem event={event} key={'event-item-key' + index} />;
+            })}
+          </ul>
+        </div>
       </div>
     );
   }

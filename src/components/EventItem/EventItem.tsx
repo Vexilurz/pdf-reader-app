@@ -94,18 +94,6 @@ class EventItem extends React.Component<
       <Measure bounds onResize={this.handleResize}>
         {({ measureRef }) => (
           <li className="event-item" ref={measureRef}>
-            <div
-              style={{
-                content: ' ',
-                background: `#d4d9df`,
-                display: `inline-block`,
-                position: `absolute`,
-                left: `20px`,
-                width: `2px`,
-                height: listItemHeight + 20,
-                zIndex: 400,
-              }}
-            />
             <Alert
               className="event-alert"
               variant="secondary"
