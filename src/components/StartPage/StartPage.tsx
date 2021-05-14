@@ -40,6 +40,7 @@ class StartPage extends React.Component<
       appConst.GET_RECENT_PROJECTS_RESPONSE,
       this.onGetRecentProjectsResponse
     );
+    ipcRenderer.on(appConst.MENU_OPEN_PROJECT, this.onMenuOpenProject);
     ipcRenderer.send(appConst.GET_RECENT_PROJECTS);
   }
 
@@ -52,7 +53,15 @@ class StartPage extends React.Component<
       appConst.GET_RECENT_PROJECTS_RESPONSE,
       this.onGetRecentProjectsResponse
     );
+    ipcRenderer.removeListener(
+      appConst.MENU_OPEN_PROJECT,
+      this.onMenuOpenProject
+    );
   }
+
+  onMenuOpenProject = (event, response) => {
+    this.onOpenFileClick();
+  };
 
   onGetRecentProjectsResponse = (event, recent) => {
     this.setState({ recent });

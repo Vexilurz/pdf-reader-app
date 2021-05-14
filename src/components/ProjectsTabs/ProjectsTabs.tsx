@@ -72,6 +72,7 @@ class ProjectsTabs extends React.Component<
       appConst.ADD_TO_RECENT_PROJECTS_DONE,
       this.onAddToRecentProjectsDone
     );
+    ipcRenderer.on(appConst.MENU_CLOSE_PROJECT, this.onMenuCloseProject);
   }
 
   componentWillUnmount(): void {
@@ -88,7 +89,15 @@ class ProjectsTabs extends React.Component<
       appConst.ADD_TO_RECENT_PROJECTS_DONE,
       this.onAddToRecentProjectsDone
     );
+    ipcRenderer.removeListener(
+      appConst.MENU_CLOSE_PROJECT,
+      this.onMenuCloseProject
+    );
   }
+
+  onMenuCloseProject = (event, response) => {
+    this.closeProject(this.props.currentProjectFile);
+  };
 
   onAddToRecentProjectsDone = (event, response) => {
     this.addToRecentDone = true;

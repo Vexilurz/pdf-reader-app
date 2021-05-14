@@ -84,8 +84,8 @@ const template = [
       { role: 'hideothers' },
       { role: 'unhide' },
       { type: 'separator' },
-      { role: 'quit' }
-    ]
+      { role: 'quit' },
+    ],
   }] : []),
   // { role: 'fileMenu' }
   {
@@ -94,94 +94,37 @@ const template = [
       {
         label: 'Open',
         click: async () => {
-        }
+          win?.webContents.send(appConst.MENU_OPEN_PROJECT);
+        },
       },
       {
         label: 'Save',
         click: async () => {
-        }
+          win?.webContents.send(appConst.MENU_SAVE_PROJECT);
+        },
       },
       {
         label: 'Close',
         click: async () => {
-        }
+          win?.webContents.send(appConst.MENU_CLOSE_PROJECT);
+        },
       },
       { type: 'separator' },
-      isMac ? { role: 'close' } : { role: 'quit' }
-    ]
+      isMac ? { role: 'close' } : { role: 'quit' },
+    ],
   },
-  // { role: 'editMenu' }
-  // {
-  //   label: 'Edit',
-  //   submenu: [
-  //     { role: 'undo' },
-  //     { role: 'redo' },
-  //     { type: 'separator' },
-  //     { role: 'cut' },
-  //     { role: 'copy' },
-  //     { role: 'paste' },
-  //     ...(isMac ? [
-  //       { role: 'pasteAndMatchStyle' },
-  //       { role: 'delete' },
-  //       { role: 'selectAll' },
-  //       { type: 'separator' },
-  //       {
-  //         label: 'Speech',
-  //         submenu: [
-  //           { role: 'startSpeaking' },
-  //           { role: 'stopSpeaking' }
-  //         ]
-  //       }
-  //     ] : [
-  //       { role: 'delete' },
-  //       { type: 'separator' },
-  //       { role: 'selectAll' }
-  //     ])
-  //   ]
-  // },
-  // { role: 'viewMenu' }
-  // {
-  //   label: 'View',
-  //   submenu: [
-  //     { role: 'reload' },
-  //     { role: 'forceReload' },
-  //     { role: 'toggleDevTools' },
-  //     { type: 'separator' },
-  //     { role: 'resetZoom' },
-  //     { role: 'zoomIn' },
-  //     { role: 'zoomOut' },
-  //     { type: 'separator' },
-  //     { role: 'togglefullscreen' }
-  //   ]
-  // },
-  // { role: 'windowMenu' }
-  // {
-  //   label: 'Window',
-  //   submenu: [
-  //     { role: 'minimize' },
-  //     { role: 'zoom' },
-  //     ...(isMac ? [
-  //       { type: 'separator' },
-  //       { role: 'front' },
-  //       { type: 'separator' },
-  //       { role: 'window' }
-  //     ] : [
-  //       { role: 'close' }
-  //     ])
-  //   ]
-  // },
   {
     role: 'help',
     submenu: [
       {
         label: 'Support',
         click: async () => {
-          await shell.openExternal('https://electronjs.org')
-        }
-      }
-    ]
-  }
-]
+          await shell.openExternal('https://electronjs.org');
+        },
+      },
+    ],
+  },
+];
 
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);

@@ -34,6 +34,7 @@ class EventsArea extends React.Component<
       appConst.NEW_FILE_DIALOG_RESPONSE,
       this.onNewFileDialogResponse
     );
+    ipcRenderer.on(appConst.MENU_SAVE_PROJECT, this.onMenuSaveProject);
   }
 
   componentWillUnmount(): void {
@@ -41,7 +42,15 @@ class EventsArea extends React.Component<
       appConst.NEW_FILE_DIALOG_RESPONSE,
       this.onNewFileDialogResponse
     );
+    ipcRenderer.removeListener(
+      appConst.MENU_SAVE_PROJECT,
+      this.onMenuSaveProject
+    );
   }
+
+  onMenuSaveProject = (event, response) => {
+    this.saveCurrentProjectClick();
+  };
 
   onNewFileDialogResponse = (event, response) => {
     const {

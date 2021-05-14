@@ -41,6 +41,9 @@ export const UPDATE_EVENT_IN_CACHE_COMPLETE = 'update-event-in-cache-complete';
 export const APP_CLOSING_PERMISSION_GRANTED = 'app-closing-permission-granted';
 export const ACTIVATE_LICENSE_RESPONSE = 'activate-license-response';
 export const LOAD_LICENSE_INFORMATION_RESPONSE = 'load-license-information-response';
+export const MENU_CLOSE_PROJECT = 'menu-close-project';
+export const MENU_SAVE_PROJECT = 'menu-save-project';
+export const MENU_OPEN_PROJECT = 'menu-open-project';
 
 // other:
 export const APP_FOLDER = pathLib.join(os.homedir(), 'documentsApp' + pathLib.sep);
