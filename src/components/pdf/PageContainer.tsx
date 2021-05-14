@@ -171,7 +171,7 @@ class PageContainer extends Component<
         rowCount={numPages}
         rowHeight={this.props.pageDim.height + 20}
         rowRenderer={this.rowRenderer}
-        scrollToIndex={scrollToIndex}
+        scrollToIndex={this.props.scrollToPage}
         scrollToAlignment={'start'}
         overscanRowCount={1}
         ref={this.listRef}
@@ -190,6 +190,7 @@ const mapStateToProps = (state: StoreType, ownProps: Props) => {
     ...ownProps,
     pageDim: state.dimensions.page,
     docDim: state.dimensions.document,
+    scrollToPage: state.pdfViewer.scrollToPage,
   };
 };
 

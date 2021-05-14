@@ -161,7 +161,7 @@ class PDFViewer extends React.Component<
     let element = this.getSearchElement();
     while (!element && this._currentSearchPage > 1) {
       this._currentSearchPage--;
-      setScrollToPage({ value: this._currentSearchPage });
+      setScrollToPage({ value: this._currentSearchPage - 1 });
       this._currentSearchIndex = 1; // TODO: remember max of found on page
       element = this.getSearchElement();
     }
@@ -171,7 +171,7 @@ class PDFViewer extends React.Component<
       element = this.getSearchElement();
     }
     if (element) {
-      setScrollToPage({ value: this._currentSearchPage });
+      setScrollToPage({ value: this._currentSearchPage - 1 });
       element.scrollIntoView();
     }
   };
@@ -183,17 +183,17 @@ class PDFViewer extends React.Component<
     let element = this.getSearchElement();
     while (!element && this._currentSearchPage < numPages) {
       this._currentSearchPage++;
-      setScrollToPage({ value: this._currentSearchPage });
+      setScrollToPage({ value: this._currentSearchPage - 1 });
       this._currentSearchIndex = 1;
       element = this.getSearchElement();
     }
-    if (!element) {
-      this._currentSearchPage = 1;
-      this._currentSearchIndex = 1;
-      element = this.getSearchElement();
-    }
+    // if (!element) {
+    //   this._currentSearchPage = 1;
+    //   this._currentSearchIndex = 1;
+    //   element = this.getSearchElement();
+    // }
     if (element) {
-      setScrollToPage({ value: this._currentSearchPage });
+      setScrollToPage({ value: this._currentSearchPage - 1 });
       element.scrollIntoView();
     }
   };
